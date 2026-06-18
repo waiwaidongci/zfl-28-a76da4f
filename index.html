@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>高山驿站补给调度</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, "PingFang SC", sans-serif; background: #edf2f2; color: #1f2a2f; }
+    header { padding: 18px 24px; background: #fff; border-bottom: 1px solid #cfdbdc; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+    h1 { margin: 0; font-size: 26px; }
+    button { border: 0; border-radius: 8px; padding: 10px 13px; background: #315c72; color: #fff; font-weight: 800; cursor: pointer; }
+    button.secondary { background: #6d7a80; }
+    .app { display: grid; grid-template-columns: 320px 1fr 330px; gap: 16px; padding: 16px; }
+    .panel, .card, .stat { background: #fff; border: 1px solid #cfdbdc; border-radius: 8px; padding: 14px; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat strong { display: block; font-size: 24px; }
+    .routes { display: grid; gap: 12px; }
+    .card { display: grid; gap: 8px; }
+    select { width: 100%; padding: 9px; border: 1px solid #cfdbdc; border-radius: 6px; }
+    .log { height: 360px; overflow: auto; display: flex; flex-direction: column-reverse; gap: 8px; }
+    .entry { border-left: 4px solid #315c72; padding: 8px; background: #f5f8f8; border-radius: 6px; }
+    .danger { color: #a33d31; font-weight: 800; }
+    .ok { color: #3f7a54; font-weight: 800; }
+    .overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(20,30,35,.42); }
+    .modal { width: min(430px, calc(100% - 28px)); background: #fff; border-radius: 8px; padding: 22px; border: 1px solid #cfdbdc; }
+    .hidden { display: none; }
+    @media (max-width: 1000px) { header { display: block; } .app { grid-template-columns: 1fr; } .log { height: 220px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>高山驿站补给调度</h1><div>撑过15天，接应商队，让驿站不断粮。</div></div>
+    <button id="newBtn">新开一局</button>
+  </header>
+  <main class="app">
+    <aside class="panel">
+      <h2>驿站</h2>
+      <div class="stats">
+        <div class="stat"><span>天数</span><strong id="dayText">1 / 15</strong></div>
+        <div class="stat"><span>天气</span><strong id="weatherText">晴</strong></div>
+        <div class="stat"><span>柴火</span><strong id="woodText">20</strong></div>
+        <div class="stat"><span>药品</span><strong id="medText">8</strong></div>
+        <div class="stat"><span>干粮</span><strong id="foodText">24</strong></div>
+        <div class="stat"><span>声望</span><strong id="repText">0</strong></div>
+      </div>
+      <h2>向导</h2>
+      <div id="guides"></div>
+    </aside>
+    <section class="panel">
+      <h2>今日路线</h2>
+      <div class="routes" id="routes"></div>
+      <button id="endDayBtn">执行调度并进入明天</button>
+    </section>
+    <aside class="panel">
+      <h2>事件日志</h2>
+      <div class="log" id="log"></div>
+    </aside>
+  </main>
+  <div class="overlay hidden" id="overlay">
+    <div class="modal">
+      <h2 id="resultTitle"></h2>
+      <p id="resultText"></p>
+      <button id="againBtn">再来一局</button>
+    </div>
+  </div>
+  <script>
+    const routesBase = [
+      { id: "north", name: "北坡盐道", risk: 2, reward: 3, wood: 2, food: 3, med: 1 },
+      { id: "ridge", name: "雪脊短线", risk: 3, reward: 4, wood: 3, food: 2, med: 1 },
+      { id: "valley", name: "松谷绕行", risk: 1, reward: 2, wood: 1, food: 4, med: 0 }
+    ];
+    let game;
+    const els = {
+      day: document.querySelector("#dayText"), weather: document.querySelector("#weatherText"), wood: document.querySelector("#woodText"),
+      med: document.querySelector("#medText"), food: document.querySelector("#foodText"), rep: document.querySelector("#repText"),
+      guides: document.querySelector("#guides"), routes: document.querySelector("#routes"), log: document.querySelector("#log"),
+      overlay: document.querySelector("#overlay"), resultTitle: document.querySelector("#resultTitle"), resultText: document.querySelector("#resultText")
+    };
+    function fresh() {
+      game = {
+        day: 1, weather: "晴", wood: 20, med: 8, food: 24, rep: 0, saved: 0, ended: false,
+        guides: [{ name: "阿措", fatigue: 0, task: "" }, { name: "洛桑", fatigue: 0, task: "" }],
+        log: ["第1天，驿站开门，山口风很轻。"],
+        routes: []
+      };
+      rollDay();
+      els.overlay.classList.add("hidden");
+      render();
+    }
+    function rollDay() {
+      const storm = Math.random() < 0.24;
+      game.weather = storm ? "暴雪" : Math.random() < 0.35 ? "阴风" : "晴";
+      game.routes = routesBase.map(route => ({ ...route, caravan: Math.random() < .74, blocked: storm && Math.random() < .33 }));
+      game.guides.forEach(g => g.task = "");
+    }
+    function render() {
+      els.day.textContent = game.day + " / 15";
+      els.weather.textContent = game.weather;
+      els.wood.textContent = game.wood;
+      els.med.textContent = game.med;
+      els.food.textContent = game.food;
+      els.rep.textContent = game.rep;
+      els.guides.innerHTML = game.guides.map((g, i) => '<div class="card"><b>'+g.name+'</b><div>疲劳：'+g.fatigue+'</div><select data-guide="'+i+'"><option value="">留守休整</option>'+game.routes.map(r => '<option value="'+r.id+'">'+r.name+'</option>').join("")+'</select></div>').join("");
+      document.querySelectorAll("[data-guide]").forEach(sel => { sel.value = game.guides[sel.dataset.guide].task; sel.onchange = () => game.guides[sel.dataset.guide].task = sel.value; });
+      els.routes.innerHTML = game.routes.map(r => '<div class="card"><h3>'+r.name+'</h3><div>风险 '+r.risk+' · 奖励声望 '+r.reward+'</div><div>消耗：柴'+r.wood+' 干粮'+r.food+' 药'+r.med+'</div><div class="'+(r.blocked?'danger':'ok')+'">'+(r.blocked?'暴雪封路':r.caravan?'有商队求援':'今日较安静')+'</div></div>').join("");
+      els.log.innerHTML = game.log.map(item => '<div class="entry">'+item+'</div>').join("");
+    }
+    function endDay() {
+      if (game.ended) return;
+      const usedRoutes = new Set();
+      for (const guide of game.guides) {
+        if (!guide.task) { guide.fatigue = Math.max(0, guide.fatigue - 2); continue; }
+        const route = game.routes.find(r => r.id === guide.task);
+        if (!route || usedRoutes.has(route.id)) { game.log.unshift(guide.name + "没有有效任务，留守整理马具。"); continue; }
+        usedRoutes.add(route.id);
+        game.wood -= route.wood + (game.weather === "暴雪" ? 1 : 0);
+        game.food -= route.food;
+        game.med -= route.med;
+        guide.fatigue += route.risk + (game.weather === "暴雪" ? 2 : 1);
+        const failChance = route.blocked ? .75 : (route.risk + guide.fatigue / 4) / 12;
+        if (route.caravan && Math.random() > failChance) {
+          game.rep += route.reward;
+          game.saved += 1;
+          game.log.unshift("第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功。");
+        } else if (route.caravan) {
+          game.med -= 1;
+          game.log.unshift("第"+game.day+"天，"+route.name+"救援受挫，消耗了额外药品。");
+        } else {
+          game.wood += 1;
+          game.log.unshift("第"+game.day+"天，"+guide.name+"巡查"+route.name+"，带回少量柴火。");
+        }
+      }
+      game.food -= 2;
+      game.wood -= game.weather === "暴雪" ? 3 : 1;
+      if (game.food < 0 || game.wood < 0 || game.med < 0 || game.guides.some(g => g.fatigue >= 12)) return finish(false);
+      if (game.day >= 15) return finish(true);
+      game.day += 1;
+      rollDay();
+      render();
+    }
+    function finish(win) {
+      game.ended = true;
+      els.resultTitle.textContent = win ? "驿站守住了雪线" : "驿站没能撑下去";
+      els.resultText.textContent = "接应商队：" + game.saved + "队，声望：" + game.rep + "。";
+      els.overlay.classList.remove("hidden");
+    }
+    document.querySelector("#endDayBtn").onclick = endDay;
+    document.querySelector("#newBtn").onclick = fresh;
+    document.querySelector("#againBtn").onclick = fresh;
+    fresh();
+  </script>
+</body>
+</html>
