@@ -50,6 +50,24 @@
     .codex-bar-fill.risk { background: #a33d31; }
     .codex-bar-fill.reward { background: #3f7a54; }
     .codex-bar-fill.block { background: #5a7fa8; }
+    .stats-panel { margin-top: 12px; }
+    .stats-panel h3 { margin: 0 0 8px; font-size: 15px; }
+    .stats-summary { display: grid; gap: 6px; font-size: 13px; }
+    .stats-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #dde5e6; }
+    .stats-row:last-child { border-bottom: none; }
+    .stats-row .label { color: #5a6e78; }
+    .stats-row .value { font-weight: 700; }
+    .route-stats { display: grid; gap: 4px; margin-top: 4px; }
+    .route-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+    .guide-stats { display: grid; gap: 4px; margin-top: 4px; }
+    .guide-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+    .low-supplies { color: #a33d31; font-weight: 700; }
+    .failure-reason { color: #a33d31; font-weight: 700; font-size: 13px; margin-top: 6px; padding: 6px 8px; background: #fdf2f0; border-radius: 4px; border-left: 3px solid #a33d31; }
+    .result-stats { margin: 12px 0; padding: 10px 12px; background: #f5f8f8; border-radius: 6px; font-size: 13px; }
+    .result-stats h4 { margin: 0 0 8px; font-size: 14px; }
+    .result-stats .stat-line { display: flex; justify-content: space-between; padding: 3px 0; }
+    .result-stats .stat-line .label { color: #5a6e78; }
+    .result-stats .stat-line .value { font-weight: 700; }
   </style>
 </head>
 <body>
@@ -79,6 +97,10 @@
     <aside class="panel">
       <h2>事件日志</h2>
       <div class="log" id="log"></div>
+      <div class="stats-panel">
+        <h3>本局统计</h3>
+        <div class="stats-summary" id="statsPanel"></div>
+      </div>
     </aside>
   </main>
   <div class="overlay hidden" id="diffOverlay">
@@ -107,7 +129,7 @@
   <div class="overlay hidden" id="overlay">
     <div class="modal">
       <h2 id="resultTitle"></h2>
-      <p id="resultText"></p>
+      <div id="resultText"></div>
       <div style="display:flex;gap:10px;margin-top:12px">
         <button id="againBtn" style="flex:1">再来一局</button>
         <button class="codex-btn" id="resultCodexBtn" style="flex:1">查看本局图鉴</button>
@@ -138,7 +160,8 @@
       med: document.querySelector("#medText"), food: document.querySelector("#foodText"), rep: document.querySelector("#repText"),
       guides: document.querySelector("#guides"), routes: document.querySelector("#routes"), log: document.querySelector("#log"),
       overlay: document.querySelector("#overlay"), diffOverlay: document.querySelector("#diffOverlay"),
-      resultTitle: document.querySelector("#resultTitle"), resultText: document.querySelector("#resultText")
+      resultTitle: document.querySelector("#resultTitle"), resultText: document.querySelector("#resultText"),
+      statsPanel: document.querySelector("#statsPanel")
     };
     function showDiffPicker() {
       els.overlay.classList.add("hidden");
@@ -159,11 +182,21 @@
         guides: [{ name: "阿措", fatigue: 0, task: "" }, { name: "洛桑", fatigue: 0, task: "" }],
         log: ["第1天，驿站开门，山口风很轻。难度：" + d.label],
         routes: [],
-        codex: {}
+        codex: {},
+        stats: {
+          routeDispatches: {},
+          guideDays: {},
+          lowestWood: d.wood,
+          lowestFood: d.food,
+          lowestMed: d.med,
+          failureReason: ""
+        }
       };
       routesBase.forEach(r => {
         game.codex[r.id] = { name: r.name, risk: r.risk, reward: r.reward, desc: r.desc, wood: r.wood, food: r.food, med: r.med, seen: 0, blocked: 0, attempts: 0, successes: 0, rewards: { rep: 0, wood: 0, food: 0, med: 0 } };
+        game.stats.routeDispatches[r.id] = 0;
       });
+      game.guides.forEach(g => { game.stats.guideDays[g.name] = 0; });
       rollDay();
       els.overlay.classList.add("hidden");
       render();
@@ -188,6 +221,29 @@
       document.querySelectorAll("[data-guide]").forEach(sel => { sel.value = game.guides[sel.dataset.guide].task; sel.onchange = () => game.guides[sel.dataset.guide].task = sel.value; });
       els.routes.innerHTML = game.routes.map(r => '<div class="card"><h3>'+r.name+'</h3><div>风险 '+r.risk+' · 奖励声望 '+r.reward+'</div><div>消耗：柴'+r.wood+' 干粮'+r.food+' 药'+r.med+'</div><div class="'+(r.blocked?'danger':'ok')+'">'+(r.blocked?'暴雪封路':r.caravan?'有商队求援':'今日较安静')+'</div></div>').join("");
       els.log.innerHTML = game.log.map(item => '<div class="entry">'+item+'</div>').join("");
+      renderStatsPanel();
+    }
+    function renderStatsPanel() {
+      const s = game.stats;
+      let html = "";
+      html += '<div class="stats-row"><span class="label">接应商队</span><span class="value">' + game.saved + ' 队</span></div>';
+      html += '<div class="stats-row"><span class="label">各路线派遣</span></div>';
+      html += '<div class="route-stats">';
+      routesBase.forEach(r => {
+        html += '<div class="route-stat"><span style="color:#5a6e78">· ' + r.name + '</span><span>' + (s.routeDispatches[r.id] || 0) + ' 次</span></div>';
+      });
+      html += '</div>';
+      html += '<div class="stats-row"><span class="label">向导出勤</span></div>';
+      html += '<div class="guide-stats">';
+      game.guides.forEach(g => {
+        html += '<div class="guide-stat"><span style="color:#5a6e78">· ' + g.name + '</span><span>' + (s.guideDays[g.name] || 0) + ' 天</span></div>';
+      });
+      html += '</div>';
+      html += '<div class="stats-row"><span class="label">物资最低点</span><span class="value">柴' + s.lowestWood + ' 粮' + s.lowestFood + ' 药' + s.lowestMed + '</span></div>';
+      if (s.failureReason) {
+        html += '<div class="failure-reason">失败原因：' + s.failureReason + '</div>';
+      }
+      els.statsPanel.innerHTML = html;
     }
     function endDay() {
       if (game.ended) return;
@@ -198,6 +254,8 @@
         const route = game.routes.find(r => r.id === guide.task);
         if (!route || usedRoutes.has(route.id)) { game.log.unshift(guide.name + "没有有效任务，留守整理马具。"); continue; }
         usedRoutes.add(route.id);
+        game.stats.guideDays[guide.name]++;
+        game.stats.routeDispatches[route.id]++;
         game.wood -= route.wood + (game.weather === "暴雪" ? 1 : 0);
         game.food -= route.food;
         game.med -= route.med;
@@ -226,6 +284,9 @@
       }
       game.food -= 2;
       game.wood -= game.weather === "暴雪" ? 3 : 1;
+      if (game.wood < game.stats.lowestWood) game.stats.lowestWood = game.wood;
+      if (game.food < game.stats.lowestFood) game.stats.lowestFood = game.food;
+      if (game.med < game.stats.lowestMed) game.stats.lowestMed = game.med;
       if (game.food < 0 || game.wood < 0 || game.med < 0 || game.guides.some(g => g.fatigue >= 12)) return finish(false);
       if (game.day >= 15) return finish(true);
       game.day += 1;
@@ -235,8 +296,34 @@
     function finish(win) {
       game.ended = true;
       const d = DIFF[game.diff];
+      let failureReason = "";
+      if (!win) {
+        const reasons = [];
+        if (game.food < 0) reasons.push("干粮耗尽");
+        if (game.wood < 0) reasons.push("柴火耗尽");
+        if (game.med < 0) reasons.push("药品耗尽");
+        const exhaustedGuide = game.guides.find(g => g.fatigue >= 12);
+        if (exhaustedGuide) reasons.push(exhaustedGuide.name + "疲劳过度");
+        failureReason = reasons.join("、");
+        game.stats.failureReason = failureReason;
+      }
       els.resultTitle.textContent = win ? "驿站守住了雪线" : "驿站没能撑下去";
-      els.resultText.textContent = "难度：" + d.label + "｜接应商队：" + game.saved + "队，声望：" + game.rep + "。";
+      const totalDispatches = Object.values(game.stats.routeDispatches).reduce((a, b) => a + b, 0);
+      const totalGuideDays = Object.values(game.stats.guideDays).reduce((a, b) => a + b, 0);
+      let resultHtml = '<p style="margin:0 0 8px">难度：' + d.label + '｜坚持天数：' + game.day + ' / 15</p>';
+      resultHtml += '<div class="result-stats">';
+      resultHtml += '<h4>本局摘要</h4>';
+      resultHtml += '<div class="stat-line"><span class="label">接应商队</span><span class="value">' + game.saved + ' 队</span></div>';
+      resultHtml += '<div class="stat-line"><span class="label">累计声望</span><span class="value">' + game.rep + '</span></div>';
+      resultHtml += '<div class="stat-line"><span class="label">路线派遣</span><span class="value">' + totalDispatches + ' 次</span></div>';
+      resultHtml += '<div class="stat-line"><span class="label">向导出勤</span><span class="value">' + totalGuideDays + ' 人天</span></div>';
+      resultHtml += '<div class="stat-line"><span class="label">物资最低</span><span class="value">柴' + game.stats.lowestWood + ' 粮' + game.stats.lowestFood + ' 药' + game.stats.lowestMed + '</span></div>';
+      if (!win && failureReason) {
+        resultHtml += '<div class="stat-line"><span class="label">失败原因</span><span class="value" style="color:#a33d31">' + failureReason + '</span></div>';
+      }
+      resultHtml += '</div>';
+      els.resultText.innerHTML = resultHtml;
+      renderStatsPanel();
       els.overlay.classList.remove("hidden");
     }
     document.querySelector("#endDayBtn").onclick = endDay;
