@@ -194,6 +194,7 @@
         id: "salt_urgent", name: "紧急盐运", type: "deliver",
         desc: "山外盐商急需一批盐晶护送，需在指定路线完成接应。",
         deadlineRange: [3, 5],
+        investment: { wood: 2, food: 3, med: 1 },
         requirement: { route: "north", successCount: 2 },
         reward: { rep: 12, wood: 6, food: 8, riskReduction: { route: "north", days: 3, amount: 1 } },
         penalty: { rep: -8, food: -6 }
@@ -202,6 +203,7 @@
         id: "ridge_rescue", name: "雪脊搜救", type: "rescue",
         desc: "一支探险队在雪脊失联，需要成功接应商队的同时搜寻幸存者。",
         deadlineRange: [2, 4],
+        investment: { wood: 3, food: 2, med: 2 },
         requirement: { route: "ridge", successCount: 2 },
         reward: { rep: 15, med: 5, riskReduction: { route: "ridge", days: 4, amount: 1 } },
         penalty: { rep: -10, med: -3 }
@@ -210,6 +212,7 @@
         id: "valley_supply", name: "谷地补给线", type: "patrol",
         desc: "松林谷地的猎户需要持续的物资补给，保持路线畅通。",
         deadlineRange: [4, 6],
+        investment: { wood: 1, food: 4, med: 0 },
         requirement: { route: "valley", successCount: 3 },
         reward: { rep: 10, food: 12, riskReduction: { route: "valley", days: 5, amount: 1 } },
         penalty: { rep: -6, food: -8 }
@@ -218,6 +221,7 @@
         id: "prestige_caravan", name: "声望商队", type: "escort",
         desc: "一位大商人的商队要经过雪线，需要多次成功接应以建立信任。",
         deadlineRange: [5, 7],
+        investment: { wood: 4, food: 4, med: 2 },
         requirement: { anyRoute: true, successCount: 4 },
         reward: { rep: 25, wood: 10, food: 10, med: 5 },
         penalty: { rep: -15 }
@@ -226,6 +230,7 @@
         id: "storm_prep", name: "暴雪预警", type: "prepare",
         desc: "天气预报显示暴雪将至，需要在北坡和雪脊各接应一次以加固驿站。",
         deadlineRange: [3, 4],
+        investment: { wood: 5, food: 2, med: 1 },
         requirement: { multiRoute: ["north", "ridge"], successCount: 2 },
         reward: { rep: 18, wood: 12, med: 4 },
         penalty: { rep: -10, wood: -8 }
@@ -234,6 +239,7 @@
         id: "medicine_run", name: "药材急运", type: "deliver",
         desc: "山下村落爆发疫病，急需通过松谷路线运送药品。",
         deadlineRange: [2, 3],
+        investment: { wood: 1, food: 2, med: 3 },
         requirement: { route: "valley", successCount: 2 },
         reward: { rep: 14, med: 8, food: 6 },
         penalty: { rep: -12, med: -4 }
@@ -242,6 +248,7 @@
         id: "triple_challenge", name: "三路线挑战", type: "challenge",
         desc: "一位路过的赌徒与你打赌，要在每条路线各成功接应一次。",
         deadlineRange: [5, 7],
+        investment: { wood: 3, food: 5, med: 2 },
         requirement: { multiRoute: ["north", "ridge", "valley"], successCount: 3 },
         reward: { rep: 30, wood: 15, food: 15, med: 8 },
         penalty: { rep: -20, wood: -5, food: -5 }
@@ -250,6 +257,7 @@
         id: "ridge_master", name: "雪脊大师", type: "challenge",
         desc: "证明你能驾驭最危险的雪脊路线，连续成功接应。",
         deadlineRange: [3, 5],
+        investment: { wood: 3, food: 3, med: 2 },
         requirement: { route: "ridge", successCount: 3 },
         reward: { rep: 20, riskReduction: { route: "ridge", days: 7, amount: 2 } },
         penalty: { rep: -12 }
@@ -342,10 +350,31 @@
       const idx = game.commissions.available.findIndex(c => c.instanceId === instanceId);
       if (idx === -1) return;
       const commission = game.commissions.available.splice(idx, 1)[0];
+      if (!canAffordInvestment(commission.investment)) {
+        game.commissions.available.splice(idx, 0, commission);
+        game.log.unshift("第" + game.day + "天，物资不足，无法接取委托：「" + commission.name + "」。");
+        render();
+        return;
+      }
+      applyInvestment(commission.investment);
       game.commissions.active.push(commission);
       game.stats.commissionsAccepted++;
-      game.log.unshift("第" + game.day + "天，接取委托：「" + commission.name + "」。期限" + commission.daysRemaining + "天。");
+      game.log.unshift("第" + game.day + "天，接取委托：「" + commission.name + "」，投入" + getResourceText(commission.investment) + "。期限" + commission.daysRemaining + "天。");
       render();
+    }
+    function canAffordInvestment(investment) {
+      return game.wood >= (investment.wood || 0) && game.food >= (investment.food || 0) && game.med >= (investment.med || 0);
+    }
+    function applyInvestment(investment) {
+      game.wood -= investment.wood || 0;
+      game.food -= investment.food || 0;
+      game.med -= investment.med || 0;
+      updateLowestSupplies();
+    }
+    function updateLowestSupplies() {
+      if (game.wood < game.stats.lowestWood) game.stats.lowestWood = game.wood;
+      if (game.food < game.stats.lowestFood) game.stats.lowestFood = game.food;
+      if (game.med < game.stats.lowestMed) game.stats.lowestMed = game.med;
     }
     function abandonCommission(instanceId) {
       const idx = game.commissions.active.findIndex(c => c.instanceId === instanceId);
@@ -472,6 +501,13 @@
       }
       return "未知要求";
     }
+    function getResourceText(resources) {
+      const parts = [];
+      if (resources.wood) parts.push("柴" + resources.wood);
+      if (resources.food) parts.push("粮" + resources.food);
+      if (resources.med) parts.push("药" + resources.med);
+      return parts.length ? parts.join(" ") : "无";
+    }
     function render() {
       const d = DIFF[game.diff];
       els.day.textContent = game.day + " / 15";
@@ -505,6 +541,8 @@
       } else {
         availableHtml += cs.available.map(c => {
           const reqText = getRequirementText(c.requirement);
+          const investmentText = '最低投入：' + getResourceText(c.investment);
+          const canAccept = canAffordInvestment(c.investment);
           let rewardText = '奖励：声望+' + (c.reward.rep || 0);
           if (c.reward.wood) rewardText += ' 柴+' + c.reward.wood;
           if (c.reward.food) rewardText += ' 粮+' + c.reward.food;
@@ -522,11 +560,12 @@
           return '<div class="commission-card available">' +
             '<h4>' + typeLabel + c.name + '<span class="commission-days plenty">期限 ' + c.daysRemaining + ' 天</span></h4>' +
             '<div class="commission-desc">' + c.desc + '</div>' +
+            '<div class="commission-req">' + investmentText + '</div>' +
             '<div class="commission-req">' + reqText + '</div>' +
             '<div class="commission-reward">' + rewardText + '</div>' +
             '<div class="commission-penalty">' + penaltyText + '</div>' +
             '<div class="commission-actions">' +
-            '<button class="accept-btn" data-accept="' + c.instanceId + '">接取委托</button>' +
+            '<button class="accept-btn" data-accept="' + c.instanceId + '"' + (canAccept ? '' : ' disabled') + '>' + (canAccept ? '接取委托' : '物资不足') + '</button>' +
             '</div>' +
             '</div>';
         }).join("");
@@ -539,6 +578,7 @@
         activeHtml += cs.active.map(c => {
           const req = c.requirement;
           const reqText = getRequirementText(req);
+          const investmentText = '已投入：' + getResourceText(c.investment);
           let progressText = '';
           if (req.multiRoute) {
             progressText = '已完成路线：' + c.progress.routesCompleted.length + '/' + req.multiRoute.length + '，成功次数：' + c.progress.successCount + '/' + req.successCount;
@@ -571,6 +611,7 @@
           return '<div class="commission-card ' + cardClass + '">' +
             '<h4>' + typeLabel + c.name + '<span class="commission-days ' + daysClass + '">剩余 ' + c.daysRemaining + ' 天</span></h4>' +
             '<div class="commission-desc">' + c.desc + '</div>' +
+            '<div class="commission-req">' + investmentText + '</div>' +
             '<div class="commission-req">' + reqText + '</div>' +
             '<div class="commission-req"><span class="progress">' + progressText + '</span></div>' +
             '<div class="commission-reward">' + rewardText + '</div>' +
@@ -661,9 +702,7 @@
       checkAndCompleteCommissions();
       game.food -= 2;
       game.wood -= game.weather === "暴雪" ? 3 : 1;
-      if (game.wood < game.stats.lowestWood) game.stats.lowestWood = game.wood;
-      if (game.food < game.stats.lowestFood) game.stats.lowestFood = game.food;
-      if (game.med < game.stats.lowestMed) game.stats.lowestMed = game.med;
+      updateLowestSupplies();
       if (game.food < 0 || game.wood < 0 || game.med < 0 || game.guides.some(g => g.fatigue >= 12)) return finish(false);
       if (game.day >= 15) return finish(true);
       game.day += 1;
