@@ -25,6 +25,16 @@
     .overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(20,30,35,.42); }
     .modal { width: min(430px, calc(100% - 28px)); background: #fff; border-radius: 8px; padding: 22px; border: 1px solid #cfdbdc; }
     .hidden { display: none; }
+    .diff-options { display: grid; gap: 10px; margin: 16px 0; }
+    .diff-card { border: 2px solid #cfdbdc; border-radius: 8px; padding: 12px; cursor: pointer; transition: border-color .2s, background .2s; }
+    .diff-card:hover { background: #f0f5f5; }
+    .diff-card.selected { border-color: #315c72; background: #e8f0f2; }
+    .diff-card h3 { margin: 0 0 4px; }
+    .diff-card p { margin: 0; font-size: 13px; color: #5a6e78; }
+    .diff-label { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 800; color: #fff; }
+    .diff-label.safe { background: #3f7a54; }
+    .diff-label.normal { background: #b08a28; }
+    .diff-label.hard { background: #a33d31; }
     @media (max-width: 1000px) { header { display: block; } .app { grid-template-columns: 1fr; } .log { height: 220px; } }
   </style>
 </head>
@@ -57,6 +67,26 @@
       <div class="log" id="log"></div>
     </aside>
   </main>
+  <div class="overlay hidden" id="diffOverlay">
+    <div class="modal">
+      <h2>选择开局难度</h2>
+      <div class="diff-options" id="diffOptions">
+        <div class="diff-card" data-diff="safe">
+          <h3><span class="diff-label safe">稳妥</span></h3>
+          <p>物资充裕 · 暴雪较少 · 疲劳增长缓慢</p>
+        </div>
+        <div class="diff-card selected" data-diff="normal">
+          <h3><span class="diff-label normal">标准</span></h3>
+          <p>标准物资 · 正常天气 · 常规疲劳</p>
+        </div>
+        <div class="diff-card" data-diff="hard">
+          <h3><span class="diff-label hard">险境</span></h3>
+          <p>物资紧缺 · 暴雪频繁 · 疲劳增长剧烈</p>
+        </div>
+      </div>
+      <button id="startBtn">出发</button>
+    </div>
+  </div>
   <div class="overlay hidden" id="overlay">
     <div class="modal">
       <h2 id="resultTitle"></h2>
@@ -70,18 +100,37 @@
       { id: "ridge", name: "雪脊短线", risk: 3, reward: 4, wood: 3, food: 2, med: 1 },
       { id: "valley", name: "松谷绕行", risk: 1, reward: 2, wood: 1, food: 4, med: 0 }
     ];
-    let game;
+    const DIFF = {
+      safe:   { label: "稳妥", cls: "safe",   wood: 28, med: 12, food: 32, stormProb: 0.15, fatigueBase: 1, fatigueStorm: 1, fatigueMul: 0.8 },
+      normal: { label: "标准", cls: "normal", wood: 20, med: 8,  food: 24, stormProb: 0.24, fatigueBase: 1, fatigueStorm: 2, fatigueMul: 1.0 },
+      hard:   { label: "险境", cls: "hard",   wood: 14, med: 5,  food: 16, stormProb: 0.36, fatigueBase: 2, fatigueStorm: 3, fatigueMul: 1.3 }
+    };
+    let game, chosenDiff = "normal";
     const els = {
       day: document.querySelector("#dayText"), weather: document.querySelector("#weatherText"), wood: document.querySelector("#woodText"),
       med: document.querySelector("#medText"), food: document.querySelector("#foodText"), rep: document.querySelector("#repText"),
       guides: document.querySelector("#guides"), routes: document.querySelector("#routes"), log: document.querySelector("#log"),
-      overlay: document.querySelector("#overlay"), resultTitle: document.querySelector("#resultTitle"), resultText: document.querySelector("#resultText")
+      overlay: document.querySelector("#overlay"), diffOverlay: document.querySelector("#diffOverlay"),
+      resultTitle: document.querySelector("#resultTitle"), resultText: document.querySelector("#resultText")
     };
-    function fresh() {
+    function showDiffPicker() {
+      els.overlay.classList.add("hidden");
+      els.diffOverlay.classList.remove("hidden");
+      document.querySelectorAll(".diff-card").forEach(c => c.classList.toggle("selected", c.dataset.diff === chosenDiff));
+    }
+    document.querySelectorAll(".diff-card").forEach(card => {
+      card.onclick = () => {
+        chosenDiff = card.dataset.diff;
+        document.querySelectorAll(".diff-card").forEach(c => c.classList.toggle("selected", c.dataset.diff === chosenDiff));
+      };
+    });
+    document.querySelector("#startBtn").onclick = () => { els.diffOverlay.classList.add("hidden"); fresh(chosenDiff); };
+    function fresh(diff) {
+      const d = DIFF[diff];
       game = {
-        day: 1, weather: "晴", wood: 20, med: 8, food: 24, rep: 0, saved: 0, ended: false,
+        day: 1, weather: "晴", wood: d.wood, med: d.med, food: d.food, rep: 0, saved: 0, ended: false, diff: diff,
         guides: [{ name: "阿措", fatigue: 0, task: "" }, { name: "洛桑", fatigue: 0, task: "" }],
-        log: ["第1天，驿站开门，山口风很轻。"],
+        log: ["第1天，驿站开门，山口风很轻。难度：" + d.label],
         routes: []
       };
       rollDay();
@@ -89,12 +138,14 @@
       render();
     }
     function rollDay() {
-      const storm = Math.random() < 0.24;
+      const d = DIFF[game.diff];
+      const storm = Math.random() < d.stormProb;
       game.weather = storm ? "暴雪" : Math.random() < 0.35 ? "阴风" : "晴";
       game.routes = routesBase.map(route => ({ ...route, caravan: Math.random() < .74, blocked: storm && Math.random() < .33 }));
       game.guides.forEach(g => g.task = "");
     }
     function render() {
+      const d = DIFF[game.diff];
       els.day.textContent = game.day + " / 15";
       els.weather.textContent = game.weather;
       els.wood.textContent = game.wood;
@@ -108,6 +159,7 @@
     }
     function endDay() {
       if (game.ended) return;
+      const d = DIFF[game.diff];
       const usedRoutes = new Set();
       for (const guide of game.guides) {
         if (!guide.task) { guide.fatigue = Math.max(0, guide.fatigue - 2); continue; }
@@ -117,7 +169,8 @@
         game.wood -= route.wood + (game.weather === "暴雪" ? 1 : 0);
         game.food -= route.food;
         game.med -= route.med;
-        guide.fatigue += route.risk + (game.weather === "暴雪" ? 2 : 1);
+        const rawFatigue = route.risk + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
+        guide.fatigue += Math.round(rawFatigue * d.fatigueMul);
         const failChance = route.blocked ? .75 : (route.risk + guide.fatigue / 4) / 12;
         if (route.caravan && Math.random() > failChance) {
           game.rep += route.reward;
@@ -141,14 +194,15 @@
     }
     function finish(win) {
       game.ended = true;
+      const d = DIFF[game.diff];
       els.resultTitle.textContent = win ? "驿站守住了雪线" : "驿站没能撑下去";
-      els.resultText.textContent = "接应商队：" + game.saved + "队，声望：" + game.rep + "。";
+      els.resultText.textContent = "难度：" + d.label + "｜接应商队：" + game.saved + "队，声望：" + game.rep + "。";
       els.overlay.classList.remove("hidden");
     }
     document.querySelector("#endDayBtn").onclick = endDay;
-    document.querySelector("#newBtn").onclick = fresh;
-    document.querySelector("#againBtn").onclick = fresh;
-    fresh();
+    document.querySelector("#newBtn").onclick = showDiffPicker;
+    document.querySelector("#againBtn").onclick = showDiffPicker;
+    showDiffPicker();
   </script>
 </body>
 </html>
