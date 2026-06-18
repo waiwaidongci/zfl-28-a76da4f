@@ -36,6 +36,20 @@
     .diff-label.normal { background: #b08a28; }
     .diff-label.hard { background: #a33d31; }
     @media (max-width: 1000px) { header { display: block; } .app { grid-template-columns: 1fr; } .log { height: 220px; } }
+    .codex-btn { font-size: 13px; padding: 6px 14px; margin-left: 10px; vertical-align: middle; background: #4a7c5e; }
+    .codex-btn:hover { background: #3a6a4e; }
+    .section-title { display: flex; align-items: center; }
+    .codex-grid { display: grid; gap: 14px; margin-top: 12px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+    .codex-card { border: 1px solid #cfdbdc; border-radius: 8px; padding: 14px; background: #f5f8f8; }
+    .codex-card h3 { margin: 0 0 8px; font-size: 16px; color: #1f2a2f; }
+    .codex-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 13px; border-bottom: 1px dashed #dde5e6; }
+    .codex-row:last-child { border-bottom: none; }
+    .codex-row span:first-child { color: #5a6e78; }
+    .codex-bar { height: 6px; border-radius: 3px; background: #dde5e6; margin-top: 2px; overflow: hidden; margin-bottom: 6px; }
+    .codex-bar-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+    .codex-bar-fill.risk { background: #a33d31; }
+    .codex-bar-fill.reward { background: #3f7a54; }
+    .codex-bar-fill.block { background: #5a7fa8; }
   </style>
 </head>
 <body>
@@ -58,7 +72,7 @@
       <div id="guides"></div>
     </aside>
     <section class="panel">
-      <h2>今日路线</h2>
+      <div class="section-title"><h2>今日路线</h2><button class="codex-btn" id="codexBtn">路线图鉴</button></div>
       <div class="routes" id="routes"></div>
       <button id="endDayBtn">执行调度并进入明天</button>
     </section>
@@ -84,21 +98,34 @@
           <p>物资紧缺 · 暴雪频繁 · 疲劳增长剧烈</p>
         </div>
       </div>
-      <button id="startBtn">出发</button>
+      <div style="display:flex;gap:10px">
+        <button id="startBtn" style="flex:1">出发</button>
+        <button class="codex-btn" id="diffCodexBtn" style="flex:1">查看路线图鉴</button>
+      </div>
     </div>
   </div>
   <div class="overlay hidden" id="overlay">
     <div class="modal">
       <h2 id="resultTitle"></h2>
       <p id="resultText"></p>
-      <button id="againBtn">再来一局</button>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button id="againBtn" style="flex:1">再来一局</button>
+        <button class="codex-btn" id="resultCodexBtn" style="flex:1">查看本局图鉴</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay hidden" id="codexOverlay">
+    <div class="modal" style="width:min(520px,calc(100% - 28px))">
+      <h2>路线图鉴</h2>
+      <div class="codex-grid" id="codexGrid"></div>
+      <button id="codexCloseBtn" style="margin-top:14px">关闭图鉴</button>
     </div>
   </div>
   <script>
     const routesBase = [
-      { id: "north", name: "北坡盐道", risk: 2, reward: 3, wood: 2, food: 3, med: 1 },
-      { id: "ridge", name: "雪脊短线", risk: 3, reward: 4, wood: 3, food: 2, med: 1 },
-      { id: "valley", name: "松谷绕行", risk: 1, reward: 2, wood: 1, food: 4, med: 0 }
+      { id: "north", name: "北坡盐道", risk: 2, reward: 3, wood: 2, food: 3, med: 1, desc: "翻越北坡的古老盐道，沿途有零星盐晶可以换取物资。路途稍长但相对平缓，是稳妥的补给路线。" },
+      { id: "ridge", name: "雪脊短线", risk: 3, reward: 4, wood: 3, food: 2, med: 1, desc: "沿雪线山脊穿行的险峻捷径，能最快抵达山外。途中常有落石与冰缝，但接应商队效率最高。" },
+      { id: "valley", name: "松谷绕行", risk: 1, reward: 2, wood: 1, food: 4, med: 0, desc: "绕过松林谷地的安全路线，几乎没有雪崩风险。林间可以采集少量食物，但路程较远收益偏低。" }
     ];
     const DIFF = {
       safe:   { label: "稳妥", cls: "safe",   wood: 28, med: 12, food: 32, stormProb: 0.15, fatigueBase: 1, fatigueStorm: 1, fatigueMul: 0.8 },
@@ -131,8 +158,12 @@
         day: 1, weather: "晴", wood: d.wood, med: d.med, food: d.food, rep: 0, saved: 0, ended: false, diff: diff,
         guides: [{ name: "阿措", fatigue: 0, task: "" }, { name: "洛桑", fatigue: 0, task: "" }],
         log: ["第1天，驿站开门，山口风很轻。难度：" + d.label],
-        routes: []
+        routes: [],
+        codex: {}
       };
+      routesBase.forEach(r => {
+        game.codex[r.id] = { name: r.name, risk: r.risk, reward: r.reward, desc: r.desc, wood: r.wood, food: r.food, med: r.med, seen: 0, blocked: 0, attempts: 0, successes: 0, rewards: { rep: 0, wood: 0, food: 0, med: 0 } };
+      });
       rollDay();
       els.overlay.classList.add("hidden");
       render();
@@ -142,6 +173,7 @@
       const storm = Math.random() < d.stormProb;
       game.weather = storm ? "暴雪" : Math.random() < 0.35 ? "阴风" : "晴";
       game.routes = routesBase.map(route => ({ ...route, caravan: Math.random() < .74, blocked: storm && Math.random() < .33 }));
+      game.routes.forEach(r => { game.codex[r.id].seen++; if (r.blocked) game.codex[r.id].blocked++; });
       game.guides.forEach(g => g.task = "");
     }
     function render() {
@@ -172,15 +204,23 @@
         const rawFatigue = route.risk + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
         guide.fatigue += Math.round(rawFatigue * d.fatigueMul);
         const failChance = route.blocked ? .75 : (route.risk + guide.fatigue / 4) / 12;
+        const cx = game.codex[route.id];
+        cx.attempts++;
         if (route.caravan && Math.random() > failChance) {
           game.rep += route.reward;
           game.saved += 1;
+          cx.successes++;
+          cx.rewards.rep += route.reward;
+          cx.rewards.wood += route.wood;
+          cx.rewards.food += route.food;
+          cx.rewards.med += route.med;
           game.log.unshift("第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功。");
         } else if (route.caravan) {
           game.med -= 1;
           game.log.unshift("第"+game.day+"天，"+route.name+"救援受挫，消耗了额外药品。");
         } else {
           game.wood += 1;
+          cx.rewards.wood += 1;
           game.log.unshift("第"+game.day+"天，"+guide.name+"巡查"+route.name+"，带回少量柴火。");
         }
       }
@@ -202,6 +242,47 @@
     document.querySelector("#endDayBtn").onclick = endDay;
     document.querySelector("#newBtn").onclick = showDiffPicker;
     document.querySelector("#againBtn").onclick = showDiffPicker;
+    const codexOverlay = document.querySelector("#codexOverlay");
+    const codexGrid = document.querySelector("#codexGrid");
+    function getDefaultCodex(routeId) {
+      const r = routesBase.find(x => x.id === routeId);
+      return {
+        name: r.name, risk: r.risk, reward: r.reward, desc: r.desc,
+        wood: r.wood, food: r.food, med: r.med,
+        seen: 0, blocked: 0, attempts: 0, successes: 0,
+        rewards: { rep: 0, wood: 0, food: 0, med: 0 }
+      };
+    }
+    function renderCodex() {
+      codexGrid.innerHTML = routesBase.map(r => {
+        const c = (game && game.codex) ? game.codex[r.id] : getDefaultCodex(r.id);
+        const blockProb = c.seen > 0 ? Math.round(c.blocked / c.seen * 100) : 0;
+        const successRate = c.attempts > 0 ? Math.round(c.successes / c.attempts * 100) : 0;
+        const riskPct = Math.min(c.risk / 5 * 100, 100);
+        const rewardPct = Math.min(c.reward / 5 * 100, 100);
+        const noData = c.seen === 0;
+        return '<div class="codex-card"><h3>' + c.name + '</h3>' +
+          '<div style="font-size:13px;color:#5a6e78;margin-bottom:10px;line-height:1.5">' + r.desc + '</div>' +
+          '<div class="codex-row"><span>调度消耗</span><span>柴 ' + r.wood + ' · 粮 ' + r.food + ' · 药 ' + r.med + '</span></div>' +
+          '<div class="codex-row"><span>基础风险</span><span>' + c.risk + ' / 5</span></div>' +
+          '<div class="codex-bar"><div class="codex-bar-fill risk" style="width:' + riskPct + '%"></div></div>' +
+          '<div class="codex-row"><span>常见声望收益</span><span>' + c.reward + ' / 次</span></div>' +
+          '<div class="codex-bar"><div class="codex-bar-fill reward" style="width:' + rewardPct + '%"></div></div>' +
+          '<div class="codex-row"><span>暴雪封路概率</span><span>' + (noData ? '暂无数据' : blockProb + '%（' + c.blocked + '/' + c.seen + '天）') + '</span></div>' +
+          (noData ? '' : '<div class="codex-bar"><div class="codex-bar-fill block" style="width:' + blockProb + '%"></div></div>') +
+          '<div class="codex-row"><span>历史成功次数</span><span>' + (noData ? '暂无数据' : c.successes + ' / ' + c.attempts + ' 次（' + successRate + '%）') + '</span></div>' +
+          (noData ? '' : '<div class="codex-row"><span>累计收益</span><span>声望+' + c.rewards.rep + ' 柴+' + c.rewards.wood + ' 粮+' + c.rewards.food + ' 药+' + c.rewards.med + '</span></div>') +
+        '</div>';
+      }).join("");
+    }
+    function openCodex() {
+      renderCodex();
+      codexOverlay.classList.remove("hidden");
+    }
+    document.querySelector("#codexBtn").onclick = openCodex;
+    document.querySelector("#diffCodexBtn").onclick = openCodex;
+    document.querySelector("#resultCodexBtn").onclick = openCodex;
+    document.querySelector("#codexCloseBtn").onclick = () => codexOverlay.classList.add("hidden");
     showDiffPicker();
   </script>
 </body>
