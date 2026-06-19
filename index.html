@@ -304,6 +304,37 @@
     .tutorial-buttons .tutorial-prev { background: #5a6e78; }
     .tutorial-close { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 22px; color: #5a6e78; cursor: pointer; padding: 0; line-height: 1; }
     .tutorial-close:hover { color: #1f2a2f; }
+    .stats-dashboard { background: linear-gradient(135deg, #f0f5f5 0%, #e8f0f2 100%); border: 2px solid #315c72; border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+    .stats-dashboard-title { font-size: 16px; font-weight: 800; color: #315c72; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+    .stats-dashboard-title::before { content: "📊"; font-size: 18px; }
+    .stats-grid-main { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .stats-cell { background: #fff; border-radius: 8px; padding: 12px; border: 1px solid #dde5e6; text-align: center; }
+    .stats-cell-label { font-size: 11px; color: #5a6e78; display: block; margin-bottom: 4px; }
+    .stats-cell-value { font-size: 22px; font-weight: 800; color: #1f2a2f; }
+    .stats-cell-sub { font-size: 10px; color: #8a9ea5; margin-top: 2px; }
+    .stats-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stats-breakdown-section { background: #fff; border-radius: 8px; padding: 12px; border: 1px solid #dde5e6; }
+    .stats-breakdown-title { font-size: 13px; font-weight: 800; color: #315c72; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 1px dashed #dde5e6; }
+    .stats-rank-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; border-bottom: 1px solid #f0f0f0; }
+    .stats-rank-item:last-child { border-bottom: none; }
+    .stats-rank-label { color: #2d3a40; font-weight: 600; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .stats-rank-bar-wrap { flex: 1; margin: 0 8px; height: 6px; background: #e8efef; border-radius: 3px; overflow: hidden; }
+    .stats-rank-bar { height: 100%; border-radius: 3px; transition: width .4s; }
+    .stats-rank-bar.scenario { background: #315c72; }
+    .stats-rank-bar.diff-safe { background: #3f7a54; }
+    .stats-rank-bar.diff-normal { background: #b08a28; }
+    .stats-rank-bar.diff-hard { background: #a33d31; }
+    .stats-rank-bar.route { background: #5a7fa8; }
+    .stats-rank-bar.failure { background: #a33d31; }
+    .stats-rank-count { font-weight: 800; color: #1f2a2f; min-width: 28px; text-align: right; }
+    .stats-empty { text-align: center; padding: 20px; color: #5a6e78; font-size: 13px; }
+    .stats-filter-info { font-size: 11px; color: #8a9ea5; margin-bottom: 8px; }
+    .sample-data-btn { font-size: 12px; padding: 5px 12px; margin-left: 10px; vertical-align: middle; background: #4a7c5e; }
+    .sample-data-btn:hover { background: #3a6a4e; }
+    @media (max-width: 600px) {
+      .stats-breakdown { grid-template-columns: 1fr; }
+      .stats-grid-main { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -373,7 +404,8 @@
   </div>
   <div class="overlay hidden" id="archiveOverlay">
     <div class="modal" style="width:min(780px,calc(100% - 28px));max-height:85vh;overflow-y:auto">
-      <h2>结算档案馆</h2>
+      <h2>结算档案馆 <button class="sample-data-btn" id="loadSampleBtn">加载样例数据</button></h2>
+      <div class="stats-dashboard" id="statsDashboard"></div>
       <div class="archive-filter">
         <button data-filter="recent" class="active">最近游玩</button>
         <button data-filter="win">胜利记录</button>
@@ -1190,7 +1222,9 @@
       tutorialNextBtn: document.querySelector("#tutorialNextBtn"),
       tutorialSkipBtn: document.querySelector("#tutorialSkipBtn"),
       tutorialCloseBtn: document.querySelector("#tutorialCloseBtn"),
-      tutorialBtn: document.querySelector("#tutorialBtn")
+      tutorialBtn: document.querySelector("#tutorialBtn"),
+      statsDashboard: document.querySelector("#statsDashboard"),
+      loadSampleBtn: document.querySelector("#loadSampleBtn")
     };
     function getScenarioRoutes(scenarioId) {
       const sc = SCENARIOS[scenarioId];
@@ -2355,16 +2389,31 @@
       };
     }
     function migrateArchive(archive) {
+      if (!archive || typeof archive !== 'object') {
+        return { ...getDefaultArchiveFields(), id: Date.now(), timestamp: Date.now(), dateStr: new Date().toLocaleString("zh-CN") };
+      }
       const defaults = getDefaultArchiveFields();
       const migrated = { ...defaults, ...archive };
-      if (!migrated.minResources) migrated.minResources = { ...defaults.minResources };
-      else migrated.minResources = { ...defaults.minResources, ...migrated.minResources };
-      if (!migrated.routePreference) migrated.routePreference = { ...defaults.routePreference };
-      else migrated.routePreference = { ...defaults.routePreference, ...migrated.routePreference };
-      if (!migrated.keyLogs) migrated.keyLogs = [];
-      if (!migrated.replayHistory) migrated.replayHistory = [];
-      if (!migrated.turningPoints) migrated.turningPoints = [];
-      if (!migrated.achievements) migrated.achievements = [];
+      if (!migrated.minResources || typeof migrated.minResources !== 'object') {
+        migrated.minResources = { ...defaults.minResources };
+      } else {
+        migrated.minResources = { ...defaults.minResources, ...migrated.minResources };
+        migrated.minResources.wood = parseInt(migrated.minResources.wood) || 0;
+        migrated.minResources.med = parseInt(migrated.minResources.med) || 0;
+        migrated.minResources.food = parseInt(migrated.minResources.food) || 0;
+      }
+      if (!migrated.routePreference || typeof migrated.routePreference !== 'object') {
+        migrated.routePreference = { ...defaults.routePreference };
+      } else {
+        migrated.routePreference = { ...defaults.routePreference, ...migrated.routePreference };
+        Object.keys(migrated.routePreference).forEach(key => {
+          migrated.routePreference[key] = parseInt(migrated.routePreference[key]) || 0;
+        });
+      }
+      if (!Array.isArray(migrated.keyLogs)) migrated.keyLogs = [];
+      if (!Array.isArray(migrated.replayHistory)) migrated.replayHistory = [];
+      if (!Array.isArray(migrated.turningPoints)) migrated.turningPoints = [];
+      if (!Array.isArray(migrated.achievements)) migrated.achievements = [];
       if (!migrated.version) migrated.version = ARCHIVE_VERSION;
       if (!migrated.scenario) {
         migrated.scenario = "standard";
@@ -2373,11 +2422,49 @@
         migrated.targetDays = 15;
         migrated.winTarget = { type: "days", label: "坚守到最后" };
       }
+      if (!migrated.scenarioLabel && SCENARIOS[migrated.scenario]) {
+        migrated.scenarioLabel = SCENARIOS[migrated.scenario].name;
+        migrated.scenarioColor = SCENARIOS[migrated.scenario].color;
+        migrated.scenarioSubtitle = SCENARIOS[migrated.scenario].subtitle;
+      }
+      if (!migrated.targetDays && SCENARIOS[migrated.scenario]) {
+        migrated.targetDays = SCENARIOS[migrated.scenario].targetDays;
+      }
+      if (!migrated.winTarget && SCENARIOS[migrated.scenario]) {
+        migrated.winTarget = { ...SCENARIOS[migrated.scenario].win };
+      }
+      if (!migrated.difficultyLabel && DIFF[migrated.difficulty]) {
+        migrated.difficultyLabel = DIFF[migrated.difficulty].label;
+      }
+      migrated.day = parseInt(migrated.day) || 0;
+      migrated.savedCaravans = parseInt(migrated.savedCaravans) || 0;
+      migrated.reputation = parseInt(migrated.reputation) || 0;
+      migrated.targetDays = parseInt(migrated.targetDays) || 15;
+      if (migrated.win !== true && migrated.win !== false) {
+        migrated.win = false;
+      }
       if (migrated.replayHistory && Array.isArray(migrated.replayHistory)) {
         migrated.replayHistory.forEach(day => {
+          if (!day || typeof day !== 'object') return;
           if (!day.estimate) day.estimate = null;
+          if (!day.startResources) day.startResources = { wood: 0, med: 0, food: 0, rep: 0 };
+          if (!day.endResources) day.endResources = { wood: 0, med: 0, food: 0, rep: 0 };
+          if (!day.startGuides) day.startGuides = [];
+          if (!day.endGuides) day.endGuides = [];
+          if (!day.routes) day.routes = [];
+          if (!day.logs) day.logs = [];
+          if (!day.resourceChanges) day.resourceChanges = [];
         });
       }
+      if (!migrated.timestamp) migrated.timestamp = Date.now();
+      if (!migrated.dateStr) {
+        try {
+          migrated.dateStr = new Date(migrated.timestamp).toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+        } catch (e) {
+          migrated.dateStr = "未知日期";
+        }
+      }
+      if (!migrated.id) migrated.id = migrated.timestamp;
       return migrated;
     }
     function loadGameArchives() {
@@ -2498,6 +2585,8 @@
           case "days_and_rep": targetInfo = '声望 ≥ ' + archive.winTarget.rep; break;
           case "caravans_and_rep": targetInfo = '接应≥' + archive.winTarget.count + '队 且 声望≥' + archive.winTarget.rep; break;
         }
+      } else {
+        targetInfo = '坚守到第 ' + (archive.targetDays || 15) + ' 天';
       }
       const hasReplay = archive.replayHistory && archive.replayHistory.length > 0;
       const scenarioAchv = ACHIEVEMENTS[archive.scenario] || [];
@@ -2567,6 +2656,7 @@
         btn.classList.toggle("active", btn.dataset.filter === "recent");
       });
       renderArchiveList();
+      renderStatsDashboard();
       els.archiveOverlay.classList.remove("hidden");
     }
     function closeArchive() {
@@ -2588,16 +2678,186 @@
       showConfirm("清空档案", "确定要清空所有档案记录吗？此操作无法撤销。", () => {
         saveGameArchives([]);
         renderArchiveList();
+        renderStatsDashboard();
+      });
+    }
+    function computeStats(archives) {
+      if (!archives || archives.length === 0) return null;
+      const total = archives.length;
+      const wins = archives.filter(a => a && a.win === true).length;
+      const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+      const avgDays = total > 0 ? (archives.reduce((s, a) => s + ((a && a.day) || 0), 0) / total).toFixed(1) : "0.0";
+      const avgCaravans = total > 0 ? (archives.reduce((s, a) => s + ((a && a.savedCaravans) || 0), 0) / total).toFixed(1) : "0.0";
+      const maxRep = archives.reduce((m, a) => Math.max(m, (a && a.reputation) || 0), 0);
+      const routeMap = {};
+      archives.forEach(a => {
+        if (a && a.routePreference && typeof a.routePreference === 'object') {
+          Object.entries(a.routePreference).forEach(([rid, cnt]) => {
+            const count = parseInt(cnt) || 0;
+            if (count > 0) routeMap[rid] = (routeMap[rid] || 0) + count;
+          });
+        }
+      });
+      const commonRoutes = Object.entries(routeMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const failMap = {};
+      archives.filter(a => a && a.win === false && a.failureReason).forEach(a => {
+        const reason = String(a.failureReason).trim() || "未知原因";
+        failMap[reason] = (failMap[reason] || 0) + 1;
+      });
+      const commonFailures = Object.entries(failMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const scenarioMap = {};
+      archives.forEach(a => {
+        if (!a) return;
+        const key = a.scenario || "standard";
+        if (!scenarioMap[key]) scenarioMap[key] = { total: 0, wins: 0 };
+        scenarioMap[key].total++;
+        if (a.win === true) scenarioMap[key].wins++;
+      });
+      const scenarioStats = Object.entries(scenarioMap).map(([id, v]) => ({
+        id,
+        name: (SCENARIOS[id] && SCENARIOS[id].name) || id,
+        color: (SCENARIOS[id] && SCENARIOS[id].color) || "#315c72",
+        total: v.total,
+        wins: v.wins,
+        winRate: v.total > 0 ? Math.round((v.wins / v.total) * 100) : 0
+      })).sort((a, b) => b.total - a.total);
+      const diffMap = {};
+      archives.forEach(a => {
+        if (!a) return;
+        const key = a.difficulty || "normal";
+        if (!diffMap[key]) diffMap[key] = { total: 0, wins: 0 };
+        diffMap[key].total++;
+        if (a.win === true) diffMap[key].wins++;
+      });
+      const diffStats = Object.entries(diffMap).map(([id, v]) => {
+        const d = DIFF[id];
+        return {
+          id,
+          name: d ? d.label : id,
+          cls: d ? d.cls : "normal",
+          total: v.total,
+          wins: v.wins,
+          winRate: v.total > 0 ? Math.round((v.wins / v.total) * 100) : 0
+        };
+      }).sort((a, b) => b.total - a.total);
+      return { total, wins, winRate, avgDays, avgCaravans, maxRep, commonRoutes, commonFailures, scenarioStats, diffStats };
+    }
+    function renderStatsDashboard() {
+      const container = els.statsDashboard;
+      const archives = loadGameArchives();
+      const filtered = sortArchives(archives, currentArchiveFilter);
+      const stats = computeStats(filtered);
+      if (!stats) {
+        container.innerHTML = '<div class="stats-empty">暂无统计数据 · 完成游戏后自动生成</div>';
+        return;
+      }
+      const filterLabels = {
+        recent: "所有档案", win: "胜利记录", lose: "失败记录", rep: "按声望排序",
+        standard: "标准雪线", medshortage: "药品短缺", caravan: "商队旺季", rescue: "封山救援"
+      };
+      const filterLabel = filterLabels[currentArchiveFilter] || "当前筛选";
+      let html = '<div class="stats-dashboard-title">跨局统计看板</div>';
+      html += '<div class="stats-filter-info">当前筛选：' + filterLabel + ' · 共 ' + stats.total + ' 条档案</div>';
+      html += '<div class="stats-grid-main">';
+      html += '<div class="stats-cell"><span class="stats-cell-label">总胜率</span><span class="stats-cell-value">' + stats.winRate + '%</span><span class="stats-cell-sub">' + stats.wins + ' 胜 / ' + stats.total + ' 局</span></div>';
+      html += '<div class="stats-cell"><span class="stats-cell-label">平均坚持天数</span><span class="stats-cell-value">' + stats.avgDays + '</span><span class="stats-cell-sub">天</span></div>';
+      html += '<div class="stats-cell"><span class="stats-cell-label">平均接应商队</span><span class="stats-cell-value">' + stats.avgCaravans + '</span><span class="stats-cell-sub">队</span></div>';
+      html += '<div class="stats-cell"><span class="stats-cell-label">最高声望</span><span class="stats-cell-value">' + stats.maxRep + '</span><span class="stats-cell-sub">点</span></div>';
+      html += '</div>';
+      html += '<div class="stats-breakdown">';
+      html += '<div class="stats-breakdown-section"><div class="stats-breakdown-title">剧本胜率</div>';
+      if (stats.scenarioStats.length > 0) {
+        const maxS = Math.max(...stats.scenarioStats.map(s => s.total));
+        stats.scenarioStats.forEach(s => {
+          const pct = maxS > 0 ? Math.round((s.total / maxS) * 100) : 0;
+          html += '<div class="stats-rank-item"><span class="stats-rank-label" style="color:' + s.color + '">' + s.name + '</span>';
+          html += '<div class="stats-rank-bar-wrap"><div class="stats-rank-bar scenario" style="width:' + pct + '%;background:' + s.color + '"></div></div>';
+          html += '<span class="stats-rank-count">' + s.winRate + '%</span></div>';
+        });
+      } else {
+        html += '<div style="font-size:12px;color:#5a6e78">暂无数据</div>';
+      }
+      html += '</div>';
+      html += '<div class="stats-breakdown-section"><div class="stats-breakdown-title">难度胜率</div>';
+      if (stats.diffStats.length > 0) {
+        const maxD = Math.max(...stats.diffStats.map(s => s.total));
+        stats.diffStats.forEach(s => {
+          const pct = maxD > 0 ? Math.round((s.total / maxD) * 100) : 0;
+          html += '<div class="stats-rank-item"><span class="stats-rank-label">' + s.name + '</span>';
+          html += '<div class="stats-rank-bar-wrap"><div class="stats-rank-bar diff-' + s.cls + '" style="width:' + pct + '%"></div></div>';
+          html += '<span class="stats-rank-count">' + s.winRate + '%</span></div>';
+        });
+      } else {
+        html += '<div style="font-size:12px;color:#5a6e78">暂无数据</div>';
+      }
+      html += '</div>';
+      html += '<div class="stats-breakdown-section"><div class="stats-breakdown-title">常用路线</div>';
+      if (stats.commonRoutes.length > 0) {
+        const maxR = stats.commonRoutes[0][1];
+        stats.commonRoutes.forEach(([rid, cnt]) => {
+          const name = getRouteName(rid);
+          const pct = maxR > 0 ? Math.round((cnt / maxR) * 100) : 0;
+          html += '<div class="stats-rank-item"><span class="stats-rank-label">' + name + '</span>';
+          html += '<div class="stats-rank-bar-wrap"><div class="stats-rank-bar route" style="width:' + pct + '%"></div></div>';
+          html += '<span class="stats-rank-count">' + cnt + '</span></div>';
+        });
+      } else {
+        html += '<div style="font-size:12px;color:#5a6e78">暂无数据</div>';
+      }
+      html += '</div>';
+      html += '<div class="stats-breakdown-section"><div class="stats-breakdown-title">常见失败原因</div>';
+      if (stats.commonFailures.length > 0) {
+        const maxF = stats.commonFailures[0][1];
+        stats.commonFailures.forEach(([reason, cnt]) => {
+          const pct = maxF > 0 ? Math.round((cnt / maxF) * 100) : 0;
+          html += '<div class="stats-rank-item"><span class="stats-rank-label" title="' + reason + '">' + reason + '</span>';
+          html += '<div class="stats-rank-bar-wrap"><div class="stats-rank-bar failure" style="width:' + pct + '%"></div></div>';
+          html += '<span class="stats-rank-count">' + cnt + '</span></div>';
+        });
+      } else {
+        html += '<div style="font-size:12px;color:#5a6e78">暂无数据</div>';
+      }
+      html += '</div>';
+      html += '</div>';
+      container.innerHTML = html;
+    }
+    const SAMPLE_ARCHIVES = [
+      { version: 3, id: 1001, win: true, scenario: "standard", scenarioLabel: "标准雪线", scenarioColor: "#315c72", day: 15, difficulty: "safe", difficultyLabel: "稳妥", savedCaravans: 6, reputation: 18, targetDays: 15, winTarget: { type: "days", label: "坚守到最后" }, minResources: { wood: 5, med: 3, food: 6 }, failureReason: null, routePreference: { north: 4, ridge: 3, valley: 3 }, keyLogs: ["【事件】暴雪预警", "成功接应商队"], timestamp: Date.now() - 86400000 * 5, dateStr: "2026/06/14 10:30", replayHistory: [{ day: 1, startResources: { wood: 25, med: 10, food: 28, rep: 0 }, endResources: { wood: 22, med: 9, food: 24, rep: 2 }, weather: "晴", routes: [], startGuides: [], endGuides: [], logs: [], estimate: null }], turningPoints: [], achievements: ["standard_survivor"] },
+      { version: 3, id: 1002, win: false, scenario: "standard", scenarioLabel: "标准雪线", scenarioColor: "#315c72", day: 9, difficulty: "hard", difficultyLabel: "险境", savedCaravans: 2, reputation: 5, targetDays: 15, winTarget: { type: "days", label: "坚守到最后" }, minResources: { wood: 0, med: 0, food: 1 }, failureReason: "柴火耗尽", routePreference: { north: 3, ridge: 2 }, keyLogs: ["暴雪封路", "柴火耗尽"], timestamp: Date.now() - 86400000 * 4, dateStr: "2026/06/15 14:20", replayHistory: [], turningPoints: [], achievements: [] },
+      { version: 3, id: 1003, win: true, scenario: "medshortage", scenarioLabel: "药品短缺", scenarioColor: "#a33d31", day: 18, difficulty: "normal", difficultyLabel: "标准", savedCaravans: 4, reputation: 28, targetDays: 18, winTarget: { type: "days_and_rep", rep: 25, label: "熬到疫情缓解" }, minResources: { wood: 3, med: 1, food: 4 }, failureReason: null, routePreference: { north: 4, herbal: 5, ridge: 2 }, keyLogs: ["向导受伤", "赠送药品博取名声"], timestamp: Date.now() - 86400000 * 3, dateStr: "2026/06/16 09:15", replayHistory: [], turningPoints: [], achievements: ["medshortage_no_outbreak", "medshortage_savior"] },
+      { version: 3, id: 1004, win: false, scenario: "medshortage", scenarioLabel: "药品短缺", scenarioColor: "#a33d31", day: 7, difficulty: "hard", difficultyLabel: "险境", savedCaravans: 1, reputation: 3, targetDays: 18, winTarget: { type: "days_and_rep", rep: 25, label: "熬到疫情缓解" }, minResources: { wood: 2, med: 0, food: 1 }, failureReason: "药品持续短缺，疫情恶化", routePreference: { valley: 3, herbal: 2 }, keyLogs: ["【事件】向导受伤", "药品耗尽"], timestamp: Date.now() - 86400000 * 2, dateStr: "2026/06/17 16:45", replayHistory: [], turningPoints: [], achievements: [] },
+      { version: 3, id: 1005, win: true, scenario: "caravan", scenarioLabel: "商队旺季", scenarioColor: "#b08a28", day: 12, difficulty: "normal", difficultyLabel: "标准", savedCaravans: 14, reputation: 22, targetDays: 12, winTarget: { type: "caravans", count: 12, label: "接应足够商队" }, minResources: { wood: 4, med: 2, food: 0 }, failureReason: null, routePreference: { north: 3, market: 6, ridge: 4 }, keyLogs: ["商队求援", "旺季完美收官"], timestamp: Date.now() - 86400000 * 1, dateStr: "2026/06/18 11:00", replayHistory: [], turningPoints: [], achievements: ["caravan_tycoon", "caravan_wealthy"] },
+      { version: 3, id: 1006, win: false, scenario: "caravan", scenarioLabel: "商队旺季", scenarioColor: "#b08a28", day: 8, difficulty: "hard", difficultyLabel: "险境", savedCaravans: 6, reputation: 8, targetDays: 12, winTarget: { type: "caravans", count: 12, label: "接应足够商队" }, minResources: { wood: 1, med: 0, food: 0 }, failureReason: "粮食耗尽", routePreference: { ridge: 3, valley: 2 }, keyLogs: ["封路", "干粮耗尽"], timestamp: Date.now() - 86400000 * 1, dateStr: "2026/06/18 15:30", replayHistory: [], turningPoints: [], achievements: [] },
+      { version: 3, id: 1007, win: true, scenario: "rescue", scenarioLabel: "封山救援", scenarioColor: "#5a7fa8", day: 10, difficulty: "safe", difficultyLabel: "稳妥", savedCaravans: 9, reputation: 35, targetDays: 10, winTarget: { type: "caravans_and_rep", count: 8, rep: 30, label: "救出足够商队" }, minResources: { wood: 4, med: 3, food: 2 }, failureReason: null, routePreference: { glacier: 4, cliff: 3, ridge: 2 }, keyLogs: ["暴雪预警", "派出向导接应"], timestamp: Date.now() - 43200000, dateStr: "2026/06/19 08:20", replayHistory: [], turningPoints: [], achievements: ["rescue_blizzard_hero", "rescue_extreme"] },
+      { version: 3, id: 1008, win: false, scenario: "rescue", scenarioLabel: "封山救援", scenarioColor: "#5a7fa8", day: 5, difficulty: "hard", difficultyLabel: "险境", savedCaravans: 3, reputation: 10, targetDays: 10, winTarget: { type: "caravans_and_rep", count: 8, rep: 30, label: "救出足够商队" }, minResources: { wood: 0, med: 1, food: 0 }, failureReason: "柴火耗尽", routePreference: { cliff: 2, north: 1 }, keyLogs: ["暴雪封路", "柴火耗尽"], timestamp: Date.now() - 21600000, dateStr: "2026/06/19 12:50", replayHistory: [], turningPoints: [], achievements: [] },
+      { version: 3, id: 1011, win: true, scenario: "standard", scenarioLabel: "标准雪线", scenarioColor: "#315c72", day: 15, difficulty: "normal", difficultyLabel: "标准", savedCaravans: 8, reputation: 25, targetDays: 15, winTarget: { type: "days", label: "坚守到最后" }, minResources: { wood: 2, med: 1, food: 3 }, failureReason: null, routePreference: { ridge: 5, north: 4, valley: 2 }, keyLogs: ["【事件】发现物资窖藏", "成功接应商队"], timestamp: Date.now() - 86400000 * 6, dateStr: "2026/06/13 09:45", replayHistory: [], turningPoints: [], achievements: ["standard_caravan_collector"] },
+      { version: 3, id: 1012, win: false, scenario: "standard", scenarioLabel: "标准雪线", scenarioColor: "#315c72", day: 11, difficulty: "normal", difficultyLabel: "标准", savedCaravans: 3, reputation: 8, targetDays: 15, winTarget: { type: "days", label: "坚守到最后" }, minResources: { wood: 1, med: 0, food: 0 }, failureReason: "药品耗尽", routePreference: { north: 3, valley: 3, ridge: 2 }, keyLogs: ["【事件】向导受伤", "药品告急"], timestamp: Date.now() - 86400000 * 7, dateStr: "2026/06/12 14:10", replayHistory: [], turningPoints: [], achievements: [] },
+      { version: 3, id: 1013, win: false, scenario: "standard", scenarioLabel: "标准雪线", scenarioColor: "#315c72", day: 8, difficulty: "hard", difficultyLabel: "险境", savedCaravans: 1, reputation: 2, targetDays: 15, winTarget: { type: "days", label: "坚守到最后" }, minResources: { wood: 0, med: 0, food: 0 }, failureReason: "向导疲劳过度", routePreference: { ridge: 4, north: 2 }, keyLogs: ["向导疲劳度过高", "暴雪连连"], timestamp: Date.now() - 86400000 * 8, dateStr: "2026/06/11 18:30", replayHistory: [], turningPoints: [], achievements: [] },
+      { version: 1, id: 1009, win: true, scenario: "standard", scenarioLabel: "标准雪线", scenarioColor: "#315c72", day: 15, difficulty: "normal", difficultyLabel: "标准", savedCaravans: 5, reputation: 15, targetDays: 15, minResources: { wood: 3, med: 2, food: 4 }, failureReason: null, routePreference: { north: 3, ridge: 2, valley: 2 }, keyLogs: ["成功接应商队"], timestamp: Date.now() - 172800000, dateStr: "2026/06/13 20:10" },
+      { version: 1, id: 1010, win: false, day: 6, difficulty: "hard", difficultyLabel: "险境", savedCaravans: 1, reputation: 2, targetDays: 15, minResources: { wood: 0, med: 0, food: 0 }, failureReason: "药品耗尽", routePreference: {}, keyLogs: [], timestamp: Date.now() - 259200000, dateStr: "2026/06/12 17:30" },
+      { version: 2, id: 1014, win: true, day: 15, difficulty: "safe", difficultyLabel: "稳妥", savedCaravans: 7, reputation: 20, targetDays: 15, minResources: { wood: 4, med: 2, food: 5 }, failureReason: null, routePreference: { north: 5, valley: 4, ridge: 2 }, keyLogs: ["坚守到最后"], timestamp: Date.now() - 345600000, dateStr: "2026/06/11 10:00", replayHistory: [], turningPoints: [] }
+    ];
+    function loadSampleData() {
+      showConfirm("加载样例数据", "将 14 条样例档案（含不同剧本、难度和旧版本存档）追加到现有档案中，确定继续吗？", () => {
+        const existing = loadGameArchives();
+        const newArchives = SAMPLE_ARCHIVES.map(a => migrateArchive({ ...a }));
+        const merged = [...newArchives, ...existing];
+        if (merged.length > 100) merged.length = 100;
+        saveGameArchives(merged);
+        renderArchiveList();
+        renderStatsDashboard();
       });
     }
     document.querySelector("#archiveBtn").onclick = openArchive;
     document.querySelector("#archiveCloseBtn").onclick = closeArchive;
     document.querySelector("#clearArchiveBtn").onclick = clearAllArchives;
+    if (els.loadSampleBtn) els.loadSampleBtn.onclick = loadSampleData;
     document.querySelectorAll(".archive-filter button").forEach(btn => {
       btn.onclick = () => {
         currentArchiveFilter = btn.dataset.filter;
         document.querySelectorAll(".archive-filter button").forEach(b => b.classList.toggle("active", b === btn));
         renderArchiveList();
+        renderStatsDashboard();
       };
     });
     let currentReplayData = null;
