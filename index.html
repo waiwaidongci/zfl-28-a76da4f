@@ -415,6 +415,9 @@
     function getDefaultGuideStats() {
       return { successes: 0, failures: 0, restDays: 0, routesDispatched: {} };
     }
+    function getDefaultRouteState(route) {
+      return { ...route, caravan: true, blocked: false };
+    }
     function migrateSaveData(data) {
       const migrated = [];
       const result = JSON.parse(JSON.stringify(data));
@@ -440,7 +443,24 @@
       if (typeof g.saved === "undefined") { g.saved = 0; migrated.push("接应商队数"); }
       if (typeof g.ended === "undefined") { g.ended = false; migrated.push("游戏结束状态"); }
       if (!g.log) { g.log = []; migrated.push("事件日志"); }
-      if (!g.routes) { g.routes = []; migrated.push("路线状态"); }
+      if (!Array.isArray(g.routes) || g.routes.length === 0) {
+        g.routes = routesBase.map(getDefaultRouteState);
+        migrated.push("路线状态");
+      } else {
+        const routesById = {};
+        g.routes.forEach(route => { if (route && route.id) routesById[route.id] = route; });
+        g.routes = routesBase.map(route => {
+          const savedRoute = routesById[route.id];
+          if (!savedRoute) {
+            migrated.push("路线状态：" + route.name);
+            return getDefaultRouteState(route);
+          }
+          const mergedRoute = { ...getDefaultRouteState(route), ...savedRoute };
+          if (typeof savedRoute.caravan === "undefined") { migrated.push("路线商队状态：" + route.name); }
+          if (typeof savedRoute.blocked === "undefined") { migrated.push("路线封路状态：" + route.name); }
+          return mergedRoute;
+        });
+      }
       if (!g.codex) {
         g.codex = {};
         routesBase.forEach(r => { g.codex[r.id] = getDefaultCodexEntry(r); });
