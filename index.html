@@ -97,6 +97,30 @@
     .commission-stats .ok { color: #3f7a54; font-weight: 700; }
     .commission-stats .danger { color: #a33d31; font-weight: 700; }
     .commission-type { display: inline-block; font-size: 11px; padding: 1px 6px; background: #dde5e6; color: #5a6e78; border-radius: 3px; margin-right: 6px; }
+    .guide-card { display: grid; gap: 8px; }
+    .guide-header { display: flex; justify-content: space-between; align-items: center; }
+    .guide-name { font-weight: 800; font-size: 15px; }
+    .guide-level { background: #315c72; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+    .exp-bar { height: 6px; background: #dde5e6; border-radius: 3px; overflow: hidden; }
+    .exp-fill { height: 100%; background: linear-gradient(90deg, #4a7c5e, #6ba37c); transition: width .4s; }
+    .exp-text { font-size: 11px; color: #5a6e78; text-align: right; }
+    .status-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .status-tag { font-size: 11px; padding: 2px 6px; border-radius: 3px; font-weight: 700; }
+    .status-tag.skill { background: #e8f0f2; color: #315c72; }
+    .status-tag.injury { background: #fdf2f0; color: #a33d31; }
+    .status-tag.buff { background: #f0f7f2; color: #3f7a54; }
+    .guide-routes { margin-top: 4px; }
+    .route-availability { font-size: 12px; padding: 3px 6px; margin: 2px 0; border-radius: 3px; display: flex; justify-content: space-between; align-items: center; }
+    .route-availability.allowed { background: #f0f7f2; }
+    .route-availability.restricted { background: #fdf2f0; }
+    .route-availability .fatigue-estimate { font-weight: 700; font-size: 11px; }
+    .guide-stats-row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+    .guide-stats-row .label { color: #5a6e78; }
+    .guide-stats-row .value { font-weight: 700; }
+    .skill-tooltip { position: relative; cursor: help; }
+    .skill-tooltip:hover::after { content: attr(data-desc); position: absolute; bottom: 100%; left: 0; background: #1f2a2f; color: #fff; padding: 6px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; z-index: 10; margin-bottom: 4px; }
+    .injury-tooltip { position: relative; cursor: help; }
+    .injury-tooltip:hover::after { content: attr(data-desc); position: absolute; bottom: 100%; left: 0; background: #1f2a2f; color: #fff; padding: 6px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; z-index: 10; margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -184,6 +208,33 @@
       { id: "ridge", name: "雪脊短线", risk: 3, reward: 4, wood: 3, food: 2, med: 1, desc: "沿雪线山脊穿行的险峻捷径，能最快抵达山外。途中常有落石与冰缝，但接应商队效率最高。" },
       { id: "valley", name: "松谷绕行", risk: 1, reward: 2, wood: 1, food: 4, med: 0, desc: "绕过松林谷地的安全路线，几乎没有雪崩风险。林间可以采集少量食物，但路程较远收益偏低。" }
     ];
+    const SKILLS = {
+      north_expert: { name: "北坡向导", desc: "北坡盐道风险-1，疲劳-1", route: "north", effects: { risk: -1, fatigue: -1 } },
+      ridge_expert: { name: "雪脊行者", desc: "雪脊短线风险-1，疲劳-1", route: "ridge", effects: { risk: -1, fatigue: -1 } },
+      valley_expert: { name: "松谷猎手", desc: "松谷绕行风险-1，疲劳-1", route: "valley", effects: { risk: -1, fatigue: -1 } },
+      pathfinder: { name: "寻路者", desc: "所有路线风险-1", route: "all", effects: { risk: -1 } },
+      survivalist: { name: "求生专家", desc: "所有路线物资消耗-1", route: "all", effects: { wood: -1, food: -1, med: -1 } },
+      endurance: { name: "坚韧不拔", desc: "疲劳增长-30%", route: "all", effects: { fatigueMul: 0.7 } },
+      lucky: { name: "福星高照", desc: "成功率+10%", route: "all", effects: { successBonus: 0.1 } },
+      healer: { name: "草药师", desc: "失败时药品消耗-1，留守时恢复更快", route: "all", effects: { medSave: 1, restBonus: 1 } },
+      speedster: { name: "飞毛腿", desc: "所有路线疲劳-1", route: "all", effects: { fatigue: -1 } },
+      packmule: { name: "驮兽", desc: "所有路线额外获得+1柴火", route: "all", effects: { bonusWood: 1 } }
+    };
+    const INJURIES = {
+      sprained_ankle: { name: "脚踝扭伤", desc: "无法出勤，3天恢复", duration: 3, effects: { noDispatch: true, fatigueRecovery: -1 } },
+      frostbite: { name: "轻度冻伤", desc: "可出勤但所有路线疲劳+2，3天恢复", duration: 3, effects: { fatigue: 2 } },
+      exhaustion: { name: "虚脱乏力", desc: "无法出勤，2天恢复", duration: 2, effects: { noDispatch: true, fatigueRecovery: -2 } },
+      bruised_ribs: { name: "肋骨挫伤", desc: "可出勤但风险+1，4天恢复", duration: 4, effects: { risk: 1 } },
+      snow_blindness: { name: "雪盲", desc: "无法出勤，2天恢复", duration: 2, effects: { noDispatch: true } }
+    };
+    const LEVEL_EXP = [0, 20, 50, 90, 140, 200, 270, 350, 440, 540];
+    function getExpForLevel(level) { return LEVEL_EXP[level] || (LEVEL_EXP[LEVEL_EXP.length - 1] + (level - LEVEL_EXP.length + 1) * 120); }
+    function getLevelForExp(exp) {
+      for (let i = LEVEL_EXP.length - 1; i >= 0; i--) {
+        if (exp >= LEVEL_EXP[i]) return i + 1;
+      }
+      return 1;
+    }
     const DIFF = {
       safe:   { label: "稳妥", cls: "safe",   wood: 28, med: 12, food: 32, stormProb: 0.15, fatigueBase: 1, fatigueStorm: 1, fatigueMul: 0.8 },
       normal: { label: "标准", cls: "normal", wood: 20, med: 8,  food: 24, stormProb: 0.24, fatigueBase: 1, fatigueStorm: 2, fatigueMul: 1.0 },
@@ -286,11 +337,120 @@
       };
     });
     document.querySelector("#startBtn").onclick = () => { els.diffOverlay.classList.add("hidden"); fresh(chosenDiff); };
+    function createGuide(name) {
+      return {
+        name: name,
+        fatigue: 0,
+        task: "",
+        exp: 0,
+        level: 1,
+        skills: [],
+        injuries: [],
+        tempBuffs: [],
+        stats: { successes: 0, failures: 0, restDays: 0, routesDispatched: {} }
+      };
+    }
+    function getGuideEffects(guide, routeId) {
+      const effects = { risk: 0, fatigue: 0, wood: 0, food: 0, med: 0, fatigueMul: 1, successBonus: 0, medSave: 0, restBonus: 0, bonusWood: 0, noDispatch: false };
+      guide.skills.forEach(skillId => {
+        const skill = SKILLS[skillId];
+        if (skill && (skill.route === "all" || skill.route === routeId)) {
+          Object.keys(skill.effects).forEach(key => {
+            if (key === "fatigueMul") effects.fatigueMul *= skill.effects[key];
+            else effects[key] += skill.effects[key];
+          });
+        }
+      });
+      guide.injuries.forEach(injuryId => {
+        const injury = INJURIES[injuryId.id];
+        if (injury) {
+          Object.keys(injury.effects).forEach(key => {
+            effects[key] = (key === "noDispatch") ? (effects[key] || injury.effects[key]) : (effects[key] + injury.effects[key]);
+          });
+        }
+      });
+      guide.tempBuffs.forEach(buff => {
+        if (buff.route === "all" || buff.route === routeId) {
+          Object.keys(buff.effects).forEach(key => {
+            if (key === "fatigueMul") effects.fatigueMul *= buff.effects[key];
+            else effects[key] += buff.effects[key];
+          });
+        }
+      });
+      return effects;
+    }
+    function canGuideDispatch(guide, routeId) {
+      const effects = getGuideEffects(guide, routeId);
+      if (effects.noDispatch) return false;
+      if (routeId && guide.fatigue >= 10) return false;
+      return true;
+    }
+    function estimateFatigue(guide, routeId, weather) {
+      if (!routeId) {
+        const effects = getGuideEffects(guide, null);
+        return -(2 + effects.restBonus);
+      }
+      const route = routesBase.find(r => r.id === routeId);
+      if (!route) return 0;
+      const d = DIFF[game.diff];
+      const effects = getGuideEffects(guide, routeId);
+      const baseFatigue = route.risk + (weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
+      const adjustedFatigue = (baseFatigue + effects.fatigue) * effects.fatigueMul * d.fatigueMul;
+      return Math.max(0, Math.round(adjustedFatigue));
+    }
+    function addExp(guide, amount, source) {
+      const oldLevel = guide.level;
+      guide.exp += amount;
+      const newLevel = getLevelForExp(guide.exp);
+      if (newLevel > oldLevel) {
+        guide.level = newLevel;
+        unlockRandomSkill(guide);
+        game.log.unshift("第" + game.day + "天，" + guide.name + "升级了！现在是" + guide.level + "级，获得新专长。");
+      } else {
+        game.log.unshift("第" + game.day + "天，" + guide.name + "获得" + amount + "点经验（" + source + "）。");
+      }
+    }
+    function unlockRandomSkill(guide) {
+      const availableSkills = Object.keys(SKILLS).filter(s => !guide.skills.includes(s));
+      if (availableSkills.length > 0) {
+        const randomSkill = availableSkills[Math.floor(Math.random() * availableSkills.length)];
+        guide.skills.push(randomSkill);
+      }
+    }
+    function addInjury(guide, injuryId) {
+      const existing = guide.injuries.find(i => i.id === injuryId);
+      if (existing) {
+        existing.days = INJURIES[injuryId].duration;
+      } else {
+        guide.injuries.push({ id: injuryId, days: INJURIES[injuryId].duration });
+      }
+      game.log.unshift("第" + game.day + "天，" + guide.name + "受伤了：" + INJURIES[injuryId].name + "。");
+    }
+    function healInjuries(guide) {
+      const healed = [];
+      guide.injuries = guide.injuries.filter(injury => {
+        injury.days--;
+        if (injury.days <= 0) {
+          healed.push(INJURIES[injury.id].name);
+          return false;
+        }
+        return true;
+      });
+      if (healed.length > 0) {
+        game.log.unshift("第" + game.day + "天，" + guide.name + "恢复了：" + healed.join("、") + "。");
+      }
+    }
+    function decayTempBuffs(guide) {
+      guide.tempBuffs = guide.tempBuffs.filter(buff => {
+        buff.days--;
+        return buff.days > 0;
+      });
+    }
     function fresh(diff) {
       const d = DIFF[diff];
       game = {
         day: 1, weather: "晴", wood: d.wood, med: d.med, food: d.food, rep: 0, saved: 0, ended: false, diff: diff,
-        guides: [{ name: "阿措", fatigue: 0, task: "" }, { name: "洛桑", fatigue: 0, task: "" }],
+        guides: [createGuide("阿措"), createGuide("洛桑")],
         log: ["第1天，驿站开门，山口风很轻。难度：" + d.label],
         routes: [],
         codex: {},
@@ -508,6 +668,74 @@
       if (resources.med) parts.push("药" + resources.med);
       return parts.length ? parts.join(" ") : "无";
     }
+    function renderGuideCard(guide, index) {
+      const currentLevel = guide.level;
+      const currentExp = guide.exp;
+      const expForCurrent = getExpForLevel(currentLevel - 1);
+      const expForNext = getExpForLevel(currentLevel);
+      const expProgress = expForNext > expForCurrent
+        ? Math.min(100, Math.round((currentExp - expForCurrent) / (expForNext - expForCurrent) * 100))
+        : 100;
+      const skillTags = guide.skills.map(skillId => {
+        const skill = SKILLS[skillId];
+        return '<span class="status-tag skill skill-tooltip" data-desc="' + skill.desc + '">' + skill.name + '</span>';
+      }).join("");
+      const injuryTags = guide.injuries.map(injury => {
+        const injuryDef = INJURIES[injury.id];
+        return '<span class="status-tag injury injury-tooltip" data-desc="' + injuryDef.desc + '">' + injuryDef.name + '(' + injury.days + '天)</span>';
+      }).join("");
+      const buffTags = guide.tempBuffs.map(buff => {
+        return '<span class="status-tag buff">' + buff.name + '(' + buff.days + '天)</span>';
+      }).join("");
+      const statusTags = skillTags + injuryTags + buffTags;
+      const routeOptions = game.routes.map(r => {
+        const canGo = canGuideDispatch(guide, r.id);
+        const estimatedFatigue = estimateFatigue(guide, r.id, game.weather);
+        return { ...r, canGo, estimatedFatigue };
+      });
+      const restFatigue = estimateFatigue(guide, null, game.weather);
+      let routeAvailabilityHtml = '<div class="guide-routes"><div style="font-size:12px;color:#5a6e78;margin-bottom:4px">今日可执行路线：</div>';
+      routeAvailabilityHtml += '<div class="route-availability allowed"><span>留守休整</span><span class="fatigue-estimate">预计疲劳 ' + restFatigue + '</span></div>';
+      routeOptions.forEach(r => {
+        const routeClass = r.canGo ? 'allowed' : 'restricted';
+        const routeName = r.canGo ? r.name : r.name + '（不可出勤）';
+        const displayRisk = r.canGo ? Math.max(0, r.risk - getCurrentRiskModifier(r.id) + getGuideEffects(guide, r.id).risk) : r.risk;
+        routeAvailabilityHtml += '<div class="route-availability ' + routeClass + '"><span>' + routeName + '</span><span class="fatigue-estimate">预计疲劳 +' + r.estimatedFatigue + ' · 风险 ' + displayRisk + '</span></div>';
+      });
+      routeAvailabilityHtml += '</div>';
+      const effects = getGuideEffects(guide, null);
+      let statusSourceHtml = '<div style="margin-top:6px"><div style="font-size:12px;color:#5a6e78;margin-bottom:2px">状态来源：</div>';
+      if (guide.skills.length > 0) {
+        statusSourceHtml += '<div style="font-size:11px;color:#315c72">专长：' + guide.skills.map(s => SKILLS[s].name).join('、') + '</div>';
+      }
+      if (guide.injuries.length > 0) {
+        statusSourceHtml += '<div style="font-size:11px;color:#a33d31">伤病：' + guide.injuries.map(i => INJURIES[i.id].name + '(' + i.days + '天)').join('、') + '</div>';
+      }
+      if (guide.tempBuffs.length > 0) {
+        statusSourceHtml += '<div style="font-size:11px;color:#3f7a54">临时：' + guide.tempBuffs.map(b => b.name + '(' + b.days + '天)').join('、') + '</div>';
+      }
+      if (guide.skills.length === 0 && guide.injuries.length === 0 && guide.tempBuffs.length === 0) {
+        statusSourceHtml += '<div style="font-size:11px;color:#5a6e78">无特殊状态</div>';
+      }
+      statusSourceHtml += '</div>';
+      return '<div class="card guide-card">' +
+        '<div class="guide-header">' +
+          '<span class="guide-name">' + guide.name + '</span>' +
+          '<span class="guide-level">Lv.' + guide.level + '</span>' +
+        '</div>' +
+        '<div class="guide-stats-row"><span class="label">疲劳</span><span class="value">' + guide.fatigue + ' / 12</span></div>' +
+        '<div class="guide-stats-row"><span class="label">经验</span><span class="value">' + guide.exp + ' / ' + expForNext + '</span></div>' +
+        '<div class="exp-bar"><div class="exp-fill" style="width:' + expProgress + '%"></div></div>' +
+        '<div class="exp-text">' + expProgress + '% 到下一级</div>' +
+        (statusTags ? '<div class="status-tags">' + statusTags + '</div>' : '') +
+        routeAvailabilityHtml +
+        statusSourceHtml +
+        '<select data-guide="' + index + '">' +
+          '<option value="">留守休整</option>' +
+          routeOptions.map(r => '<option value="' + r.id + '" ' + (r.canGo ? '' : 'disabled') + '>' + r.name + (r.canGo ? '' : '（不可出勤）') + '</option>').join("") +
+        '</select>' +
+      '</div>';
+    }
     function render() {
       const d = DIFF[game.diff];
       els.day.textContent = game.day + " / 15";
@@ -516,7 +744,7 @@
       els.med.textContent = game.med;
       els.food.textContent = game.food;
       els.rep.textContent = game.rep;
-      els.guides.innerHTML = game.guides.map((g, i) => '<div class="card"><b>'+g.name+'</b><div>疲劳：'+g.fatigue+'</div><select data-guide="'+i+'"><option value="">留守休整</option>'+game.routes.map(r => '<option value="'+r.id+'">'+r.name+'</option>').join("")+'</select></div>').join("");
+      els.guides.innerHTML = game.guides.map((g, i) => renderGuideCard(g, i)).join("");
       document.querySelectorAll("[data-guide]").forEach(sel => { sel.value = game.guides[sel.dataset.guide].task; sel.onchange = () => game.guides[sel.dataset.guide].task = sel.value; });
       els.routes.innerHTML = game.routes.map(r => {
         const riskMod = getCurrentRiskModifier(r.id);
@@ -640,6 +868,20 @@
         html += '<div class="route-stat"><span style="color:#5a6e78">· ' + r.name + '</span><span>' + (s.routeDispatches[r.id] || 0) + ' 次</span></div>';
       });
       html += '</div>';
+      html += '<div class="stats-row"><span class="label">向导成长</span></div>';
+      html += '<div class="guide-stats">';
+      game.guides.forEach(g => {
+        const successRate = (g.stats.successes + g.stats.failures) > 0
+          ? Math.round(g.stats.successes / (g.stats.successes + g.stats.failures) * 100)
+          : 0;
+        html += '<div class="guide-stat"><span style="color:#5a6e78">· ' + g.name + ' Lv.' + g.level + '</span><span>经验 ' + g.exp + '</span></div>';
+        html += '<div class="guide-stat"><span style="color:#5a6e78">&nbsp;&nbsp;成功/失败</span><span>' + g.stats.successes + ' / ' + g.stats.failures + '（' + successRate + '%）</span></div>';
+        html += '<div class="guide-stat"><span style="color:#5a6e78">&nbsp;&nbsp;休整天数</span><span>' + g.stats.restDays + ' 天</span></div>';
+        if (g.skills.length > 0) {
+          html += '<div class="guide-stat"><span style="color:#315c72">&nbsp;&nbsp;专长</span><span>' + g.skills.map(s => SKILLS[s].name).join('、') + '</span></div>';
+        }
+      });
+      html += '</div>';
       html += '<div class="stats-row"><span class="label">向导出勤</span></div>';
       html += '<div class="guide-stats">';
       game.guides.forEach(g => {
@@ -663,20 +905,41 @@
       const d = DIFF[game.diff];
       const usedRoutes = new Set();
       for (const guide of game.guides) {
-        if (!guide.task) { guide.fatigue = Math.max(0, guide.fatigue - 2); continue; }
+        const effects = getGuideEffects(guide, guide.task);
+        if (!guide.task) {
+          const restAmount = 2 + effects.restBonus;
+          guide.fatigue = Math.max(0, guide.fatigue - restAmount);
+          guide.stats.restDays++;
+          addExp(guide, 3, "留守休整");
+          continue;
+        }
         const route = game.routes.find(r => r.id === guide.task);
-        if (!route || usedRoutes.has(route.id)) { game.log.unshift(guide.name + "没有有效任务，留守整理马具。"); continue; }
+        if (!route || usedRoutes.has(route.id)) {
+          game.log.unshift(guide.name + "没有有效任务，留守整理马具。");
+          guide.fatigue = Math.max(0, guide.fatigue - 2 - effects.restBonus);
+          continue;
+        }
+        if (!canGuideDispatch(guide, route.id)) {
+          game.log.unshift(guide.name + "因伤病或疲劳无法出勤，留守休整。");
+          guide.fatigue = Math.max(0, guide.fatigue - 2 - effects.restBonus);
+          continue;
+        }
         usedRoutes.add(route.id);
         game.stats.guideDays[guide.name]++;
         game.stats.routeDispatches[route.id]++;
-        game.wood -= route.wood + (game.weather === "暴雪" ? 1 : 0);
-        game.food -= route.food;
-        game.med -= route.med;
+        guide.stats.routesDispatched[route.id] = (guide.stats.routesDispatched[route.id] || 0) + 1;
+        const woodCost = Math.max(0, route.wood + (game.weather === "暴雪" ? 1 : 0) + effects.wood);
+        const foodCost = Math.max(0, route.food + effects.food);
+        const medCost = Math.max(0, route.med + effects.med);
+        game.wood -= woodCost;
+        game.food -= foodCost;
+        game.med -= medCost;
         const riskMod = getCurrentRiskModifier(route.id);
-        const effectiveRisk = Math.max(0, route.risk - riskMod);
-        const rawFatigue = route.risk + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
-        guide.fatigue += Math.round(rawFatigue * d.fatigueMul);
-        const failChance = route.blocked ? .75 : (effectiveRisk + guide.fatigue / 4) / 12;
+        const effectiveRisk = Math.max(0, route.risk - riskMod + effects.risk);
+        const baseFatigue = route.risk + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
+        const adjustedFatigue = Math.max(0, Math.round((baseFatigue + effects.fatigue) * effects.fatigueMul * d.fatigueMul));
+        guide.fatigue += adjustedFatigue;
+        const failChance = route.blocked ? .75 : Math.max(0.05, (effectiveRisk + guide.fatigue / 4) / 12 - effects.successBonus);
         const cx = game.codex[route.id];
         cx.attempts++;
         const success = route.caravan && Math.random() > failChance;
@@ -688,17 +951,45 @@
           cx.rewards.wood += route.wood;
           cx.rewards.food += route.food;
           cx.rewards.med += route.med;
+          if (effects.bonusWood > 0) {
+            game.wood += effects.bonusWood;
+            cx.rewards.wood += effects.bonusWood;
+          }
+          guide.stats.successes++;
           updateCommissionProgress(route.id, true);
+          addExp(guide, 8 + route.risk * 2, route.name + "成功救援");
           game.log.unshift("第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功。");
+          if (Math.random() < 0.08 + route.risk * 0.02) {
+            const buffChoices = Object.keys(SKILLS).filter(s => !guide.skills.includes(s) && (SKILLS[s].route === "all" || SKILLS[s].route === route.id));
+            if (buffChoices.length > 0) {
+              const buffSkill = buffChoices[Math.floor(Math.random() * buffChoices.length)];
+              guide.tempBuffs.push({ route: route.id, effects: SKILLS[buffSkill].effects, days: 2, name: SKILLS[buffSkill].name });
+              game.log.unshift("第"+game.day+"天，"+guide.name+"在"+route.name+"领悟了临时技巧："+SKILLS[buffSkill].name+"（2天）。");
+            }
+          }
         } else if (route.caravan) {
-          game.med -= 1;
+          const actualMedCost = Math.max(0, 1 - effects.medSave);
+          game.med -= actualMedCost;
+          guide.stats.failures++;
+          addExp(guide, 4, route.name + "救援受挫");
           game.log.unshift("第"+game.day+"天，"+route.name+"救援受挫，消耗了额外药品。");
+          const injuryChance = 0.2 + route.risk * 0.1 + (guide.fatigue > 7 ? 0.2 : 0);
+          if (Math.random() < injuryChance) {
+            const injuryChoices = Object.keys(INJURIES);
+            const randomInjury = injuryChoices[Math.floor(Math.random() * injuryChoices.length)];
+            addInjury(guide, randomInjury);
+          }
         } else {
-          game.wood += 1;
-          cx.rewards.wood += 1;
+          game.wood += 1 + effects.bonusWood;
+          cx.rewards.wood += 1 + effects.bonusWood;
+          addExp(guide, 2, route.name + "巡查");
           game.log.unshift("第"+game.day+"天，"+guide.name+"巡查"+route.name+"，带回少量柴火。");
         }
       }
+      game.guides.forEach(guide => {
+        healInjuries(guide);
+        decayTempBuffs(guide);
+      });
       checkAndCompleteCommissions();
       game.food -= 2;
       game.wood -= game.weather === "暴雪" ? 3 : 1;
