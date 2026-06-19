@@ -115,11 +115,28 @@
     .confirm-buttons button { flex: 1; }
     .route-preference { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
     .route-tag { padding: 2px 6px; background: #e8f0f2; border-radius: 4px; font-size: 11px; color: #315c72; }
+    .scenario-title { margin: 0 0 4px; font-size: 18px; color: #1f2a2f; }
+    .scenario-subtitle { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .scenario-desc { font-size: 12px; color: #5a6e78; line-height: 1.5; margin: 6px 0 0; }
+    .scenario-info { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #dde5e6; font-size: 12px; color: #5a6e78; }
+    .scenario-info-row { display: flex; justify-content: space-between; padding: 2px 0; }
+    .scenario-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 14px; }
+    .scenario-card { border: 2px solid #cfdbdc; border-radius: 8px; padding: 12px; cursor: pointer; transition: all .2s; }
+    .scenario-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .scenario-card.selected { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+    .setup-section-title { font-size: 14px; font-weight: 800; color: #315c72; margin: 8px 0 6px; display: flex; align-items: center; gap: 6px; }
+    .setup-section-title::before { content: ""; display: inline-block; width: 4px; height: 16px; background: #315c72; border-radius: 2px; }
+    .scenario-badge { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 800; color: #fff; }
+    .archive-scenario-tag { padding: 2px 6px; border-radius: 3px; font-size: 11px; color: #fff; font-weight: 800; }
+    .setup-modal { width: min(780px, calc(100% - 28px)); max-height: 90vh; overflow-y: auto; }
+    @media (max-width: 600px) {
+      .scenario-options { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <div><h1>高山驿站补给调度</h1><div>撑过15天，接应商队，让驿站不断粮。</div></div>
+    <div><h1>高山驿站补给调度 · <span id="scenarioName" style="color:#315c72">标准雪线</span></h1><div id="scenarioIntro">撑过15天，接应商队，让驿站不断粮。</div></div>
     <button id="newBtn">新开一局</button>
   </header>
   <main class="app">
@@ -147,8 +164,11 @@
     </aside>
   </main>
   <div class="overlay hidden" id="diffOverlay">
-    <div class="modal">
-      <h2>选择开局难度</h2>
+    <div class="modal setup-modal">
+      <h2>赛季剧本与难度设置</h2>
+      <div class="setup-section-title">选择赛季剧本</div>
+      <div class="scenario-options" id="scenarioOptions"></div>
+      <div class="setup-section-title">选择开局难度</div>
       <div class="diff-options" id="diffOptions">
         <div class="diff-card" data-diff="safe">
           <h3><span class="diff-label safe">稳妥</span></h3>
@@ -164,20 +184,24 @@
         </div>
       </div>
       <div style="display:flex;gap:10px">
-        <button id="startBtn" style="flex:1">出发</button>
+        <button id="startBtn" style="flex:1">开始剧本</button>
         <button class="codex-btn" id="diffCodexBtn" style="flex:1">查看路线图鉴</button>
         <button class="archive-btn" id="archiveBtn" style="flex:1">结算档案馆</button>
       </div>
     </div>
   </div>
   <div class="overlay hidden" id="archiveOverlay">
-    <div class="modal" style="width:min(700px,calc(100% - 28px));max-height:85vh;overflow-y:auto">
+    <div class="modal" style="width:min(780px,calc(100% - 28px));max-height:85vh;overflow-y:auto">
       <h2>结算档案馆</h2>
       <div class="archive-filter">
         <button data-filter="recent" class="active">最近游玩</button>
         <button data-filter="win">胜利记录</button>
         <button data-filter="lose">失败记录</button>
         <button data-filter="rep">最高声望</button>
+        <button data-filter="standard" style="background:#315c72">标准雪线</button>
+        <button data-filter="medshortage" style="background:#a33d31">药品短缺</button>
+        <button data-filter="caravan" style="background:#b08a28">商队旺季</button>
+        <button data-filter="rescue" style="background:#5a7fa8">封山救援</button>
       </div>
       <div class="archive-list" id="archiveList"></div>
       <div class="archive-actions">
@@ -225,8 +249,14 @@
     const routesBase = [
       { id: "north", name: "北坡盐道", risk: 2, reward: 3, wood: 2, food: 3, med: 1, desc: "翻越北坡的古老盐道，沿途有零星盐晶可以换取物资。路途稍长但相对平缓，是稳妥的补给路线。" },
       { id: "ridge", name: "雪脊短线", risk: 3, reward: 4, wood: 3, food: 2, med: 1, desc: "沿雪线山脊穿行的险峻捷径，能最快抵达山外。途中常有落石与冰缝，但接应商队效率最高。" },
-      { id: "valley", name: "松谷绕行", risk: 1, reward: 2, wood: 1, food: 4, med: 0, desc: "绕过松林谷地的安全路线，几乎没有雪崩风险。林间可以采集少量食物，但路程较远收益偏低。" }
+      { id: "valley", name: "松谷绕行", risk: 1, reward: 2, wood: 1, food: 4, med: 0, desc: "绕过松林谷地的安全路线，几乎没有雪崩风险。林间可以采集少量食物，但路程较远收益偏低。" },
+      { id: "glacier", name: "冰原直道", risk: 5, reward: 5, wood: 4, food: 2, med: 2, desc: "横穿冰川的极限通道，暴雪天气中仍可强行通过。极度危险但距离最短，救援时必走此路。" },
+      { id: "herbal", name: "草药小径", risk: 2, reward: 2, wood: 1, food: 2, med: -1, desc: "通往高山草药园的隐秘小路，沿途可采集中草药。消耗药品少，甚至能补充药材。" },
+      { id: "market", name: "集市古道", risk: 1, reward: 3, wood: 2, food: 1, med: 1, desc: "通向山外集市的繁忙商道，旺季时商队络绎不绝。路好走、商队多，是旺季补给的黄金路线。" },
+      { id: "cliff", name: "悬崖索道", risk: 4, reward: 3, wood: 3, food: 1, med: 2, desc: "架设在悬崖之间的古老索道，封山时期少数仍能通行的路径。高空寒风凛冽，需额外御寒。" }
     ];
+    const ALL_ROUTES_MAP = {};
+    routesBase.forEach(r => ALL_ROUTES_MAP[r.id] = r);
     const DIFF = {
       safe:   { label: "稳妥", cls: "safe",   wood: 28, med: 12, food: 32, stormProb: 0.15, fatigueBase: 1, fatigueStorm: 1, fatigueMul: 0.8 },
       normal: { label: "标准", cls: "normal", wood: 20, med: 8,  food: 24, stormProb: 0.24, fatigueBase: 1, fatigueStorm: 2, fatigueMul: 1.0 },
@@ -420,7 +450,128 @@
       weather: "天气异象", supply: "物资事件", guide: "向导事件",
       reputation: "声望事件", random: "随机事件"
     };
-    let game, chosenDiff = "normal", pendingEvent = null;
+    const SCENARIOS = {
+      standard: {
+        id: "standard",
+        name: "标准雪线",
+        subtitle: "常规补给任务",
+        desc: "正常年份的雪线补给调度。物资适中、天气如常、商队平稳。适合熟悉机制与稳步经营。",
+        color: "#315c72",
+        targetDays: 15,
+        routePool: ["north", "ridge", "valley"],
+        startResources: { wood: 0, med: 0, food: 0, rep: 0 },
+        weatherTable: {
+          clear: 0.50,
+          wind: 0.30,
+          storm: 0.20,
+          overrideStormProb: null
+        },
+        routeMod: {
+          caravanChance: 0.74,
+          stormBlockChance: 0.33,
+          fatigueBonus: 0
+        },
+        eventWeightMul: { weather: 1.0, supply: 1.0, guide: 1.0, reputation: 1.0, random: 1.0 },
+        eventWeightOverrides: {},
+        eventTriggerChance: 0.75,
+        win: { type: "days", label: "坚守到最后" },
+        lose: { resources: true, fatigue: true },
+        resultWin: (game) => "坚守到第" + game.targetDays + "天，接应商队 " + game.saved + " 队，累计声望 " + game.rep + "。雪线如旧，驿站灯火长明。",
+        resultLose: (game) => "未能撑过雪线之冬。主要原因：" + (game.failureReason || "未知") + "。坚持了 " + game.day + " 天，接应 " + game.saved + " 队商队。",
+        intro: "标准雪线季，按部就班地接应过路商队，维持驿站运转即可。"
+      },
+      medshortage: {
+        id: "medshortage",
+        name: "药品短缺",
+        subtitle: "高原疫病蔓延",
+        desc: "今年山脚村落爆发疫病，药品极度稀缺且需求翻倍。向导与村民接连病倒，需谨慎分配每一份药材，优先开辟草药小径自救。",
+        color: "#a33d31",
+        targetDays: 18,
+        routePool: ["north", "valley", "herbal", "ridge"],
+        startResources: { wood: 4, med: -4, food: 4, rep: 0 },
+        weatherTable: {
+          clear: 0.55,
+          wind: 0.28,
+          storm: 0.17,
+          overrideStormProb: null
+        },
+        routeMod: {
+          caravanChance: 0.55,
+          stormBlockChance: 0.28,
+          fatigueBonus: 1
+        },
+        eventWeightMul: { weather: 0.8, supply: 1.6, guide: 1.4, reputation: 1.2, random: 1.0 },
+        eventWeightOverrides: { guide_injury: 2.0, village_request: 2.2, guide_motivation: 1.5 },
+        eventTriggerChance: 0.82,
+        win: { type: "days_and_rep", rep: 25, label: "熬到疫情缓解" },
+        lose: { resources: true, fatigue: true, medCritical: { value: 2, days: 2 } },
+        resultWin: (game) => "坚持到疫情缓解！坚守 " + game.day + " 天，接应 " + game.saved + " 队，声望 " + game.rep + "。村民们送来锦旗，驿站声名远扬。",
+        resultLose: (game) => "药尽人散。原因：" + (game.failureReason || "药品严重不足") + "。坚守 " + game.day + " 天，接应 " + game.saved + " 队。",
+        intro: "药品告急！请优先走草药小径补充药材，注意向导健康不要过劳。"
+      },
+      caravan: {
+        id: "caravan",
+        name: "商队旺季",
+        subtitle: "山口贸易高峰",
+        desc: "一年一度的山货集市即将开市，各路商队云集山口。路线繁忙、接应机会极多，但驿站名声直接关系到商队是否愿意绕行而来。",
+        color: "#b08a28",
+        targetDays: 12,
+        routePool: ["north", "ridge", "market", "valley"],
+        startResources: { wood: 4, med: 2, food: -4, rep: 3 },
+        weatherTable: {
+          clear: 0.58,
+          wind: 0.27,
+          storm: 0.15,
+          overrideStormProb: null
+        },
+        routeMod: {
+          caravanChance: 0.92,
+          stormBlockChance: 0.22,
+          fatigueBonus: 0,
+          rewardBonus: 1
+        },
+        eventWeightMul: { weather: 0.7, supply: 1.2, guide: 1.0, reputation: 1.8, random: 1.1 },
+        eventWeightOverrides: { caravan_distress: 2.5, supply_route: 2.2, traveler_merchant: 1.8, supply_cache: 1.3 },
+        eventTriggerChance: 0.80,
+        win: { type: "caravans", count: 12, label: "接应足够商队" },
+        lose: { resources: true, fatigue: true },
+        resultWin: (game) => "旺季完美收官！接应商队 " + game.saved + " 队（目标12队），声望 " + game.rep + "。驿站赚得盆满钵满，明年的商路预订已排满。",
+        resultLose: (game) => "旺季业绩惨淡。仅接应 " + game.saved + " 队，未能达成 12 队目标。商人们改走他处，明年恐怕门可罗雀。",
+        intro: "旺季来了！目标是 12 天内接应 12 队以上商队，集市古道效率极高。"
+      },
+      rescue: {
+        id: "rescue",
+        name: "封山救援",
+        subtitle: "暴雪封山紧急营救",
+        desc: "突发特大暴雪提前封山，数支商队被困山中。暴雪频繁、路线艰难，必须顶风冒雪打通救援通道，每一支被困商队都亟待救援。",
+        color: "#5a7fa8",
+        targetDays: 10,
+        routePool: ["ridge", "glacier", "cliff", "north"],
+        startResources: { wood: -3, med: 3, food: -2, rep: 5 },
+        weatherTable: {
+          clear: 0.18,
+          wind: 0.30,
+          storm: 0.52,
+          overrideStormProb: 0.55
+        },
+        routeMod: {
+          caravanChance: 0.95,
+          stormBlockChance: 0.55,
+          fatigueBonus: 2,
+          rewardBonus: 2,
+          stormRouteImmune: ["glacier", "cliff"]
+        },
+        eventWeightMul: { weather: 2.2, supply: 0.9, guide: 1.3, reputation: 1.5, random: 1.0 },
+        eventWeightOverrides: { storm_warning: 2.5, route_blockage: 2.2, caravan_distress: 2.8, weather_anomaly: 1.8, guide_injury: 1.6 },
+        eventTriggerChance: 0.88,
+        win: { type: "caravans_and_rep", count: 8, rep: 30, label: "救出足够商队" },
+        lose: { resources: true, fatigue: true },
+        resultWin: (game) => "封山大捷！救援 " + game.saved + " 队（目标8队），声望 " + game.rep + "。所有被困商队平安脱险，驿站被授予雪山之光勋章。",
+        resultLose: (game) => "救援失败。仅救出 " + game.saved + " 队，未能达成目标。暴风雪吞没了最后的希望，来年山口只剩残碑。",
+        intro: "暴雪封山！目标 10 天内救出 8 队以上商队，冰原直道与悬崖索道在暴雪中仍可通行。"
+      }
+    };
+    let game, chosenDiff = "normal", chosenScenario = "standard", pendingEvent = null;
     const els = {
       day: document.querySelector("#dayText"), weather: document.querySelector("#weatherText"), wood: document.querySelector("#woodText"),
       med: document.querySelector("#medText"), food: document.querySelector("#foodText"), rep: document.querySelector("#repText"),
@@ -432,11 +583,48 @@
       eventOptions: document.querySelector("#eventOptions"), codexGrid: document.querySelector("#codexGrid"),
       archiveOverlay: document.querySelector("#archiveOverlay"), archiveList: document.querySelector("#archiveList"),
       confirmOverlay: document.querySelector("#confirmOverlay"), confirmTitle: document.querySelector("#confirmTitle"),
-      confirmText: document.querySelector("#confirmText")
+      confirmText: document.querySelector("#confirmText"), scenarioOptions: document.querySelector("#scenarioOptions"),
+      scenarioNameEl: document.querySelector("#scenarioName"), scenarioIntroEl: document.querySelector("#scenarioIntro")
     };
+    function getScenarioRoutes(scenarioId) {
+      const sc = SCENARIOS[scenarioId];
+      return sc.routePool.map(id => ALL_ROUTES_MAP[id]).filter(Boolean);
+    }
+    function buildScenarioCardHTML(sc, isSelected) {
+      const routes = getScenarioRoutes(sc.id);
+      const routeNames = routes.map(r => r.name).join("、");
+      let winDesc = "";
+      switch (sc.win.type) {
+        case "days": winDesc = "坚守 " + sc.targetDays + " 天"; break;
+        case "caravans": winDesc = sc.targetDays + " 天内接应 ≥" + sc.win.count + " 队"; break;
+        case "days_and_rep": winDesc = "坚守 " + sc.targetDays + " 天 且 声望 ≥" + sc.win.rep; break;
+        case "caravans_and_rep": winDesc = sc.targetDays + " 天内接应 ≥" + sc.win.count + " 队 且 声望 ≥" + sc.win.rep; break;
+      }
+      return '<div class="scenario-card ' + (isSelected ? 'selected' : '') + '" data-scenario="' + sc.id + '" style="border-color:' + (isSelected ? sc.color : '') + '">' +
+        '<span class="scenario-subtitle" style="background:' + sc.color + '">' + sc.subtitle + '</span>' +
+        '<h3 class="scenario-title" style="color:' + sc.color + '">' + sc.name + '</h3>' +
+        '<p class="scenario-desc">' + sc.desc + '</p>' +
+        '<div class="scenario-info">' +
+        '<div class="scenario-info-row"><span>目标</span><span><b>' + winDesc + '</b></span></div>' +
+        '<div class="scenario-info-row"><span>可用路线</span><span>' + routeNames + '</span></div>' +
+        '<div class="scenario-info-row"><span>事件频率</span><span>' + Math.round(sc.eventTriggerChance * 100) + '%</span></div>' +
+        '</div></div>';
+    }
+    function renderScenarioOptions() {
+      if (!els.scenarioOptions) return;
+      const html = Object.values(SCENARIOS).map(sc => buildScenarioCardHTML(sc, sc.id === chosenScenario)).join("");
+      els.scenarioOptions.innerHTML = html;
+      document.querySelectorAll(".scenario-card").forEach(card => {
+        card.onclick = () => {
+          chosenScenario = card.dataset.scenario;
+          renderScenarioOptions();
+        };
+      });
+    }
     function showDiffPicker() {
       els.overlay.classList.add("hidden");
       els.diffOverlay.classList.remove("hidden");
+      renderScenarioOptions();
       document.querySelectorAll(".diff-card").forEach(c => c.classList.toggle("selected", c.dataset.diff === chosenDiff));
     }
     document.querySelectorAll(".diff-card").forEach(card => {
@@ -462,7 +650,14 @@
       return "medium";
     }
     function calculateEventWeight(event) {
+      const sc = game.scenarioConfig;
       let weight = event.baseWeight;
+      if (sc.eventWeightMul && sc.eventWeightMul[event.category]) {
+        weight *= sc.eventWeightMul[event.category];
+      }
+      if (sc.eventWeightOverrides && sc.eventWeightOverrides[event.id]) {
+        weight *= sc.eventWeightOverrides[event.id];
+      }
       const mod = event.weightMod || {};
       if (mod.weather && mod.weather[game.weather] !== undefined) {
         weight *= mod.weather[game.weather];
@@ -494,10 +689,11 @@
       return Math.max(0.1, weight);
     }
     function drawEvent() {
+      const sc = game.scenarioConfig;
       const eligible = EVENTS_POOL.filter(e => checkEventConditions(e));
       if (eligible.length === 0) return null;
       if (game.day === 1) return null;
-      if (Math.random() > 0.75) return null;
+      if (Math.random() > sc.eventTriggerChance) return null;
       const totalWeight = eligible.reduce((sum, e) => sum + calculateEventWeight(e), 0);
       let random = Math.random() * totalWeight;
       for (const event of eligible) {
@@ -578,7 +774,15 @@
     }
     function applyRouteEffect(routeEffect) {
       let targetRoute = routeEffect.route;
+      const availableRouteIds = game.routes.map(r => r.id);
       if (targetRoute === "random") {
+        const available = game.routes.filter(r => !r.blocked);
+        if (available.length > 0) {
+          targetRoute = available[Math.floor(Math.random() * available.length)].id;
+        } else {
+          targetRoute = game.routes[Math.floor(Math.random() * game.routes.length)].id;
+        }
+      } else if (!availableRouteIds.includes(targetRoute)) {
         const available = game.routes.filter(r => !r.blocked);
         if (available.length > 0) {
           targetRoute = available[Math.floor(Math.random() * available.length)].id;
@@ -591,7 +795,7 @@
       switch (routeEffect.type) {
         case "block":
           route.blocked = true;
-          game.codex[route.id].blocked++;
+          if (game.codex[route.id]) game.codex[route.id].blocked++;
           break;
         case "ensureOpen":
           route.blocked = false;
@@ -646,38 +850,87 @@
       });
       return Math.max(0, Math.min(1, baseProb + mod));
     }
+    function buildEmptyRouteDispatches(routeIds) {
+      const obj = {};
+      routeIds.forEach(id => obj[id] = 0);
+      return obj;
+    }
     function fresh(diff) {
+      const sc = SCENARIOS[chosenScenario];
       const d = DIFF[diff];
+      const sr = getScenarioRoutes(chosenScenario);
+      const startWood = Math.max(0, d.wood + (sc.startResources.wood || 0));
+      const startMed = Math.max(0, d.med + (sc.startResources.med || 0));
+      const startFood = Math.max(0, d.food + (sc.startResources.food || 0));
+      const startRep = Math.max(0, sc.startResources.rep || 0);
       game = {
-        day: 1, weather: "晴", wood: d.wood, med: d.med, food: d.food, rep: 0, saved: 0, ended: false, diff: diff,
+        scenario: chosenScenario,
+        scenarioConfig: sc,
+        day: 1, targetDays: sc.targetDays, weather: "晴",
+        wood: startWood, med: startMed, food: startFood, rep: startRep,
+        saved: 0, ended: false, diff: diff,
         guides: [{ name: "阿措", fatigue: 0, task: "" }, { name: "洛桑", fatigue: 0, task: "" }],
-        log: ["第1天，驿站开门，山口风很轻。难度：" + d.label],
+        log: ["第1天，" + sc.intro + "（难度：" + d.label + "）"],
         routes: [],
         codex: {},
         eventCodex: {},
         eventStats: { triggered: 0, byCategory: {} },
         weatherModifiers: [],
-        minResources: { wood: d.wood, med: d.med, food: d.food },
-        routeDispatches: { north: 0, ridge: 0, valley: 0 },
-        failureReason: null
+        minResources: { wood: startWood, med: startMed, food: startFood },
+        routeDispatches: buildEmptyRouteDispatches(sc.routePool),
+        failureReason: null,
+        medCriticalStreak: 0
       };
-      routesBase.forEach(r => {
+      sr.forEach(r => {
         game.codex[r.id] = { name: r.name, risk: r.risk, reward: r.reward, desc: r.desc, wood: r.wood, food: r.food, med: r.med, seen: 0, blocked: 0, attempts: 0, successes: 0, rewards: { rep: 0, wood: 0, food: 0, med: 0 } };
       });
       EVENTS_POOL.forEach(e => {
         game.eventCodex[e.id] = { name: e.name, category: e.category, desc: e.desc, seen: 0, choices: {} };
       });
+      if (els.scenarioNameEl) {
+        els.scenarioNameEl.textContent = sc.name;
+        els.scenarioNameEl.style.color = sc.color;
+      }
+      if (els.scenarioIntroEl) {
+        let introText = "";
+        switch (sc.win.type) {
+          case "days": introText = "坚守 " + sc.targetDays + " 天即可胜利"; break;
+          case "caravans": introText = sc.targetDays + " 天内接应 ≥" + sc.win.count + " 队商队"; break;
+          case "days_and_rep": introText = "坚守 " + sc.targetDays + " 天 且 声望 ≥" + sc.win.rep; break;
+          case "caravans_and_rep": introText = sc.targetDays + " 天内接应 ≥" + sc.win.count + " 队 且 声望 ≥" + sc.win.rep; break;
+        }
+        els.scenarioIntroEl.textContent = introText;
+      }
       rollDay();
       els.overlay.classList.add("hidden");
       render();
     }
+    function rollWeather(sc, d) {
+      const wt = sc.weatherTable;
+      let stormProb = wt.overrideStormProb !== null ? wt.overrideStormProb : d.stormProb;
+      stormProb = getEffectiveWeatherProb(stormProb);
+      const r = Math.random();
+      if (r < stormProb * 0.95) return "暴雪";
+      if (r < stormProb + wt.wind) return "阴风";
+      if (Math.random() < wt.clear / (wt.clear + wt.wind)) return "晴";
+      return "阴风";
+    }
     function rollDay() {
+      const sc = game.scenarioConfig;
       const d = DIFF[game.diff];
-      const effectiveStormProb = getEffectiveWeatherProb(d.stormProb);
-      const storm = Math.random() < effectiveStormProb;
-      game.weather = storm ? "暴雪" : Math.random() < 0.35 ? "阴风" : "晴";
-      game.routes = routesBase.map(route => ({ ...route, caravan: Math.random() < .74, blocked: storm && Math.random() < .33 }));
-      game.routes.forEach(r => { game.codex[r.id].seen++; if (r.blocked) game.codex[r.id].blocked++; });
+      const rm = sc.routeMod;
+      const sr = getScenarioRoutes(game.scenario);
+      game.weather = rollWeather(sc, d);
+      const isStorm = game.weather === "暴雪";
+      game.routes = sr.map(route => {
+        const immune = rm.stormRouteImmune && rm.stormRouteImmune.includes(route.id);
+        let blocked = false;
+        if (isStorm && !immune) {
+          blocked = Math.random() < rm.stormBlockChance;
+        }
+        return { ...route, caravan: Math.random() < rm.caravanChance, blocked: blocked };
+      });
+      game.routes.forEach(r => { if (game.codex[r.id]) { game.codex[r.id].seen++; if (r.blocked) game.codex[r.id].blocked++; } });
       game.guides.forEach(g => g.task = "");
       if (game.weatherModifiers) {
         game.weatherModifiers = game.weatherModifiers.filter(wm => {
@@ -691,53 +944,68 @@
       }
     }
     function render() {
+      const sc = game.scenarioConfig;
       const d = DIFF[game.diff];
-      els.day.textContent = game.day + " / 15";
+      els.day.textContent = game.day + " / " + game.targetDays;
       els.weather.textContent = game.weather;
       els.wood.textContent = game.wood;
       els.med.textContent = game.med;
       els.food.textContent = game.food;
       els.rep.textContent = game.rep;
-      els.guides.innerHTML = game.guides.map((g, i) => '<div class="card"><b>'+g.name+'</b><div>疲劳：'+g.fatigue+'</div><select data-guide="'+i+'"><option value="">留守休整</option>'+game.routes.map(r => '<option value="'+r.id+'">'+r.name+'</option>').join("")+'</select></div>').join("");
+      let goalText = "";
+      switch (sc.win.type) {
+        case "days": goalText = ""; break;
+        case "caravans": goalText = '<div class="'+(game.saved>=sc.win.count?'ok':'')+'" style="font-size:12px">商队目标：' + game.saved + '/' + sc.win.count + '</div>'; break;
+        case "days_and_rep": goalText = '<div class="'+(game.rep>=sc.win.rep?'ok':'')+'" style="font-size:12px">声望目标：' + game.rep + '/' + sc.win.rep + '</div>'; break;
+        case "caravans_and_rep": goalText = '<div style="font-size:12px"><span class="'+(game.saved>=sc.win.count?'ok':'')+'">商队：' + game.saved + '/' + sc.win.count + '</span> · <span class="'+(game.rep>=sc.win.rep?'ok':'')+'">声望：' + game.rep + '/' + sc.win.rep + '</span></div>'; break;
+      }
+      els.guides.innerHTML = game.guides.map((g, i) => '<div class="card"><b>'+g.name+'</b><div>疲劳：'+g.fatigue+'</div><select data-guide="'+i+'"><option value="">留守休整</option>'+game.routes.map(r => '<option value="'+r.id+'" '+(r.blocked?'disabled':'')+'>'+r.name+(r.blocked?' (封路)':'')+'</option>').join("")+'</select></div>').join("");
       document.querySelectorAll("[data-guide]").forEach(sel => { sel.value = game.guides[sel.dataset.guide].task; sel.onchange = () => game.guides[sel.dataset.guide].task = sel.value; });
-      els.routes.innerHTML = game.routes.map(r => '<div class="card"><h3>'+r.name+'</h3><div>风险 '+r.risk+' · 奖励声望 '+r.reward+'</div><div>消耗：柴'+r.wood+' 干粮'+r.food+' 药'+r.med+'</div><div class="'+(r.blocked?'danger':'ok')+'">'+(r.blocked?'暴雪封路':r.caravan?'有商队求援':'今日较安静')+'</div></div>').join("");
+      const rewardBonus = sc.routeMod.rewardBonus || 0;
+      els.routes.innerHTML = game.routes.map(r => {
+        const realReward = r.reward + rewardBonus;
+        return '<div class="card"><h3 style="color:'+sc.color+'">'+r.name+'</h3><div>风险 '+r.risk+' · 奖励声望 '+realReward+(rewardBonus>0?' (+'+rewardBonus+')':'')+'</div><div>消耗：柴'+r.wood+' 干粮'+r.food+' 药'+(r.med>0?r.med:'+'+Math.abs(r.med))+'</div><div class="'+(r.blocked?'danger':'ok')+'">'+(r.blocked?'暴雪封路':r.caravan?'有商队求援':'今日较安静')+'</div></div>';
+      }).join("") + goalText;
       els.log.innerHTML = game.log.map(item => '<div class="entry">'+item+'</div>').join("");
     }
     function endDay() {
       if (game.ended) return;
+      const sc = game.scenarioConfig;
       const d = DIFF[game.diff];
+      const rm = sc.routeMod;
       const usedRoutes = new Set();
+      const rewardBonus = rm.rewardBonus || 0;
+      const fatigueBonus = rm.fatigueBonus || 0;
       for (const guide of game.guides) {
         if (!guide.task) { guide.fatigue = Math.max(0, guide.fatigue - 2); continue; }
         const route = game.routes.find(r => r.id === guide.task);
         if (!route || usedRoutes.has(route.id)) { game.log.unshift(guide.name + "没有有效任务，留守整理马具。"); continue; }
+        if (route.blocked) { game.log.unshift(guide.name + "尝试走" + route.name + "，但道路已封，无功而返。"); continue; }
         usedRoutes.add(route.id);
         if (game.routeDispatches[route.id] !== undefined) {
           game.routeDispatches[route.id]++;
         }
-        game.wood -= route.wood + (game.weather === "暴雪" ? 1 : 0);
+        const stormWoodCost = (rm.stormRouteImmune && rm.stormRouteImmune.includes(route.id)) ? 0 : (game.weather === "暴雪" ? 1 : 0);
+        game.wood -= route.wood + stormWoodCost;
         game.food -= route.food;
         game.med -= route.med;
-        const rawFatigue = route.risk + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
+        const rawFatigue = route.risk + fatigueBonus + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
         guide.fatigue += Math.round(rawFatigue * d.fatigueMul);
         const failChance = route.blocked ? .75 : (route.risk + guide.fatigue / 4) / 12;
         const cx = game.codex[route.id];
-        cx.attempts++;
+        if (cx) cx.attempts++;
+        const realReward = route.reward + rewardBonus;
         if (route.caravan && Math.random() > failChance) {
-          game.rep += route.reward;
+          game.rep += realReward;
           game.saved += 1;
-          cx.successes++;
-          cx.rewards.rep += route.reward;
-          cx.rewards.wood += route.wood;
-          cx.rewards.food += route.food;
-          cx.rewards.med += route.med;
-          game.log.unshift("第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功。");
+          if (cx) { cx.successes++; cx.rewards.rep += realReward; cx.rewards.wood += route.wood; cx.rewards.food += route.food; cx.rewards.med += route.med; }
+          game.log.unshift("第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功，声望+"+realReward+"。");
         } else if (route.caravan) {
           game.med -= 1;
           game.log.unshift("第"+game.day+"天，"+route.name+"救援受挫，消耗了额外药品。");
         } else {
           game.wood += 1;
-          cx.rewards.wood += 1;
+          if (cx) cx.rewards.wood += 1;
           game.log.unshift("第"+game.day+"天，"+guide.name+"巡查"+route.name+"，带回少量柴火。");
         }
       }
@@ -746,21 +1014,63 @@
       if (game.wood < game.minResources.wood) game.minResources.wood = game.wood;
       if (game.med < game.minResources.med) game.minResources.med = game.med;
       if (game.food < game.minResources.food) game.minResources.food = game.food;
-      if (game.food < 0) { game.failureReason = "粮食耗尽"; return finish(false); }
-      if (game.wood < 0) { game.failureReason = "柴火耗尽"; return finish(false); }
-      if (game.med < 0) { game.failureReason = "药品耗尽"; return finish(false); }
-      if (game.guides.some(g => g.fatigue >= 12)) { game.failureReason = "向导疲劳过度"; return finish(false); }
-      if (game.day >= 15) return finish(true);
+      const lc = sc.lose || {};
+      if (lc.resources) {
+        if (game.food < 0) { game.failureReason = "粮食耗尽"; return finish(false); }
+        if (game.wood < 0) { game.failureReason = "柴火耗尽"; return finish(false); }
+        if (game.med < 0) { game.failureReason = "药品耗尽"; return finish(false); }
+      }
+      if (lc.fatigue && game.guides.some(g => g.fatigue >= 12)) { game.failureReason = "向导疲劳过度"; return finish(false); }
+      if (lc.medCritical) {
+        if (game.med <= lc.medCritical.value) game.medCriticalStreak = (game.medCriticalStreak || 0) + 1;
+        else game.medCriticalStreak = 0;
+        if (game.medCriticalStreak >= lc.medCritical.days) { game.failureReason = "药品持续短缺，疫情恶化"; return finish(false); }
+      }
+      let win = false;
+      const wc = sc.win;
+      const prevTargetReached = game.caravanTargetReached || false;
+      switch (wc.type) {
+        case "days":
+          if (game.day >= game.targetDays) win = true;
+          break;
+        case "caravans":
+          if (game.day >= game.targetDays) win = game.saved >= wc.count;
+          if (game.saved >= wc.count && game.day < game.targetDays && !prevTargetReached) {
+            game.caravanTargetReached = true;
+            game.log.unshift("已达成接应目标，继续坚持到剧本结束即可锁定胜利。");
+          }
+          break;
+        case "days_and_rep":
+          if (game.day >= game.targetDays) win = game.rep >= wc.rep;
+          break;
+        case "caravans_and_rep":
+          if (game.day >= game.targetDays) win = (game.saved >= wc.count) && (game.rep >= wc.rep);
+          break;
+      }
+      if (game.day >= game.targetDays) return finish(win);
       game.day += 1;
       rollDay();
       render();
     }
     function finish(win) {
       game.ended = true;
+      const sc = game.scenarioConfig;
       const d = DIFF[game.diff];
       saveGameArchive(win);
-      els.resultTitle.textContent = win ? "驿站守住了雪线" : "驿站没能撑下去";
-      els.resultText.textContent = "难度：" + d.label + "｜接应商队：" + game.saved + "队，声望：" + game.rep + "。";
+      const winTitles = {
+        standard: "驿站守住了雪线",
+        medshortage: "疫情终于缓解",
+        caravan: "旺季完美收官",
+        rescue: "封山大获全胜"
+      };
+      const loseTitles = {
+        standard: "驿站没能撑下去",
+        medshortage: "疫病击溃了驿站",
+        caravan: "旺季业绩惨淡",
+        rescue: "救援未能完成"
+      };
+      els.resultTitle.textContent = win ? (winTitles[sc.id] || "胜利") : (loseTitles[sc.id] || "失败");
+      els.resultText.textContent = (win ? sc.resultWin(game) : sc.resultLose(game)) + " 难度：" + d.label;
       els.overlay.classList.remove("hidden");
     }
     document.querySelector("#endDayBtn").onclick = endDay;
@@ -768,7 +1078,7 @@
     document.querySelector("#againBtn").onclick = showDiffPicker;
     const codexOverlay = document.querySelector("#codexOverlay");
     function getDefaultCodex(routeId) {
-      const r = routesBase.find(x => x.id === routeId);
+      const r = ALL_ROUTES_MAP[routeId];
       return {
         name: r.name, risk: r.risk, reward: r.reward, desc: r.desc,
         wood: r.wood, food: r.food, med: r.med,
@@ -777,20 +1087,34 @@
       };
     }
     function renderCodex() {
-      let html = '<h3 style="margin:0 0 8px;color:#315c72">路线图鉴</h3>';
-      html += routesBase.map(r => {
-        const c = (game && game.codex) ? game.codex[r.id] : getDefaultCodex(r.id);
+      const scenarioId = game ? game.scenario : chosenScenario;
+      const sc = SCENARIOS[scenarioId];
+      const sr = getScenarioRoutes(scenarioId);
+      const rewardBonus = sc.routeMod.rewardBonus || 0;
+      let html = '<h3 style="margin:0 0 8px;color:' + sc.color + '">剧本概览 · ' + sc.name + '</h3>';
+      html += '<div class="codex-card">' +
+        '<div class="codex-row"><span>剧本</span><span><span class="scenario-badge" style="background:'+sc.color+'">' + sc.subtitle + '</span> ' + sc.name + '</span></div>' +
+        '<div class="codex-row"><span>目标</span><span>' + sc.win.label + '</span></div>' +
+        '<div class="codex-row"><span>可用路线</span><span>' + sr.length + ' 条</span></div>' +
+        '<div class="codex-row"><span>事件触发率</span><span>' + Math.round(sc.eventTriggerChance * 100) + '%</span></div>' +
+        (rewardBonus > 0 ? '<div class="codex-row"><span>全局声望加成</span><span>+' + rewardBonus + ' / 次</span></div>' : '') +
+        '<div style="font-size:12px;color:#5a6e78;line-height:1.5;margin-top:6px">' + sc.desc + '</div>' +
+        '</div>';
+      html += '<h3 style="margin:12px 0 8px;color:' + sc.color + '">路线图鉴</h3>';
+      html += sr.map(r => {
+        const c = (game && game.codex) ? (game.codex[r.id] || getDefaultCodex(r.id)) : getDefaultCodex(r.id);
         const blockProb = c.seen > 0 ? Math.round(c.blocked / c.seen * 100) : 0;
         const successRate = c.attempts > 0 ? Math.round(c.successes / c.attempts * 100) : 0;
         const riskPct = Math.min(c.risk / 5 * 100, 100);
-        const rewardPct = Math.min(c.reward / 5 * 100, 100);
+        const rewardPct = Math.min((c.reward + rewardBonus) / 7 * 100, 100);
         const noData = c.seen === 0;
-        return '<div class="codex-card"><h3>' + c.name + '</h3>' +
+        const displayReward = c.reward + rewardBonus;
+        return '<div class="codex-card"><h3 style="color:' + sc.color + '">' + c.name + '</h3>' +
           '<div style="font-size:13px;color:#5a6e78;margin-bottom:10px;line-height:1.5">' + r.desc + '</div>' +
-          '<div class="codex-row"><span>调度消耗</span><span>柴 ' + r.wood + ' · 粮 ' + r.food + ' · 药 ' + r.med + '</span></div>' +
+          '<div class="codex-row"><span>调度消耗</span><span>柴 ' + r.wood + ' · 粮 ' + r.food + ' · 药 ' + (r.med > 0 ? r.med : '+' + Math.abs(r.med)) + '</span></div>' +
           '<div class="codex-row"><span>基础风险</span><span>' + c.risk + ' / 5</span></div>' +
           '<div class="codex-bar"><div class="codex-bar-fill risk" style="width:' + riskPct + '%"></div></div>' +
-          '<div class="codex-row"><span>常见声望收益</span><span>' + c.reward + ' / 次</span></div>' +
+          '<div class="codex-row"><span>常见声望收益</span><span>' + displayReward + ' / 次' + (rewardBonus > 0 ? '（含剧本加成）' : '') + '</span></div>' +
           '<div class="codex-bar"><div class="codex-bar-fill reward" style="width:' + rewardPct + '%"></div></div>' +
           '<div class="codex-row"><span>暴雪封路概率</span><span>' + (noData ? '暂无数据' : blockProb + '%（' + c.blocked + '/' + c.seen + '天）') + '</span></div>' +
           (noData ? '' : '<div class="codex-bar"><div class="codex-bar-fill block" style="width:' + blockProb + '%"></div></div>') +
@@ -811,6 +1135,14 @@
           '</div></div>';
       }
       html += EVENTS_POOL.map(e => {
+        let weightNote = "";
+        if (sc.eventWeightOverrides && sc.eventWeightOverrides[e.id]) {
+          weightNote = ' <span class="event-tag tag-good">剧本权重×' + sc.eventWeightOverrides[e.id] + '</span>';
+        } else if (sc.eventWeightMul && sc.eventWeightMul[e.category]) {
+          const m = sc.eventWeightMul[e.category];
+          if (m > 1.1) weightNote = ' <span class="event-tag tag-good">高频</span>';
+          else if (m < 0.9) weightNote = ' <span class="event-tag tag-bad">低频</span>';
+        }
         const c = (game && game.eventCodex) ? game.eventCodex[e.id] : { name: e.name, category: e.category, desc: e.desc, seen: 0, choices: {} };
         const noData = !c.seen;
         let choicesHtml = '';
@@ -823,7 +1155,7 @@
           choicesHtml += '</div>';
         }
         const catLabel = EVENT_CATEGORY_LABELS[c.category];
-        return '<div class="codex-card codex-event"><span class="event-category ' + c.category + '" style="font-size:11px;padding:1px 8px">' + catLabel + '</span>' +
+        return '<div class="codex-card codex-event"><span class="event-category ' + c.category + '" style="font-size:11px;padding:1px 8px">' + catLabel + '</span>' + weightNote +
           '<h4>' + c.name + '</h4>' +
           '<div style="font-size:12px;color:#5a6e78;line-height:1.5">' + c.desc + '</div>' +
           '<div class="codex-row"><span>触发次数</span><span>' + (noData ? '尚未触发' : c.seen + ' 次') + '</span></div>' +
@@ -831,19 +1163,20 @@
         '</div>';
       }).join("");
       if (game) {
-        html += '<h3 style="margin:12px 0 8px;color:#315c72">本局统计</h3>';
         const d = DIFF[game.diff];
+        html += '<h3 style="margin:12px 0 8px;color:' + sc.color + '">本局统计</h3>';
         html += '<div class="codex-card">' +
+          '<div class="codex-row"><span>剧本</span><span>' + sc.name + '</span></div>' +
           '<div class="codex-row"><span>难度</span><span>' + d.label + '</span></div>' +
-          '<div class="codex-row"><span>当前天数</span><span>' + game.day + ' / 15</span></div>' +
-          '<div class="codex-row"><span>接应商队</span><span>' + game.saved + ' 队</span></div>' +
-          '<div class="codex-row"><span>当前声望</span><span>' + game.rep + '</span></div>' +
+          '<div class="codex-row"><span>当前天数</span><span>' + game.day + ' / ' + game.targetDays + '</span></div>' +
+          '<div class="codex-row"><span>接应商队</span><span>' + game.saved + ' 队' + (sc.win.type === 'caravans' || sc.win.type === 'caravans_and_rep' ? '（目标 ' + sc.win.count + '）' : '') + '</span></div>' +
+          '<div class="codex-row"><span>当前声望</span><span>' + game.rep + (sc.win.type === 'days_and_rep' || sc.win.type === 'caravans_and_rep' ? '（目标 ' + sc.win.rep + '）' : '') + '</span></div>' +
           '<div class="codex-row"><span>当前物资</span><span>柴' + game.wood + ' 粮' + game.food + ' 药' + game.med + '</span></div>' +
           '<div class="codex-row"><span>向导状态</span><span>' + game.guides.map(g => g.name + '(' + g.fatigue + ')').join('、') + '</span></div>' +
           '<div class="codex-row"><span>事件触发</span><span>' + game.eventStats.triggered + ' 次</span></div>' +
         '</div>';
       }
-      codexGrid.innerHTML = html;
+      els.codexGrid.innerHTML = html;
     }
     function openCodex() {
       renderCodex();
@@ -860,11 +1193,16 @@
         version: ARCHIVE_VERSION,
         id: null,
         win: false,
+        scenario: "standard",
+        scenarioLabel: "标准雪线",
+        scenarioColor: "#315c72",
         day: 0,
         difficulty: "normal",
         difficultyLabel: "标准",
         savedCaravans: 0,
         reputation: 0,
+        targetDays: 15,
+        winTarget: null,
         minResources: { wood: 0, med: 0, food: 0 },
         failureReason: null,
         routePreference: { north: 0, ridge: 0, valley: 0 },
@@ -882,6 +1220,13 @@
       else migrated.routePreference = { ...defaults.routePreference, ...migrated.routePreference };
       if (!migrated.keyLogs) migrated.keyLogs = [];
       if (!migrated.version) migrated.version = ARCHIVE_VERSION;
+      if (!migrated.scenario) {
+        migrated.scenario = "standard";
+        migrated.scenarioLabel = "标准雪线";
+        migrated.scenarioColor = "#315c72";
+        migrated.targetDays = 15;
+        migrated.winTarget = { type: "days", label: "坚守到最后" };
+      }
       return migrated;
     }
     function loadGameArchives() {
@@ -915,12 +1260,19 @@
       return logs;
     }
     function saveGameArchive(win) {
+      const sc = game.scenarioConfig;
       const d = DIFF[game.diff];
       const now = new Date();
       const archive = {
         version: ARCHIVE_VERSION,
         id: now.getTime(),
         win: win,
+        scenario: game.scenario,
+        scenarioLabel: sc.name,
+        scenarioColor: sc.color,
+        scenarioSubtitle: sc.subtitle,
+        targetDays: game.targetDays,
+        winTarget: { ...sc.win },
         day: game.day,
         difficulty: game.diff,
         difficultyLabel: d.label,
@@ -941,6 +1293,9 @@
     let currentArchiveFilter = "recent";
     function sortArchives(archives, filter) {
       const sorted = [...archives];
+      if (SCENARIOS[filter]) {
+        return sorted.filter(a => a.scenario === filter).sort((a, b) => b.timestamp - a.timestamp);
+      }
       switch (filter) {
         case "recent":
           sorted.sort((a, b) => b.timestamp - a.timestamp);
@@ -956,7 +1311,7 @@
       return sorted;
     }
     function getRouteName(routeId) {
-      const route = routesBase.find(r => r.id === routeId);
+      const route = ALL_ROUTES_MAP[routeId];
       return route ? route.name : routeId;
     }
     function renderArchiveCard(archive) {
@@ -964,6 +1319,7 @@
       const diffCls = d ? d.cls : "normal";
       const winCls = archive.win ? "win" : "lose";
       const winText = archive.win ? "胜利" : "失败";
+      const scColor = archive.scenarioColor || "#315c72";
       let prefHtml = "";
       const routes = Object.entries(archive.routePreference).filter(([_, v]) => v > 0).sort((a, b) => b[1] - a[1]);
       if (routes.length > 0) {
@@ -979,16 +1335,26 @@
           '<div class="archive-log-entry">' + log + '</div>'
         ).join("") + '</div>';
       }
+      let targetInfo = "";
+      if (archive.winTarget) {
+        switch (archive.winTarget.type) {
+          case "days": targetInfo = '坚守到第 ' + archive.targetDays + ' 天'; break;
+          case "caravans": targetInfo = '接应 ≥ ' + archive.winTarget.count + ' 队'; break;
+          case "days_and_rep": targetInfo = '声望 ≥ ' + archive.winTarget.rep; break;
+          case "caravans_and_rep": targetInfo = '接应≥' + archive.winTarget.count + '队 且 声望≥' + archive.winTarget.rep; break;
+        }
+      }
       return '<div class="archive-card ' + winCls + '">' +
         '<div class="archive-header">' +
           '<div class="archive-title">' +
             '<span class="archive-badge ' + winCls + '">' + winText + '</span>' +
+            '<span class="archive-scenario-tag" style="background:' + scColor + '">' + archive.scenarioLabel + '</span>' +
             '<span class="diff-label ' + diffCls + '">' + archive.difficultyLabel + '</span>' +
-            '<span>第 ' + archive.day + ' 天</span>' +
           '</div>' +
           '<div class="archive-date">' + archive.dateStr + '</div>' +
         '</div>' +
         '<div class="archive-stats">' +
+          '<div class="archive-stat"><span class="archive-stat-label">天数进度</span><span class="archive-stat-value">第 ' + archive.day + ' / ' + (archive.targetDays || 15) + ' 天</span></div>' +
           '<div class="archive-stat"><span class="archive-stat-label">接应商队</span><span class="archive-stat-value">' + archive.savedCaravans + ' 队</span></div>' +
           '<div class="archive-stat"><span class="archive-stat-label">最终声望</span><span class="archive-stat-value">' + archive.reputation + '</span></div>' +
           '<div class="archive-stat"><span class="archive-stat-label">最低柴火</span><span class="archive-stat-value">' + archive.minResources.wood + '</span></div>' +
@@ -996,6 +1362,7 @@
           '<div class="archive-stat"><span class="archive-stat-label">最低干粮</span><span class="archive-stat-value">' + archive.minResources.food + '</span></div>' +
         '</div>' +
         '<div class="archive-detail">' +
+          '<div class="archive-detail-row"><span>胜利条件</span><span>' + targetInfo + '</span></div>' +
           (archive.failureReason ?
             '<div class="archive-detail-row"><span>主要失败原因</span><span class="danger">' + archive.failureReason + '</span></div>' : '') +
           '<div class="archive-detail-row"><span>路线派遣偏好</span><span></span></div>' +
