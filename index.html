@@ -187,6 +187,43 @@
     .replay-summary-item { padding: 10px; background: #fff; border-radius: 6px; text-align: center; border: 1px solid #dde5e6; }
     .replay-summary-label { font-size: 11px; color: #5a6e78; display: block; }
     .replay-summary-value { font-size: 18px; font-weight: 800; color: #1f2a2f; }
+    .briefing-modal { width: min(720px, calc(100% - 28px)); max-height: 88vh; overflow-y: auto; }
+    .briefing-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #dde5e6; }
+    .briefing-header h2 { margin: 0; color: #315c72; font-size: 22px; }
+    .briefing-date { font-size: 13px; color: #5a6e78; }
+    .briefing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .briefing-section { background: #f5f8f8; border: 1px solid #dde5e6; border-radius: 8px; padding: 14px; }
+    .briefing-section h3 { margin: 0 0 10px; font-size: 15px; color: #315c72; padding-bottom: 6px; border-bottom: 1px dashed #dde5e6; display: flex; align-items: center; gap: 6px; }
+    .briefing-section h3::before { content: ""; display: inline-block; width: 4px; height: 16px; background: #315c72; border-radius: 2px; }
+    .briefing-weather { display: flex; align-items: center; gap: 12px; padding: 8px; background: #fff; border-radius: 6px; }
+    .briefing-weather-icon { font-size: 36px; }
+    .briefing-weather-info strong { font-size: 24px; color: #1f2a2f; }
+    .briefing-weather-info span { font-size: 12px; color: #5a6e78; }
+    .briefing-route-list { display: flex; flex-direction: column; gap: 6px; }
+    .briefing-route-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #fff; border-radius: 4px; font-size: 13px; }
+    .briefing-route-item.blocked { border-left: 3px solid #a33d31; background: #fdf2f0; }
+    .briefing-route-item.caravan { border-left: 3px solid #3f7a54; background: #f0f8f3; }
+    .briefing-route-item.normal { border-left: 3px solid #5a7fa8; background: #f0f4f8; }
+    .briefing-status-tag { padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 700; }
+    .briefing-status-tag.blocked { background: #f2d9d6; color: #a33d31; }
+    .briefing-status-tag.caravan { background: #d4ede0; color: #3f7a54; }
+    .briefing-status-tag.normal { background: #e3ecf1; color: #315c72; }
+    .briefing-effect-list { display: flex; flex-direction: column; gap: 4px; }
+    .briefing-effect-item { padding: 6px 8px; background: #fff; border-radius: 4px; font-size: 12px; border-left: 3px solid #b08a28; background: #fff9e8; }
+    .briefing-progress-bar { height: 8px; border-radius: 4px; background: #dde5e6; margin-top: 4px; overflow: hidden; }
+    .briefing-progress-fill { height: 100%; border-radius: 4px; background: #315c72; transition: width .3s; }
+    .briefing-yesterday-list { display: flex; flex-direction: column; gap: 4px; }
+    .briefing-yesterday-item { padding: 6px 8px; background: #fff; border-radius: 4px; font-size: 12px; color: #2d3a40; border-left: 3px solid #8a5a9e; }
+    .briefing-yesterday-item.good { border-left-color: #3f7a54; }
+    .briefing-yesterday-item.bad { border-left-color: #a33d31; }
+    .briefing-empty { font-size: 12px; color: #5a6e78; padding: 8px; text-align: center; }
+    .briefing-footer { margin-top: 16px; display: flex; justify-content: flex-end; }
+    .briefing-footer button { min-width: 140px; padding: 10px 20px; font-size: 14px; }
+    @media (max-width: 600px) {
+      .briefing-grid { grid-template-columns: 1fr; }
+    }
+    .replay-briefing-btn { font-size: 12px; padding: 4px 10px; background: #5a7fa8; margin-left: 8px; }
+    .replay-briefing-btn:hover { background: #4a6f98; }
     @media (max-width: 800px) {
       .replay-grid { grid-template-columns: 1fr; }
       .replay-summary-bar { grid-template-columns: 1fr 1fr; }
@@ -379,6 +416,18 @@
       <h2>游戏图鉴</h2>
       <div class="codex-grid" id="codexGrid"></div>
       <button id="codexCloseBtn" style="margin-top:14px">关闭图鉴</button>
+    </div>
+  </div>
+  <div class="overlay hidden" id="briefingOverlay">
+    <div class="modal briefing-modal">
+      <div class="briefing-header">
+        <h2 id="briefingTitle">每日简报 · 第 1 天</h2>
+        <span class="briefing-date" id="briefingDate"></span>
+      </div>
+      <div class="briefing-grid" id="briefingGrid"></div>
+      <div class="briefing-footer">
+        <button id="briefingCloseBtn">开始今日调度</button>
+      </div>
     </div>
   </div>
   <div class="overlay hidden" id="eventOverlay">
@@ -1106,6 +1155,9 @@
       guides: document.querySelector("#guides"), routes: document.querySelector("#routes"), log: document.querySelector("#log"),
       overlay: document.querySelector("#overlay"), diffOverlay: document.querySelector("#diffOverlay"),
       resultTitle: document.querySelector("#resultTitle"), resultText: document.querySelector("#resultText"),
+      briefingOverlay: document.querySelector("#briefingOverlay"), briefingTitle: document.querySelector("#briefingTitle"),
+      briefingDate: document.querySelector("#briefingDate"), briefingGrid: document.querySelector("#briefingGrid"),
+      briefingCloseBtn: document.querySelector("#briefingCloseBtn"),
       eventOverlay: document.querySelector("#eventOverlay"), eventCategory: document.querySelector("#eventCategory"),
       eventTitle: document.querySelector("#eventTitle"), eventDesc: document.querySelector("#eventDesc"),
       eventOptions: document.querySelector("#eventOptions"), codexGrid: document.querySelector("#codexGrid"),
@@ -1591,6 +1643,208 @@
       }
       game.turningPoints = turningPoints;
     }
+    function getWeatherIcon(weather) {
+      switch (weather) {
+        case "晴": return "☀️";
+        case "阴风": return "🌫️";
+        case "暴雪": return "❄️";
+        default: return "🌤️";
+      }
+    }
+    function generateBriefingData() {
+      const sc = game.scenarioConfig;
+      const blockedRoutes = game.routes.filter(r => r.blocked);
+      const caravanRoutes = game.routes.filter(r => r.caravan && !r.blocked);
+      const normalRoutes = game.routes.filter(r => !r.blocked && !r.caravan);
+      const activeEffects = [];
+      if (game.weatherModifiers && game.weatherModifiers.length > 0) {
+        game.weatherModifiers.forEach(wm => {
+          if (wm.stormProb !== undefined) {
+            activeEffects.push({
+              type: "weather",
+              text: (wm.stormProb > 0 ? "暴雪概率上升" : "暴雪概率下降") + "（剩余" + wm.remainingDays + "天）",
+              value: wm.stormProb
+            });
+          }
+          if (wm.clearProb !== undefined) {
+            activeEffects.push({
+              type: "weather",
+              text: (wm.clearProb > 0 ? "天晴概率上升" : "天晴概率下降") + "（剩余" + wm.remainingDays + "天）",
+              value: wm.clearProb
+            });
+          }
+        });
+      }
+      let goalProgress = null;
+      if (sc.win.type === "caravans" || sc.win.type === "caravans_and_rep") {
+        goalProgress = {
+          type: sc.win.type,
+          caravanCurrent: game.saved,
+          caravanTarget: sc.win.count,
+          caravanPercent: Math.min(100, Math.round((game.saved / sc.win.count) * 100)),
+          repCurrent: game.rep,
+          repTarget: sc.win.rep || 0,
+          repPercent: sc.win.rep ? Math.min(100, Math.round((game.rep / sc.win.rep) * 100)) : null
+        };
+      } else if (sc.win.type === "days_and_rep") {
+        goalProgress = {
+          type: sc.win.type,
+          dayCurrent: game.day,
+          dayTarget: game.targetDays,
+          dayPercent: Math.min(100, Math.round((game.day / game.targetDays) * 100)),
+          repCurrent: game.rep,
+          repTarget: sc.win.rep,
+          repPercent: Math.min(100, Math.round((game.rep / sc.win.rep) * 100))
+        };
+      } else {
+        goalProgress = {
+          type: sc.win.type,
+          dayCurrent: game.day,
+          dayTarget: game.targetDays,
+          dayPercent: Math.min(100, Math.round((game.day / game.targetDays) * 100))
+        };
+      }
+      let yesterdayChanges = [];
+      if (game.day > 1 && game.replayHistory && game.replayHistory.length > 0) {
+        const yesterday = game.replayHistory[game.replayHistory.length - 1];
+        if (yesterday.endResources && yesterday.startResources) {
+          const resKeys = ["wood", "food", "med", "rep"];
+          resKeys.forEach(key => {
+            const diff = yesterday.endResources[key] - yesterday.startResources[key];
+            if (diff !== 0) {
+              yesterdayChanges.push({
+                type: diff > 0 ? "good" : "bad",
+                text: RESOURCE_LABELS[key] + " " + (diff > 0 ? "+" : "") + diff
+              });
+            }
+          });
+        }
+        if (yesterday.event && yesterday.eventChoice) {
+          yesterdayChanges.push({
+            type: "event",
+            text: "【事件】" + yesterday.event.name + " - " + yesterday.eventChoice.title
+          });
+        }
+        if (yesterday.savedCaravans !== undefined && game.replayHistory.length >= 2) {
+          const prevSaved = game.replayHistory[game.replayHistory.length - 2].savedCaravans;
+          const savedDiff = yesterday.savedCaravans - prevSaved;
+          if (savedDiff > 0) {
+            yesterdayChanges.push({
+              type: "good",
+              text: "接应商队 +" + savedDiff + " 队"
+            });
+          }
+        }
+      }
+      return {
+        day: game.day,
+        weather: game.weather,
+        weatherIcon: getWeatherIcon(game.weather),
+        blockedRoutes: blockedRoutes.map(r => ({ id: r.id, name: r.name })),
+        caravanRoutes: caravanRoutes.map(r => ({ id: r.id, name: r.name })),
+        normalRoutes: normalRoutes.map(r => ({ id: r.id, name: r.name })),
+        activeEffects: activeEffects,
+        goalProgress: goalProgress,
+        yesterdayChanges: yesterdayChanges,
+        scenarioName: sc.name,
+        scenarioSubtitle: sc.subtitle
+      };
+    }
+    function renderBriefing(briefingData) {
+      const scenarioName = briefingData.scenarioName || (game && game.scenarioConfig ? game.scenarioConfig.name : "");
+      const scenarioSubtitle = briefingData.scenarioSubtitle || (game && game.scenarioConfig ? game.scenarioConfig.subtitle : "");
+      let goalHtml = "";
+      const gp = briefingData.goalProgress;
+      if (gp.type === "caravans" || gp.type === "caravans_and_rep") {
+        goalHtml = '<div class="replay-row"><span>商队目标</span><span><b>' + gp.caravanCurrent + ' / ' + gp.caravanTarget + ' 队</b></span></div>';
+        goalHtml += '<div class="briefing-progress-bar"><div class="briefing-progress-fill" style="width:' + gp.caravanPercent + '%"></div></div>';
+        if (gp.repTarget) {
+          goalHtml += '<div class="replay-row" style="margin-top:8px"><span>声望目标</span><span><b>' + gp.repCurrent + ' / ' + gp.repTarget + '</b></span></div>';
+          goalHtml += '<div class="briefing-progress-bar"><div class="briefing-progress-fill" style="width:' + gp.repPercent + '%"></div></div>';
+        }
+      } else if (gp.type === "days_and_rep") {
+        goalHtml = '<div class="replay-row"><span>天数进度</span><span><b>第 ' + gp.dayCurrent + ' / ' + gp.dayTarget + ' 天</b></span></div>';
+        goalHtml += '<div class="briefing-progress-bar"><div class="briefing-progress-fill" style="width:' + gp.dayPercent + '%"></div></div>';
+        goalHtml += '<div class="replay-row" style="margin-top:8px"><span>声望目标</span><span><b>' + gp.repCurrent + ' / ' + gp.repTarget + '</b></span></div>';
+        goalHtml += '<div class="briefing-progress-bar"><div class="briefing-progress-fill" style="width:' + gp.repPercent + '%"></div></div>';
+      } else {
+        goalHtml = '<div class="replay-row"><span>天数进度</span><span><b>第 ' + gp.dayCurrent + ' / ' + gp.dayTarget + ' 天</b></span></div>';
+        goalHtml += '<div class="briefing-progress-bar"><div class="briefing-progress-fill" style="width:' + gp.dayPercent + '%"></div></div>';
+      }
+      let routesHtml = "";
+      if (briefingData.blockedRoutes.length > 0) {
+        routesHtml += '<div class="briefing-route-list">';
+        briefingData.blockedRoutes.forEach(r => {
+          routesHtml += '<div class="briefing-route-item blocked"><span>' + r.name + '</span><span class="briefing-status-tag blocked">封路</span></div>';
+        });
+        routesHtml += '</div>';
+      }
+      if (briefingData.caravanRoutes.length > 0) {
+        routesHtml += '<div class="briefing-route-list" style="margin-top:' + (briefingData.blockedRoutes.length > 0 ? '8px' : '0') + '">';
+        briefingData.caravanRoutes.forEach(r => {
+          routesHtml += '<div class="briefing-route-item caravan"><span>' + r.name + '</span><span class="briefing-status-tag caravan">商队求援</span></div>';
+        });
+        routesHtml += '</div>';
+      }
+      if (briefingData.normalRoutes.length > 0) {
+        routesHtml += '<div class="briefing-route-list" style="margin-top:' + ((briefingData.blockedRoutes.length + briefingData.caravanRoutes.length) > 0 ? '8px' : '0') + '">';
+        briefingData.normalRoutes.forEach(r => {
+          routesHtml += '<div class="briefing-route-item normal"><span>' + r.name + '</span><span class="briefing-status-tag normal">正常</span></div>';
+        });
+        routesHtml += '</div>';
+      }
+      let effectsHtml = "";
+      if (briefingData.activeEffects.length > 0) {
+        effectsHtml = '<div class="briefing-effect-list">';
+        briefingData.activeEffects.forEach(e => {
+          effectsHtml += '<div class="briefing-effect-item">' + e.text + '</div>';
+        });
+        effectsHtml += '</div>';
+      } else {
+        effectsHtml = '<div class="briefing-empty">暂无持续影响</div>';
+      }
+      let yesterdayHtml = "";
+      if (briefingData.yesterdayChanges.length > 0) {
+        yesterdayHtml = '<div class="briefing-yesterday-list">';
+        briefingData.yesterdayChanges.forEach(c => {
+          yesterdayHtml += '<div class="briefing-yesterday-item ' + (c.type === "good" ? "good" : (c.type === "bad" ? "bad" : "")) + '">' + c.text + '</div>';
+        });
+        yesterdayHtml += '</div>';
+      } else {
+        yesterdayHtml = '<div class="briefing-empty">今日是第一天，暂无昨日记录</div>';
+      }
+      els.briefingTitle.textContent = "每日简报 · 第 " + briefingData.day + " 天";
+      els.briefingDate.textContent = scenarioName + " · " + scenarioSubtitle;
+      els.briefingGrid.innerHTML =
+        '<div class="briefing-section"><h3>🌤 今日天气</h3>' +
+        '<div class="briefing-weather"><span class="briefing-weather-icon">' + briefingData.weatherIcon + '</span>' +
+        '<div class="briefing-weather-info"><strong>' + briefingData.weather + '</strong><br><span>' + (briefingData.weather === "暴雪" ? "注意防寒与路线封锁" : (briefingData.weather === "阴风" ? "能见度降低，注意安全" : "天气晴好，适合出行") ) + '</span></div></div>' +
+        '</div>' +
+        '<div class="briefing-section"><h3>🎯 剧本目标进度</h3>' + goalHtml + '</div>' +
+        '<div class="briefing-section"><h3>🛤 路线状态</h3>' + routesHtml + '</div>' +
+        '<div class="briefing-section"><h3>⚡ 持续影响</h3>' + effectsHtml + '</div>' +
+        '<div class="briefing-section" style="grid-column:1/-1"><h3>📋 昨日关键变化</h3>' + yesterdayHtml + '</div>';
+    }
+    function showDailyBriefing() {
+      const briefingData = generateBriefingData();
+      if (game.currentDayData) {
+        game.currentDayData.briefing = briefingData;
+      }
+      renderBriefing(briefingData);
+      els.briefingOverlay.classList.remove("hidden");
+    }
+    function closeDailyBriefing() {
+      if (isReplayBriefingMode) {
+        closeReplayBriefing();
+        return;
+      }
+      els.briefingOverlay.classList.add("hidden");
+      if (pendingEvent) {
+        renderEvent(pendingEvent);
+      } else {
+        render();
+      }
+    }
     function rollWeather(sc, d) {
       const wt = sc.weatherTable;
       const scenarioStormProb = wt.storm !== undefined ? wt.storm : d.stormProb;
@@ -1638,8 +1892,8 @@
             options: pendingEvent.options.map(o => ({ title: o.title, hint: o.hint }))
           };
         }
-        renderEvent(pendingEvent);
       }
+      showDailyBriefing();
     }
     function render() {
       const sc = game.scenarioConfig;
@@ -1957,6 +2211,7 @@
       }
     }
     document.querySelector("#endDayBtn").onclick = endDay;
+    els.briefingCloseBtn.onclick = closeDailyBriefing;
     document.querySelector("#newBtn").onclick = showDiffPicker;
     document.querySelector("#againBtn").onclick = showDiffPicker;
     const codexOverlay = document.querySelector("#codexOverlay");
@@ -2562,6 +2817,23 @@
       html += '</div>';
       return html;
     }
+    let isReplayBriefingMode = false;
+    function showReplayBriefing() {
+      const day = currentReplayData.replayHistory[currentReplayDayIndex];
+      if (!day || !day.briefing) {
+        alert("该日没有简报数据（可能是旧版本存档）");
+        return;
+      }
+      isReplayBriefingMode = true;
+      renderBriefing(day.briefing);
+      els.briefingCloseBtn.textContent = "返回复盘";
+      els.briefingOverlay.classList.remove("hidden");
+    }
+    function closeReplayBriefing() {
+      isReplayBriefingMode = false;
+      els.briefingOverlay.classList.add("hidden");
+      els.briefingCloseBtn.textContent = "开始今日调度";
+    }
     function renderReplayLogs(day) {
       if (!day.logs || day.logs.length === 0) return '<div style="font-size:12px;color:#5a6e78">今日无日志</div>';
       return '<div class="replay-log-list">' + day.logs.map(log => '<div class="replay-log-entry">' + log + '</div>').reverse().join("") + '</div>';
@@ -2576,8 +2848,9 @@
       const isLast = currentReplayDayIndex >= currentReplayData.replayHistory.length - 1;
       els.replayNextBtn.disabled = isLast;
       els.replayNextBtn.classList.toggle("secondary", isLast);
+      const hasBriefing = day.briefing !== undefined;
       els.replayGrid.innerHTML =
-        '<div class="replay-section"><h3>天气 · 资源变化</h3>' +
+        '<div class="replay-section"><h3 style="display:flex;justify-content:space-between;align-items:center;">天气 · 资源变化' + (hasBriefing ? '<button class="replay-briefing-btn" id="replayBriefingBtn">查看简报</button>' : '') + '</h3>' +
         '<div class="replay-row"><span>天气</span><span><b>' + day.weather + '</b></span></div>' +
         '<div class="replay-row"><span>接应商队（累计）</span><span>' + day.savedCaravans + ' 队</span></div>' +
         renderReplayResources(day) +
@@ -2595,6 +2868,10 @@
         '<div class="replay-section" style="grid-column:1/-1"><h3>今日日志</h3>' +
         renderReplayLogs(day) +
         '</div>';
+      if (hasBriefing) {
+        const btn = document.querySelector("#replayBriefingBtn");
+        if (btn) btn.onclick = showReplayBriefing;
+      }
     }
     els.replayCloseBtn.onclick = closeReplay;
     els.replayPrevBtn.onclick = () => {
