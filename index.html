@@ -215,6 +215,11 @@
     <section class="panel">
       <div class="section-title"><h2>今日路线</h2><button class="codex-btn" id="codexBtn">路线图鉴</button></div>
       <div class="routes" id="routes"></div>
+      <div class="estimate-panel" id="estimatePanel" style="display:none;margin-top:16px;padding:12px;background:#f5f7f9;border-radius:8px;border:1px solid #d6dde2;">
+        <div class="section-title" style="margin-bottom:8px"><h2 style="font-size:14px">次日风险预估</h2><span style="font-size:11px;color:#5a6e78">仅作决策参考，实际结果受随机因素影响</span></div>
+        <div class="estimate-grid" id="estimateGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;font-size:13px;"></div>
+        <div class="estimate-details" id="estimateDetails" style="margin-top:10px;padding-top:10px;border-top:1px dashed #d6dde2;font-size:12px;color:#5a6e78;"></div>
+      </div>
       <button id="endDayBtn">执行调度并进入明天</button>
     </section>
     <aside class="panel">
@@ -667,7 +672,8 @@
       replayGrid: document.querySelector("#replayGrid"), replaySummaryBar: document.querySelector("#replaySummaryBar"),
       replayTurningBanner: document.querySelector("#replayTurningBanner"),
       replayPrevBtn: document.querySelector("#replayPrevBtn"), replayNextBtn: document.querySelector("#replayNextBtn"),
-      replayCloseBtn: document.querySelector("#replayCloseBtn")
+      replayCloseBtn: document.querySelector("#replayCloseBtn"),
+      estimatePanel: document.querySelector("#estimatePanel"), estimateGrid: document.querySelector("#estimateGrid"), estimateDetails: document.querySelector("#estimateDetails")
     };
     function getScenarioRoutes(scenarioId) {
       const sc = SCENARIOS[scenarioId];
@@ -1175,13 +1181,131 @@
         case "caravans_and_rep": goalText = '<div style="font-size:12px"><span class="'+(game.saved>=sc.win.count?'ok':'')+'">商队：' + game.saved + '/' + sc.win.count + '</span> · <span class="'+(game.rep>=sc.win.rep?'ok':'')+'">声望：' + game.rep + '/' + sc.win.rep + '</span></div>'; break;
       }
       els.guides.innerHTML = game.guides.map((g, i) => '<div class="card"><b>'+g.name+'</b><div>疲劳：'+g.fatigue+'</div><select data-guide="'+i+'"><option value="">留守休整</option>'+game.routes.map(r => '<option value="'+r.id+'" '+(r.blocked?'disabled':'')+'>'+r.name+(r.blocked?' (封路)':'')+'</option>').join("")+'</select></div>').join("");
-      document.querySelectorAll("[data-guide]").forEach(sel => { sel.value = game.guides[sel.dataset.guide].task; sel.onchange = () => game.guides[sel.dataset.guide].task = sel.value; });
+      document.querySelectorAll("[data-guide]").forEach(sel => { sel.value = game.guides[sel.dataset.guide].task; sel.onchange = () => { game.guides[sel.dataset.guide].task = sel.value; renderEstimate(); }; });
       const rewardBonus = sc.routeMod.rewardBonus || 0;
       els.routes.innerHTML = game.routes.map(r => {
         const realReward = r.reward + rewardBonus;
         return '<div class="card"><h3 style="color:'+sc.color+'">'+r.name+'</h3><div>风险 '+r.risk+' · 奖励声望 '+realReward+(rewardBonus>0?' (+'+rewardBonus+')':'')+'</div><div>消耗：柴'+r.wood+' 干粮'+r.food+' 药'+(r.med>0?r.med:'+'+Math.abs(r.med))+'</div><div class="'+(r.blocked?'danger':'ok')+'">'+(r.blocked?'暴雪封路':r.caravan?'有商队求援':'今日较安静')+'</div></div>';
       }).join("") + goalText;
       els.log.innerHTML = game.log.map(item => '<div class="entry">'+item+'</div>').join("");
+      renderEstimate();
+    }
+    function calculateEstimate() {
+      if (!game || game.ended) return null;
+      const sc = game.scenarioConfig;
+      const d = DIFF[game.diff];
+      const rm = sc.routeMod;
+      const rewardBonus = rm.rewardBonus || 0;
+      const fatigueBonus = rm.fatigueBonus || 0;
+      const usedRoutes = new Set();
+      const estimate = {
+        wood: 0, food: 0, med: 0, rep: 0,
+        fatigueChanges: [],
+        successRate: 0,
+        totalRoutes: 0,
+        successRoutes: 0,
+        details: [],
+        storm: game.weather === "暴雪",
+        blockedRoutes: 0
+      };
+      for (const guide of game.guides) {
+        if (!guide.task) {
+          estimate.fatigueChanges.push({ name: guide.name, change: -2, task: "留守休整" });
+          continue;
+        }
+        const route = game.routes.find(r => r.id === guide.task);
+        if (!route) continue;
+        if (route.blocked) {
+          estimate.blockedRoutes++;
+          estimate.details.push(guide.name + "尝试走【" + route.name + "】但道路已封，无功而返");
+          estimate.fatigueChanges.push({ name: guide.name, change: 0, task: route.name + "(封路)" });
+          continue;
+        }
+        if (usedRoutes.has(route.id)) {
+          estimate.details.push(guide.name + "没有有效任务，留守整理马具");
+          estimate.fatigueChanges.push({ name: guide.name, change: 0, task: "无有效任务" });
+          continue;
+        }
+        usedRoutes.add(route.id);
+        estimate.totalRoutes++;
+        const stormWoodCost = (rm.stormRouteImmune && rm.stormRouteImmune.includes(route.id)) ? 0 : (game.weather === "暴雪" ? 1 : 0);
+        const woodCost = route.wood + stormWoodCost;
+        estimate.wood -= woodCost;
+        estimate.food -= route.food;
+        estimate.med -= route.med;
+        const rawFatigue = route.risk + fatigueBonus + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
+        const fatigueGain = Math.round(rawFatigue * d.fatigueMul);
+        estimate.fatigueChanges.push({ name: guide.name, change: fatigueGain, task: route.name });
+        const failChance = (route.risk + (guide.fatigue + fatigueGain) / 4) / 12;
+        const successChance = Math.max(0, Math.min(1, 1 - failChance));
+        const realReward = route.reward + rewardBonus;
+        if (route.caravan) {
+          estimate.successRate += successChance;
+          estimate.successRoutes++;
+          estimate.rep += realReward * successChance;
+          estimate.med -= 1 * (1 - successChance);
+          estimate.details.push(guide.name + "走【" + route.name + "】接应商队：成功率约" + Math.round(successChance * 100) + "%，成功声望+" + realReward + "，失败药品-1");
+        } else {
+          estimate.wood += 1;
+          estimate.details.push(guide.name + "巡查【" + route.name + "】：带回柴火+1，疲劳+" + fatigueGain);
+        }
+      }
+      estimate.food -= 2;
+      const heatWoodCost = game.weather === "暴雪" ? 3 : 1;
+      estimate.wood -= heatWoodCost;
+      estimate.details.push("驿站日常：干粮-2，取暖柴火-" + heatWoodCost + (game.weather === "暴雪" ? "（暴雪）" : ""));
+      if (estimate.successRoutes > 0) {
+        estimate.successRate = Math.round((estimate.successRate / estimate.successRoutes) * 100);
+      } else {
+        estimate.successRate = 100;
+      }
+      return estimate;
+    }
+    function renderEstimate() {
+      const estimate = calculateEstimate();
+      if (!estimate) {
+        els.estimatePanel.style.display = "none";
+        return;
+      }
+      const hasTasks = game.guides.some(g => g.task);
+      if (!hasTasks) {
+        els.estimatePanel.style.display = "none";
+        return;
+      }
+      els.estimatePanel.style.display = "block";
+      const formatChange = (val, inverse = false) => {
+        if (inverse) val = -val;
+        if (val > 0) return '<span style="color:#2e7d32">+' + val.toFixed(1) + '</span>';
+        if (val < 0) return '<span style="color:#c62828">' + val.toFixed(1) + '</span>';
+        return '<span style="color:#5a6e78">±0</span>';
+      };
+      const formatIntChange = (val, inverse = false) => {
+        if (inverse) val = -val;
+        if (val > 0) return '<span style="color:#2e7d32">+' + val + '</span>';
+        if (val < 0) return '<span style="color:#c62828">' + val + '</span>';
+        return '<span style="color:#5a6e78">±0</span>';
+      };
+      let gridHtml = "";
+      gridHtml += '<div style="padding:8px;background:#fff;border-radius:6px;border:1px solid #d6dde2;"><div style="color:#5a6e78;font-size:11px">柴火变化</div><div style="font-size:18px;font-weight:bold">' + formatIntChange(estimate.wood) + '</div></div>';
+      gridHtml += '<div style="padding:8px;background:#fff;border-radius:6px;border:1px solid #d6dde2;"><div style="color:#5a6e78;font-size:11px">干粮变化</div><div style="font-size:18px;font-weight:bold">' + formatIntChange(estimate.food) + '</div></div>';
+      gridHtml += '<div style="padding:8px;background:#fff;border-radius:6px;border:1px solid #d6dde2;"><div style="color:#5a6e78;font-size:11px">药品变化</div><div style="font-size:18px;font-weight:bold">' + formatChange(estimate.med) + '</div></div>';
+      gridHtml += '<div style="padding:8px;background:#fff;border-radius:6px;border:1px solid #d6dde2;"><div style="color:#5a6e78;font-size:11px">声望变化</div><div style="font-size:18px;font-weight:bold">' + formatChange(estimate.rep) + '</div></div>';
+      gridHtml += '<div style="padding:8px;background:#fff;border-radius:6px;border:1px solid #d6dde2;"><div style="color:#5a6e78;font-size:11px">平均成功率</div><div style="font-size:18px;font-weight:bold;' + (estimate.successRate < 50 ? 'color:#c62828' : estimate.successRate < 70 ? 'color:#f57c00' : 'color:#2e7d32') + '">' + estimate.successRate + '%</div></div>';
+      els.estimateGrid.innerHTML = gridHtml;
+      let detailsHtml = "";
+      if (estimate.storm) detailsHtml += '<div style="margin-bottom:6px"><span style="background:#1565c0;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px">暴雪</span> 御寒柴火+1/路线，取暖柴火+2，疲劳增长加剧</div>';
+      if (estimate.blockedRoutes > 0) detailsHtml += '<div style="margin-bottom:6px"><span style="background:#c62828;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px">封路</span> ' + estimate.blockedRoutes + '条路线无法通行</div>';
+      detailsHtml += '<div style="margin-top:6px"><b>向导疲劳预估：</b></div>';
+      detailsHtml += estimate.fatigueChanges.map(fc => {
+        const changeStr = fc.change > 0 ? '<span style="color:#c62828">+' + fc.change + '</span>' : (fc.change < 0 ? '<span style="color:#2e7d32">' + fc.change + '</span>' : '<span style="color:#5a6e78">±0</span>');
+        return '<div style="padding:3px 0">· ' + fc.name + '：' + changeStr + '（' + fc.task + '）</div>';
+      }).join("");
+      detailsHtml += '<div style="margin-top:6px"><b>详细说明：</b></div>';
+      detailsHtml += estimate.details.map(d => '<div style="padding:2px 0">· ' + d + '</div>').join("");
+      els.estimateDetails.innerHTML = detailsHtml;
+      if (game.currentDayData) {
+        game.currentDayData.estimate = estimate;
+      }
     }
     function endDay() {
       if (game.ended) return;
@@ -1191,6 +1315,9 @@
       const usedRoutes = new Set();
       const rewardBonus = rm.rewardBonus || 0;
       const fatigueBonus = rm.fatigueBonus || 0;
+      if (game.currentDayData) {
+        game.currentDayData.estimate = calculateEstimate();
+      }
       for (const guide of game.guides) {
         if (!guide.task) {
           guide.fatigue = Math.max(0, guide.fatigue - 2);
@@ -1437,7 +1564,7 @@
     document.querySelector("#resultReplayBtn").onclick = openReplayFromGame;
     document.querySelector("#codexCloseBtn").onclick = () => codexOverlay.classList.add("hidden");
     const ARCHIVE_STORAGE_KEY = "mountain_post_archives";
-    const ARCHIVE_VERSION = 2;
+    const ARCHIVE_VERSION = 3;
     function getDefaultArchiveFields() {
       return {
         version: ARCHIVE_VERSION,
@@ -1480,6 +1607,11 @@
         migrated.scenarioColor = "#315c72";
         migrated.targetDays = 15;
         migrated.winTarget = { type: "days", label: "坚守到最后" };
+      }
+      if (migrated.replayHistory && Array.isArray(migrated.replayHistory)) {
+        migrated.replayHistory.forEach(day => {
+          if (!day.estimate) day.estimate = null;
+        });
       }
       return migrated;
     }
@@ -1824,6 +1956,50 @@
       }
       return html;
     }
+    function renderReplayEstimateCompare(day) {
+      if (!day.estimate || !day.endResources) return '';
+      const est = day.estimate;
+      let html = '<div style="margin-top:12px;padding-top:12px;border-top:2px dashed #315c72;">';
+      html += '<h4 style="margin:0 0 8px 0;color:#315c72;font-size:13px">📊 预估 vs 实际 对比</h4>';
+      const resKeys = ["wood", "food", "med", "rep"];
+      html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:12px;margin-bottom:8px;">';
+      resKeys.forEach(key => {
+        const actual = day.endResources[key] - day.startResources[key];
+        const estimated = est[key];
+        const diff = actual - estimated;
+        const diffCls = Math.abs(diff) <= 1 ? 'color:#2e7d32' : 'color:#f57c00';
+        html += '<div style="padding:6px;background:#f5f7f9;border-radius:4px;text-align:center;">';
+        html += '<div style="color:#5a6e78;font-size:10px">' + RESOURCE_LABELS[key] + '</div>';
+        html += '<div style="font-weight:bold">预估: ' + (estimated > 0 ? '+' : '') + estimated.toFixed(1) + '</div>';
+        html += '<div style="font-weight:bold">实际: ' + (actual > 0 ? '+' : '') + actual + '</div>';
+        html += '<div style="' + diffCls + '">差异: ' + (diff > 0 ? '+' : '') + diff.toFixed(1) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      if (est.successRoutes > 0) {
+        html += '<div style="font-size:12px;margin-top:6px;">';
+        html += '<b>成功率预估:</b> ' + est.successRate + '%';
+        html += ' | <b>实际结果:</b> 请查看日志确认';
+        html += '</div>';
+      }
+      if (est.fatigueChanges && est.fatigueChanges.length > 0 && day.startGuides && day.endGuides) {
+        html += '<div style="margin-top:8px;"><b style="font-size:12px">向导疲劳对比：</b>';
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px;font-size:11px;margin-top:4px;">';
+        est.fatigueChanges.forEach((fc, i) => {
+          if (!day.endGuides[i] || !day.startGuides[i]) return;
+          const actualFatigue = day.endGuides[i].fatigue - day.startGuides[i].fatigue;
+          const diff = actualFatigue - fc.change;
+          const diffCls = Math.abs(diff) <= 1 ? 'color:#2e7d32' : 'color:#f57c00';
+          html += '<div style="padding:4px;background:#f5f7f9;border-radius:4px;">';
+          html += '<b>' + fc.name + '</b>: 预估' + (fc.change >= 0 ? '+' : '') + fc.change + ' / 实际' + (actualFatigue >= 0 ? '+' : '') + actualFatigue;
+          html += ' <span style="' + diffCls + '">(' + (diff >= 0 ? '+' : '') + diff + ')</span>';
+          html += '</div>';
+        });
+        html += '</div></div>';
+      }
+      html += '</div>';
+      return html;
+    }
     function renderReplayRoutes(day) {
       if (!day.routes || day.routes.length === 0) return '<div style="font-size:12px;color:#5a6e78">无路线数据</div>';
       return day.routes.map(route => {
@@ -1879,6 +2055,7 @@
         '<div class="replay-row"><span>天气</span><span><b>' + day.weather + '</b></span></div>' +
         '<div class="replay-row"><span>接应商队（累计）</span><span>' + day.savedCaravans + ' 队</span></div>' +
         renderReplayResources(day) +
+        renderReplayEstimateCompare(day) +
         '</div>' +
         '<div class="replay-section"><h3>今日路线</h3>' +
         renderReplayRoutes(day) +
