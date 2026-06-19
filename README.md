@@ -42,13 +42,16 @@
 // 只清除玩法设置
 localStorage.removeItem('mountain_post_settings')
 
+// 只重置新手引导状态（下次打开重新弹出）
+localStorage.removeItem('mountain_post_tutorial_completed')
+
 // 只清除档案
 localStorage.removeItem('mountain_post_archives')
 
 // 只清除成就
 localStorage.removeItem('mountain_post_achievements')
 
-// 一键清空该域名下所有本地存储（包括上述三类数据）
+// 一键清空该域名下所有本地存储（包括上述四类数据）
 localStorage.clear()
 ```
 执行命令后刷新页面即可生效。

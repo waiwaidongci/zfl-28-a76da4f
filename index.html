@@ -246,12 +246,33 @@
     body.no-anim .scenario-card:hover { transform: none; box-shadow: none; }
     body.no-anim .event-option:hover { transform: none; }
     body.no-anim .codex-bar-fill { transition: none; }
+    .tutorial-btn { font-size: 13px; padding: 6px 14px; margin-left: 10px; vertical-align: middle; background: #8a6a18; }
+    .tutorial-btn:hover { background: #7a5a08; }
+    .tutorial-overlay { position: fixed; inset: 0; background: rgba(20,30,35,.7); display: grid; place-items: center; z-index: 2000; }
+    .tutorial-overlay.hidden { display: none; }
+    .tutorial-modal { width: min(520px, calc(100% - 28px)); background: #fff; border-radius: 12px; padding: 24px; border: 2px solid #315c72; position: relative; }
+    .tutorial-step-indicator { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+    .tutorial-dot { width: 10px; height: 10px; border-radius: 50%; background: #cfdbdc; transition: background .2s; }
+    .tutorial-dot.active { background: #315c72; }
+    .tutorial-icon { font-size: 42px; text-align: center; margin-bottom: 10px; }
+    .tutorial-title { font-size: 20px; font-weight: 800; color: #315c72; text-align: center; margin: 0 0 12px; }
+    .tutorial-content { font-size: 14px; line-height: 1.8; color: #2d3a40; background: #f5f8f8; border-radius: 8px; padding: 14px 16px; margin-bottom: 18px; border-left: 4px solid #315c72; }
+    .tutorial-content ul { margin: 6px 0 0 0; padding-left: 20px; }
+    .tutorial-content li { padding: 3px 0; }
+    .tutorial-tip { font-size: 12px; color: #8a6a18; margin-top: 10px; padding: 8px 10px; background: #fff9e8; border-radius: 6px; border-left: 3px solid #b08a28; }
+    .tutorial-buttons { display: flex; gap: 10px; }
+    .tutorial-buttons button { flex: 1; padding: 10px; font-size: 14px; }
+    .tutorial-buttons .tutorial-skip { background: #6d7a80; }
+    .tutorial-buttons .tutorial-prev { background: #5a6e78; }
+    .tutorial-close { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 22px; color: #5a6e78; cursor: pointer; padding: 0; line-height: 1; }
+    .tutorial-close:hover { color: #1f2a2f; }
   </style>
 </head>
 <body>
   <header>
     <div><h1>高山驿站补给调度 · <span id="scenarioName" style="color:#315c72">标准雪线</span></h1><div id="scenarioIntro">撑过15天，接应商队，让驿站不断粮。</div></div>
     <div>
+      <button class="tutorial-btn" id="tutorialBtn">游戏帮助</button>
       <button class="settings-btn" id="settingsBtn">玩法设置</button>
       <button id="newBtn">新开一局</button>
     </div>
@@ -440,6 +461,22 @@
       <div class="settings-footer">
         <button class="secondary" id="settingsResetBtn">恢复默认</button>
         <button id="settingsCloseBtn">完成</button>
+      </div>
+    </div>
+  </div>
+  <div class="tutorial-overlay hidden" id="tutorialOverlay">
+    <div class="tutorial-modal">
+      <button class="tutorial-close" id="tutorialCloseBtn">×</button>
+      <div class="tutorial-step-indicator" id="tutorialStepIndicator"></div>
+      <div class="tutorial-icon" id="tutorialIcon">📖</div>
+      <h2 class="tutorial-title" id="tutorialTitle">欢迎来到高山驿站</h2>
+      <div class="tutorial-content" id="tutorialContent">
+        内容加载中...
+      </div>
+      <div class="tutorial-buttons">
+        <button class="tutorial-skip" id="tutorialSkipBtn">跳过引导</button>
+        <button class="tutorial-prev hidden" id="tutorialPrevBtn">上一步</button>
+        <button id="tutorialNextBtn">下一步</button>
       </div>
     </div>
   </div>
@@ -1090,7 +1127,17 @@
       settingLowAnim: document.querySelector("#settingLowAnim"),
       settingsBtn: document.querySelector("#settingsBtn"),
       settingsCloseBtn: document.querySelector("#settingsCloseBtn"),
-      settingsResetBtn: document.querySelector("#settingsResetBtn")
+      settingsResetBtn: document.querySelector("#settingsResetBtn"),
+      tutorialOverlay: document.querySelector("#tutorialOverlay"),
+      tutorialIcon: document.querySelector("#tutorialIcon"),
+      tutorialTitle: document.querySelector("#tutorialTitle"),
+      tutorialContent: document.querySelector("#tutorialContent"),
+      tutorialStepIndicator: document.querySelector("#tutorialStepIndicator"),
+      tutorialPrevBtn: document.querySelector("#tutorialPrevBtn"),
+      tutorialNextBtn: document.querySelector("#tutorialNextBtn"),
+      tutorialSkipBtn: document.querySelector("#tutorialSkipBtn"),
+      tutorialCloseBtn: document.querySelector("#tutorialCloseBtn"),
+      tutorialBtn: document.querySelector("#tutorialBtn")
     };
     function getScenarioRoutes(scenarioId) {
       const sc = SCENARIOS[scenarioId];
@@ -2577,6 +2624,145 @@
         resetSettings();
       });
     };
+    const TUTORIAL_STORAGE_KEY = "mountain_post_tutorial_completed";
+    const TUTORIAL_STEPS = [
+      {
+        icon: "📖",
+        title: "第一步：选择赛季剧本",
+        content: `
+每局游戏开始前，先选择一个<b>赛季剧本</b>和<b>难度</b>。
+<ul>
+<li><b>标准雪线</b>：熟悉机制的入门剧本，坚守15天即可</li>
+<li><b>药品短缺</b>：疫病蔓延，优先走草药小径补充药材</li>
+<li><b>商队旺季</b>：12天内接应12队以上商队，集市古道效率最高</li>
+<li><b>封山救援</b>：暴雪封山，冰原直道在暴雪中仍可通行</li>
+</ul>
+<div class="tutorial-tip">💡 新手推荐先玩「标准雪线」稳妥难度，熟悉基本机制。</div>
+`
+      },
+      {
+        icon: "🗺️",
+        title: "第二步：派遣向导路线",
+        content: `
+游戏核心操作是给两名<b>向导分配路线</b>。
+<ul>
+<li>左侧「向导」区域的下拉菜单可选择每名向导今日派遣的路线</li>
+<li>每条路线只能派遣一名向导，重复派遣的会留守</li>
+<li>中间「今日路线」面板显示每条路线的风险、奖励和消耗</li>
+<li>选择「留守休整」可让向导疲劳-2，不执行任务</li>
+</ul>
+<div class="tutorial-tip">💡 点击「执行调度并进入明天」前，注意查看下方的「次日风险预估」面板！</div>
+`
+      },
+      {
+        icon: "📦",
+        title: "第三步：管理资源消耗",
+        content: `
+驿站有四种核心资源，显示在左上角面板：
+<ul>
+<li><b>柴火</b>：路线消耗 + 驿站取暖（暴雪天额外消耗）</li>
+<li><b>干粮</b>：路线消耗 + 驿站日常（每天-2）</li>
+<li><b>药品</b>：部分路线消耗，救援失败时额外消耗</li>
+<li><b>声望</b>：接应商队成功获得，某些事件也会影响</li>
+</ul>
+任一资源变为负数即游戏失败！同时注意向导的疲劳值，超过12也会失败。
+<div class="tutorial-tip">💡 暴雪天所有消耗都会增加，尽量选择风险低的路线或留守。</div>
+`
+      },
+      {
+        icon: "⚡",
+        title: "第四步：处理随机事件",
+        content: `
+每天开始时有概率触发<b>随机事件</b>，需要做出选择：
+<ul>
+<li>事件分为：天气异象、物资事件、向导事件、声望事件、随机事件</li>
+<li>每个选项会显示资源变化的预览标签</li>
+<li>选择后结果会立即生效并记录到日志中</li>
+</ul>
+部分事件有好有坏，需要根据当前资源状况权衡决策。
+<div class="tutorial-tip">💡 点击「路线图鉴」按钮可以查看所有事件和路线的详细数据。</div>
+`
+      },
+      {
+        icon: "📊",
+        title: "第五步：结算与复盘",
+        content: `
+游戏结束（胜利或失败）后：
+<ul>
+<li>可以查看本局的<b>最终结算</b>和解锁的成就</li>
+<li>点击「调度复盘」可以查看每一天的详细数据对比</li>
+<li>复盘包括：资源变化、向导状态、事件选择、预估vs实际对比</li>
+<li>所有对局会自动保存到「结算档案馆」，最多保留100条</li>
+</ul>
+复盘是提升水平的最好方式，看看哪些决策导致了资源波动！
+<div class="tutorial-tip">💡 在「玩法设置」中可以开启「自动打开复盘」，每局结束后自动弹出复盘面板。</div>
+`
+      }
+    ];
+    let currentTutorialStep = 0;
+    function loadTutorialCompleted() {
+      try {
+        return localStorage.getItem(TUTORIAL_STORAGE_KEY) === "true";
+      } catch (e) {
+        console.error("加载引导状态失败:", e);
+        return false;
+      }
+    }
+    function saveTutorialCompleted() {
+      try {
+        localStorage.setItem(TUTORIAL_STORAGE_KEY, "true");
+      } catch (e) {
+        console.error("保存引导状态失败:", e);
+      }
+    }
+    function renderTutorialStep() {
+      const step = TUTORIAL_STEPS[currentTutorialStep];
+      if (!step) return;
+      els.tutorialIcon.textContent = step.icon;
+      els.tutorialTitle.textContent = step.title;
+      els.tutorialContent.innerHTML = step.content;
+      els.tutorialStepIndicator.innerHTML = TUTORIAL_STEPS.map((_, i) =>
+        '<div class="tutorial-dot ' + (i === currentTutorialStep ? 'active' : '') + '"></div>'
+      ).join("");
+      els.tutorialPrevBtn.classList.toggle("hidden", currentTutorialStep === 0);
+      if (currentTutorialStep === TUTORIAL_STEPS.length - 1) {
+        els.tutorialNextBtn.textContent = "开始游戏";
+      } else {
+        els.tutorialNextBtn.textContent = "下一步";
+      }
+    }
+    function openTutorial(startStep = 0) {
+      currentTutorialStep = startStep;
+      renderTutorialStep();
+      els.tutorialOverlay.classList.remove("hidden");
+    }
+    function closeTutorial() {
+      els.tutorialOverlay.classList.add("hidden");
+    }
+    function completeTutorial() {
+      saveTutorialCompleted();
+      closeTutorial();
+    }
+    els.tutorialBtn.onclick = () => openTutorial(0);
+    els.tutorialCloseBtn.onclick = closeTutorial;
+    els.tutorialSkipBtn.onclick = completeTutorial;
+    els.tutorialPrevBtn.onclick = () => {
+      if (currentTutorialStep > 0) {
+        currentTutorialStep--;
+        renderTutorialStep();
+      }
+    };
+    els.tutorialNextBtn.onclick = () => {
+      if (currentTutorialStep < TUTORIAL_STEPS.length - 1) {
+        currentTutorialStep++;
+        renderTutorialStep();
+      } else {
+        completeTutorial();
+      }
+    };
+    if (!loadTutorialCompleted()) {
+      setTimeout(() => openTutorial(0), 300);
+    }
     showDiffPicker();
   </script>
 </body>
