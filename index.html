@@ -907,7 +907,9 @@
     }
     function rollWeather(sc, d) {
       const wt = sc.weatherTable;
-      let stormProb = wt.overrideStormProb !== null ? wt.overrideStormProb : d.stormProb;
+      const scenarioStormProb = wt.storm !== undefined ? wt.storm : d.stormProb;
+      const difficultyStormDelta = d.stormProb - DIFF.normal.stormProb;
+      let stormProb = wt.overrideStormProb !== null ? wt.overrideStormProb : scenarioStormProb + difficultyStormDelta;
       stormProb = getEffectiveWeatherProb(stormProb);
       const r = Math.random();
       if (r < stormProb * 0.95) return "暴雪";
