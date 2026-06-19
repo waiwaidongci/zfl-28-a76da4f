@@ -132,6 +132,65 @@
     @media (max-width: 600px) {
       .scenario-options { grid-template-columns: 1fr; }
     }
+    .replay-modal { width: min(1080px, calc(100% - 28px)); max-height: 90vh; overflow-y: auto; }
+    .replay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 2px solid #dde5e6; }
+    .replay-header h2 { margin: 0; color: #315c72; }
+    .replay-timeline { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px; padding: 10px; background: #f5f8f8; border-radius: 8px; }
+    .replay-day-btn { min-width: 40px; padding: 6px 8px; border: 2px solid #cfdbdc; background: #fff; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 700; transition: all .15s; }
+    .replay-day-btn:hover { border-color: #315c72; }
+    .replay-day-btn.active { background: #315c72; color: #fff; border-color: #315c72; }
+    .replay-day-btn.turning { border-color: #b08a28; background: #fff9e8; color: #8a6a18; }
+    .replay-day-btn.turning.active { background: #b08a28; color: #fff; }
+    .replay-nav { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; }
+    .replay-nav button { padding: 8px 14px; font-size: 14px; }
+    .replay-nav .info { flex: 1; text-align: center; font-weight: 700; font-size: 15px; color: #315c72; }
+    .replay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .replay-section { background: #f5f8f8; border: 1px solid #dde5e6; border-radius: 8px; padding: 14px; }
+    .replay-section h3 { margin: 0 0 10px; font-size: 15px; color: #315c72; padding-bottom: 6px; border-bottom: 1px dashed #dde5e6; display: flex; align-items: center; gap: 6px; }
+    .replay-section h3::before { content: ""; display: inline-block; width: 4px; height: 16px; background: #315c72; border-radius: 2px; }
+    .replay-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; border-bottom: 1px solid #e8efef; }
+    .replay-row:last-child { border-bottom: none; }
+    .replay-row span:first-child { color: #5a6e78; }
+    .replay-resource-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; align-items: center; }
+    .res-change { font-weight: 700; }
+    .res-change.up { color: #3f7a54; }
+    .res-change.down { color: #a33d31; }
+    .res-change-flat { color: #5a6e78; }
+    .replay-change-list { margin-top: 8px; }
+    .replay-change-item { padding: 6px 8px; margin-top: 4px; background: #fff; border-radius: 4px; border-left: 3px solid #315c72; font-size: 12px; color: #2d3a40; line-height: 1.5; }
+    .replay-change-item.good { border-left-color: #3f7a54; }
+    .replay-change-item.bad { border-left-color: #a33d31; }
+    .replay-event-card { background: linear-gradient(135deg, #f8fbfb 0%, #eef4f5 100%); border: 2px solid #8a5a9e; border-radius: 8px; padding: 12px; }
+    .replay-event-title { font-weight: 700; color: #1f2a2f; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .replay-event-desc { font-size: 13px; color: #5a6e78; line-height: 1.5; margin-bottom: 8px; }
+    .replay-choice-made { padding: 8px 10px; background: #e8f0f2; border-radius: 6px; font-size: 13px; border-left: 3px solid #315c72; }
+    .replay-choice-made strong { color: #315c72; }
+    .replay-guide-card { padding: 8px; background: #fff; border-radius: 6px; margin-top: 6px; border: 1px solid #dde5e6; }
+    .replay-guide-name { font-weight: 700; font-size: 13px; }
+    .replay-guide-meta { font-size: 12px; color: #5a6e78; margin-top: 2px; }
+    .replay-log-list { max-height: 180px; overflow-y: auto; }
+    .replay-log-entry { padding: 5px 8px; margin-top: 3px; background: #fff; border-radius: 4px; font-size: 12px; color: #2d3a40; line-height: 1.5; border-left: 3px solid #315c72; }
+    .replay-turning-banner { padding: 10px 14px; background: linear-gradient(135deg, #fff9e8 0%, #fff3d1 100%); border: 2px solid #b08a28; border-radius: 8px; margin-bottom: 14px; }
+    .replay-turning-banner strong { color: #8a6a18; }
+    .replay-turning-title { font-weight: 800; color: #8a6a18; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .replay-turning-title::before { content: "★"; }
+    .replay-empty { text-align: center; padding: 40px 20px; color: #5a6e78; }
+    .replay-route-status { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 700; margin-left: 4px; }
+    .route-blocked { background: #f2d9d6; color: #a33d31; }
+    .route-caravan { background: #d4ede0; color: #3f7a54; }
+    .route-normal { background: #e3ecf1; color: #315c72; }
+    .replay-btn { font-size: 13px; padding: 6px 14px; margin-left: 10px; vertical-align: middle; background: #b08a28; }
+    .replay-btn:hover { background: #a07a18; }
+    .archive-card .archive-replay-btn { margin-top: 10px; width: 100%; padding: 8px; font-size: 13px; background: #b08a28; }
+    .archive-card .archive-replay-btn:hover { background: #a07a18; }
+    .replay-summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+    .replay-summary-item { padding: 10px; background: #fff; border-radius: 6px; text-align: center; border: 1px solid #dde5e6; }
+    .replay-summary-label { font-size: 11px; color: #5a6e78; display: block; }
+    .replay-summary-value { font-size: 18px; font-weight: 800; color: #1f2a2f; }
+    @media (max-width: 800px) {
+      .replay-grid { grid-template-columns: 1fr; }
+      .replay-summary-bar { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -227,6 +286,7 @@
       <div style="display:flex;gap:10px;margin-top:12px">
         <button id="againBtn" style="flex:1">再来一局</button>
         <button class="codex-btn" id="resultCodexBtn" style="flex:1">查看本局图鉴</button>
+        <button class="replay-btn" id="resultReplayBtn" style="flex:1">调度复盘</button>
       </div>
     </div>
   </div>
@@ -243,6 +303,23 @@
       <h3 id="eventTitle"></h3>
       <div class="event-desc" id="eventDesc"></div>
       <div class="event-options" id="eventOptions"></div>
+    </div>
+  </div>
+  <div class="overlay hidden" id="replayOverlay">
+    <div class="modal replay-modal">
+      <div class="replay-header">
+        <h2 id="replayTitle">调度复盘</h2>
+        <button id="replayCloseBtn">关闭</button>
+      </div>
+      <div class="replay-summary-bar" id="replaySummaryBar"></div>
+      <div id="replayTurningBanner"></div>
+      <div class="replay-timeline" id="replayTimeline"></div>
+      <div class="replay-nav">
+        <button id="replayPrevBtn">← 上一天</button>
+        <div class="info" id="replayDayInfo">第 1 天</div>
+        <button id="replayNextBtn">下一天 →</button>
+      </div>
+      <div class="replay-grid" id="replayGrid"></div>
     </div>
   </div>
   <script>
@@ -584,7 +661,13 @@
       archiveOverlay: document.querySelector("#archiveOverlay"), archiveList: document.querySelector("#archiveList"),
       confirmOverlay: document.querySelector("#confirmOverlay"), confirmTitle: document.querySelector("#confirmTitle"),
       confirmText: document.querySelector("#confirmText"), scenarioOptions: document.querySelector("#scenarioOptions"),
-      scenarioNameEl: document.querySelector("#scenarioName"), scenarioIntroEl: document.querySelector("#scenarioIntro")
+      scenarioNameEl: document.querySelector("#scenarioName"), scenarioIntroEl: document.querySelector("#scenarioIntro"),
+      replayOverlay: document.querySelector("#replayOverlay"), replayTitle: document.querySelector("#replayTitle"),
+      replayTimeline: document.querySelector("#replayTimeline"), replayDayInfo: document.querySelector("#replayDayInfo"),
+      replayGrid: document.querySelector("#replayGrid"), replaySummaryBar: document.querySelector("#replaySummaryBar"),
+      replayTurningBanner: document.querySelector("#replayTurningBanner"),
+      replayPrevBtn: document.querySelector("#replayPrevBtn"), replayNextBtn: document.querySelector("#replayNextBtn"),
+      replayCloseBtn: document.querySelector("#replayCloseBtn")
     };
     function getScenarioRoutes(scenarioId) {
       const sc = SCENARIOS[scenarioId];
@@ -739,13 +822,22 @@
       const event = pendingEvent;
       const choice = event.options[choiceIndex];
       const effects = choice.effects;
-      if (effects.wood) game.wood += effects.wood;
-      if (effects.food) game.food += effects.food;
-      if (effects.med) game.med += effects.med;
-      if (effects.rep) game.rep += effects.rep;
+      if (effects.wood) { game.wood += effects.wood; recordResourceChange("wood", effects.wood, "【事件】" + event.name + "：" + choice.title); }
+      if (effects.food) { game.food += effects.food; recordResourceChange("food", effects.food, "【事件】" + event.name + "：" + choice.title); }
+      if (effects.med) { game.med += effects.med; recordResourceChange("med", effects.med, "【事件】" + event.name + "：" + choice.title); }
+      if (effects.rep) { game.rep += effects.rep; recordResourceChange("rep", effects.rep, "【事件】" + event.name + "：" + choice.title); }
       if (effects.weatherModifier) applyWeatherModifier(effects.weatherModifier);
       if (effects.routeEffect) applyRouteEffect(effects.routeEffect);
       if (effects.guideEffect) applyGuideEffect(effects.guideEffect);
+      if (game.currentDayData) {
+        game.currentDayData.eventChoice = {
+          choiceIndex: choiceIndex,
+          title: choice.title,
+          hint: choice.hint,
+          log: effects.log
+        };
+        recordReplayLog("【事件】" + event.name + "：" + effects.log);
+      }
       if (!game.eventCodex[event.id]) {
         game.eventCodex[event.id] = { name: event.name, category: event.category, desc: event.desc, seen: 0, choices: {} };
       }
@@ -879,7 +971,9 @@
         minResources: { wood: startWood, med: startMed, food: startFood },
         routeDispatches: buildEmptyRouteDispatches(sc.routePool),
         failureReason: null,
-        medCriticalStreak: 0
+        medCriticalStreak: 0,
+        replayHistory: [],
+        currentDayData: null
       };
       sr.forEach(r => {
         game.codex[r.id] = { name: r.name, risk: r.risk, reward: r.reward, desc: r.desc, wood: r.wood, food: r.food, med: r.med, seen: 0, blocked: 0, attempts: 0, successes: 0, rewards: { rep: 0, wood: 0, food: 0, med: 0 } };
@@ -904,6 +998,111 @@
       rollDay();
       els.overlay.classList.add("hidden");
       render();
+    }
+    function startReplayDay() {
+      game.currentDayData = {
+        day: game.day,
+        weather: game.weather,
+        startResources: { wood: game.wood, med: game.med, food: game.food, rep: game.rep },
+        endResources: null,
+        startGuides: game.guides.map(g => ({ name: g.name, fatigue: g.fatigue, task: g.task })),
+        endGuides: null,
+        routes: game.routes.map(r => ({ id: r.id, name: r.name, blocked: r.blocked, caravan: r.caravan, risk: r.risk, reward: r.reward })),
+        guideAssignments: [],
+        event: null,
+        eventChoice: null,
+        resourceChanges: [],
+        logs: [],
+        savedCaravans: game.saved,
+        isTurningPoint: false,
+        turningPointReason: null
+      };
+    }
+    function recordResourceChange(resource, amount, reason) {
+      if (!game.currentDayData) return;
+      if (amount === 0) return;
+      game.currentDayData.resourceChanges.push({
+        resource: resource,
+        amount: amount,
+        reason: reason
+      });
+    }
+    function recordReplayLog(logText) {
+      if (!game.currentDayData) return;
+      game.currentDayData.logs.push(logText);
+    }
+    function endReplayDay() {
+      if (!game.currentDayData) return;
+      game.currentDayData.endResources = { wood: game.wood, med: game.med, food: game.food, rep: game.rep };
+      game.currentDayData.endGuides = game.guides.map(g => ({ name: g.name, fatigue: g.fatigue, task: g.task }));
+      game.currentDayData.savedCaravans = game.saved;
+      game.currentDayData.guideAssignments = game.guides
+        .filter(g => g.task)
+        .map(g => ({ guideName: g.name, routeId: g.task, routeName: getRouteName(g.task) }));
+      game.replayHistory.push(game.currentDayData);
+      game.currentDayData = null;
+    }
+    function detectTurningPoints(win) {
+      if (!game.replayHistory || game.replayHistory.length === 0) return;
+      const history = game.replayHistory;
+      const totalDays = history.length;
+      const turningPoints = [];
+      for (let i = 0; i < totalDays; i++) {
+        const day = history[i];
+        const prev = i > 0 ? history[i - 1] : null;
+        const reasons = [];
+        if (i === totalDays - 1) {
+          reasons.push(win ? "终局日：锁定胜利" : "终局日：" + (game.failureReason || "游戏结束"));
+        }
+        if (day.endResources) {
+          if (day.endResources.food <= 0) reasons.push("干粮见底，濒临失败");
+          if (day.endResources.wood <= 0) reasons.push("柴火耗尽，驿站失温");
+          if (day.endResources.med <= 0) reasons.push("药品告罄，疫情风险");
+        }
+        if (prev && prev.endResources && day.endResources) {
+          const checkResourceDrop = (res, label, threshold) => {
+            const before = prev.endResources[res];
+            const after = day.endResources[res];
+            if (before > threshold && after <= before * 0.5) {
+              reasons.push(label + "骤降（" + before + " → " + after + "）");
+            }
+          };
+          checkResourceDrop("food", "干粮", 5);
+          checkResourceDrop("wood", "柴火", 5);
+          checkResourceDrop("med", "药品", 3);
+          const repBefore = prev.endResources.rep;
+          const repAfter = day.endResources.rep;
+          if (repAfter - repBefore >= 6) {
+            reasons.push("声望大幅提升（+" + (repAfter - repBefore) + "）");
+          }
+          const savedBefore = prev.savedCaravans;
+          const savedAfter = day.savedCaravans;
+          if (savedAfter > savedBefore) {
+            reasons.push("成功接应商队（累计" + savedAfter + "队）");
+          }
+        }
+        if (day.endGuides) {
+          const fatiguedGuides = day.endGuides.filter(g => g.fatigue >= 8);
+          if (fatiguedGuides.length >= 1) {
+            reasons.push("向导疲劳预警：" + fatiguedGuides.map(g => g.name + "(" + g.fatigue + ")").join("、"));
+          }
+        }
+        if (day.event && day.eventChoice) {
+          const badEvent = day.resourceChanges.some(rc => rc.amount < -2);
+          const goodEvent = day.resourceChanges.some(rc => rc.amount > 3);
+          if (badEvent) reasons.push("关键事件选择导致资源大幅减少");
+          if (goodEvent) reasons.push("关键事件选择获得大量收益");
+        }
+        if (day.weather === "暴雪" && day.routes.filter(r => r.blocked).length >= 2) {
+          reasons.push("暴雪导致多条路线封路");
+        }
+        if (reasons.length > 0) {
+          day.isTurningPoint = true;
+          day.turningPointReason = reasons.join("；");
+          turningPoints.push({ day: day.day, reasons: reasons });
+        }
+      }
+      game.turningPoints = turningPoints;
     }
     function rollWeather(sc, d) {
       const wt = sc.weatherTable;
@@ -941,7 +1140,17 @@
         });
       }
       pendingEvent = drawEvent();
+      startReplayDay();
       if (pendingEvent) {
+        if (game.currentDayData) {
+          game.currentDayData.event = {
+            id: pendingEvent.id,
+            name: pendingEvent.name,
+            category: pendingEvent.category,
+            desc: pendingEvent.desc,
+            options: pendingEvent.options.map(o => ({ title: o.title, hint: o.hint }))
+          };
+        }
         renderEvent(pendingEvent);
       }
     }
@@ -979,40 +1188,71 @@
       const rewardBonus = rm.rewardBonus || 0;
       const fatigueBonus = rm.fatigueBonus || 0;
       for (const guide of game.guides) {
-        if (!guide.task) { guide.fatigue = Math.max(0, guide.fatigue - 2); continue; }
+        if (!guide.task) {
+          guide.fatigue = Math.max(0, guide.fatigue - 2);
+          recordReplayLog(guide.name + "留守休整，疲劳-2。");
+          continue;
+        }
         const route = game.routes.find(r => r.id === guide.task);
-        if (!route || usedRoutes.has(route.id)) { game.log.unshift(guide.name + "没有有效任务，留守整理马具。"); continue; }
-        if (route.blocked) { game.log.unshift(guide.name + "尝试走" + route.name + "，但道路已封，无功而返。"); continue; }
+        if (!route || usedRoutes.has(route.id)) {
+          const logMsg = guide.name + "没有有效任务，留守整理马具。";
+          game.log.unshift(logMsg);
+          recordReplayLog(logMsg);
+          continue;
+        }
+        if (route.blocked) {
+          const logMsg = guide.name + "尝试走" + route.name + "，但道路已封，无功而返。";
+          game.log.unshift(logMsg);
+          recordReplayLog(logMsg);
+          continue;
+        }
         usedRoutes.add(route.id);
         if (game.routeDispatches[route.id] !== undefined) {
           game.routeDispatches[route.id]++;
         }
         const stormWoodCost = (rm.stormRouteImmune && rm.stormRouteImmune.includes(route.id)) ? 0 : (game.weather === "暴雪" ? 1 : 0);
-        game.wood -= route.wood + stormWoodCost;
+        const woodCost = route.wood + stormWoodCost;
+        game.wood -= woodCost;
+        recordResourceChange("wood", -woodCost, guide.name + "执行【" + route.name + "】调度消耗" + (stormWoodCost > 0 ? "（含暴雪御寒" + stormWoodCost + "）" : ""));
         game.food -= route.food;
+        if (route.food !== 0) recordResourceChange("food", -route.food, guide.name + "执行【" + route.name + "】调度消耗");
         game.med -= route.med;
+        if (route.med !== 0) recordResourceChange("med", -route.med, guide.name + "执行【" + route.name + "】调度消耗");
         const rawFatigue = route.risk + fatigueBonus + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
-        guide.fatigue += Math.round(rawFatigue * d.fatigueMul);
+        const fatigueGain = Math.round(rawFatigue * d.fatigueMul);
+        guide.fatigue += fatigueGain;
         const failChance = route.blocked ? .75 : (route.risk + guide.fatigue / 4) / 12;
         const cx = game.codex[route.id];
         if (cx) cx.attempts++;
         const realReward = route.reward + rewardBonus;
         if (route.caravan && Math.random() > failChance) {
           game.rep += realReward;
+          recordResourceChange("rep", realReward, guide.name + "在【" + route.name + "】接应商队成功");
           game.saved += 1;
           if (cx) { cx.successes++; cx.rewards.rep += realReward; cx.rewards.wood += route.wood; cx.rewards.food += route.food; cx.rewards.med += route.med; }
-          game.log.unshift("第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功，声望+"+realReward+"。");
+          const logMsg = "第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功，声望+"+realReward+"，疲劳+" + fatigueGain + "。";
+          game.log.unshift(logMsg);
+          recordReplayLog(logMsg);
         } else if (route.caravan) {
           game.med -= 1;
-          game.log.unshift("第"+game.day+"天，"+route.name+"救援受挫，消耗了额外药品。");
+          recordResourceChange("med", -1, route.name + "救援受挫，消耗额外药品");
+          const logMsg = "第"+game.day+"天，"+guide.name+"在"+route.name+"救援受挫，消耗了额外药品，疲劳+" + fatigueGain + "。";
+          game.log.unshift(logMsg);
+          recordReplayLog(logMsg);
         } else {
           game.wood += 1;
+          recordResourceChange("wood", 1, guide.name + "巡查【" + route.name + "】带回柴火");
           if (cx) cx.rewards.wood += 1;
-          game.log.unshift("第"+game.day+"天，"+guide.name+"巡查"+route.name+"，带回少量柴火。");
+          const logMsg = "第"+game.day+"天，"+guide.name+"巡查"+route.name+"，带回少量柴火，疲劳+" + fatigueGain + "。";
+          game.log.unshift(logMsg);
+          recordReplayLog(logMsg);
         }
       }
       game.food -= 2;
-      game.wood -= game.weather === "暴雪" ? 3 : 1;
+      recordResourceChange("food", -2, "驿站日常口粮消耗");
+      const heatWoodCost = game.weather === "暴雪" ? 3 : 1;
+      game.wood -= heatWoodCost;
+      recordResourceChange("wood", -heatWoodCost, "驿站取暖消耗（" + game.weather + "）");
       if (game.wood < game.minResources.wood) game.minResources.wood = game.wood;
       if (game.med < game.minResources.med) game.minResources.med = game.med;
       if (game.food < game.minResources.food) game.minResources.food = game.food;
@@ -1050,12 +1290,15 @@
           break;
       }
       if (game.day >= game.targetDays) return finish(win);
+      endReplayDay();
       game.day += 1;
       rollDay();
       render();
     }
     function finish(win) {
       game.ended = true;
+      endReplayDay();
+      detectTurningPoints(win);
       const sc = game.scenarioConfig;
       const d = DIFF[game.diff];
       saveGameArchive(win);
@@ -1187,9 +1430,10 @@
     document.querySelector("#codexBtn").onclick = openCodex;
     document.querySelector("#diffCodexBtn").onclick = openCodex;
     document.querySelector("#resultCodexBtn").onclick = openCodex;
+    document.querySelector("#resultReplayBtn").onclick = openReplayFromGame;
     document.querySelector("#codexCloseBtn").onclick = () => codexOverlay.classList.add("hidden");
     const ARCHIVE_STORAGE_KEY = "mountain_post_archives";
-    const ARCHIVE_VERSION = 1;
+    const ARCHIVE_VERSION = 2;
     function getDefaultArchiveFields() {
       return {
         version: ARCHIVE_VERSION,
@@ -1210,7 +1454,9 @@
         routePreference: { north: 0, ridge: 0, valley: 0 },
         keyLogs: [],
         timestamp: 0,
-        dateStr: ""
+        dateStr: "",
+        replayHistory: [],
+        turningPoints: []
       };
     }
     function migrateArchive(archive) {
@@ -1221,6 +1467,8 @@
       if (!migrated.routePreference) migrated.routePreference = { ...defaults.routePreference };
       else migrated.routePreference = { ...defaults.routePreference, ...migrated.routePreference };
       if (!migrated.keyLogs) migrated.keyLogs = [];
+      if (!migrated.replayHistory) migrated.replayHistory = [];
+      if (!migrated.turningPoints) migrated.turningPoints = [];
       if (!migrated.version) migrated.version = ARCHIVE_VERSION;
       if (!migrated.scenario) {
         migrated.scenario = "standard";
@@ -1285,7 +1533,9 @@
         routePreference: { ...game.routeDispatches },
         keyLogs: getKeyLogs(),
         timestamp: now.getTime(),
-        dateStr: now.toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+        dateStr: now.toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }),
+        replayHistory: JSON.parse(JSON.stringify(game.replayHistory || [])),
+        turningPoints: JSON.parse(JSON.stringify(game.turningPoints || []))
       };
       const archives = loadGameArchives();
       archives.unshift(archive);
@@ -1346,7 +1596,8 @@
           case "caravans_and_rep": targetInfo = '接应≥' + archive.winTarget.count + '队 且 声望≥' + archive.winTarget.rep; break;
         }
       }
-      return '<div class="archive-card ' + winCls + '">' +
+      const hasReplay = archive.replayHistory && archive.replayHistory.length > 0;
+      return '<div class="archive-card ' + winCls + '" data-archive-id="' + archive.id + '">' +
         '<div class="archive-header">' +
           '<div class="archive-title">' +
             '<span class="archive-badge ' + winCls + '">' + winText + '</span>' +
@@ -1372,6 +1623,7 @@
           '<div class="archive-detail-row" style="margin-top:8px"><span>关键日志</span><span></span></div>' +
           logsHtml +
         '</div>' +
+        (hasReplay ? '<button class="archive-replay-btn" data-archive-id="' + archive.id + '">★ 查看调度复盘</button>' : '') +
       '</div>';
     }
     function renderArchiveList() {
@@ -1382,6 +1634,16 @@
         return;
       }
       els.archiveList.innerHTML = filtered.map(renderArchiveCard).join("");
+      document.querySelectorAll(".archive-replay-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const archiveId = parseInt(btn.dataset.archiveId);
+          const archive = loadGameArchives().find(a => a.id === archiveId);
+          if (archive) {
+            openReplayFromArchive(archive);
+          }
+        };
+      });
     }
     function openArchive() {
       currentArchiveFilter = "recent";
@@ -1422,6 +1684,226 @@
         renderArchiveList();
       };
     });
+    let currentReplayData = null;
+    let currentReplayDayIndex = 0;
+    const RESOURCE_LABELS = { wood: "柴火", med: "药品", food: "干粮", rep: "声望" };
+    function openReplayFromGame() {
+      if (!game || !game.replayHistory || game.replayHistory.length === 0) {
+        alert("当前没有复盘数据");
+        return;
+      }
+      const sc = game.scenarioConfig;
+      const d = DIFF[game.diff];
+      currentReplayData = {
+        title: sc.name + " · " + d.label + "难度 · " + (game.ended ? (game.failureReason ? "失败" : "胜利") : "进行中"),
+        scenarioLabel: sc.name,
+        scenarioColor: sc.color,
+        win: game.ended ? !game.failureReason : null,
+        failureReason: game.failureReason,
+        savedCaravans: game.saved,
+        reputation: game.rep,
+        targetDays: game.targetDays,
+        winTarget: { ...sc.win },
+        replayHistory: JSON.parse(JSON.stringify(game.replayHistory)),
+        turningPoints: JSON.parse(JSON.stringify(game.turningPoints || []))
+      };
+      openReplayModal();
+    }
+    function openReplayFromArchive(archive) {
+      if (!archive.replayHistory || archive.replayHistory.length === 0) {
+        alert("该档案没有复盘数据（可能是旧版本存档）");
+        return;
+      }
+      currentReplayData = {
+        title: archive.scenarioLabel + " · " + archive.difficultyLabel + "难度 · " + (archive.win ? "胜利" : "失败"),
+        scenarioLabel: archive.scenarioLabel,
+        scenarioColor: archive.scenarioColor || "#315c72",
+        win: archive.win,
+        failureReason: archive.failureReason,
+        savedCaravans: archive.savedCaravans,
+        reputation: archive.reputation,
+        targetDays: archive.targetDays,
+        winTarget: archive.winTarget,
+        replayHistory: JSON.parse(JSON.stringify(archive.replayHistory)),
+        turningPoints: JSON.parse(JSON.stringify(archive.turningPoints || []))
+      };
+      openReplayModal();
+    }
+    function openReplayModal() {
+      currentReplayDayIndex = 0;
+      els.replayTitle.textContent = "调度复盘 · " + currentReplayData.title;
+      els.replayTitle.style.color = currentReplayData.scenarioColor || "#315c72";
+      renderReplaySummary();
+      renderReplayTimeline();
+      renderReplayDay();
+      els.replayOverlay.classList.remove("hidden");
+    }
+    function closeReplay() {
+      els.replayOverlay.classList.add("hidden");
+      currentReplayData = null;
+      currentReplayDayIndex = 0;
+    }
+    function renderReplaySummary() {
+      const data = currentReplayData;
+      let winTargetText = "";
+      if (data.winTarget) {
+        switch (data.winTarget.type) {
+          case "days": winTargetText = "坚守 " + data.targetDays + " 天"; break;
+          case "caravans": winTargetText = "接应 " + data.winTarget.count + " 队"; break;
+          case "days_and_rep": winTargetText = "坚守 " + data.targetDays + " 天 + 声望 " + data.winTarget.rep; break;
+          case "caravans_and_rep": winTargetText = "接应 " + data.winTarget.count + " 队 + 声望 " + data.winTarget.rep; break;
+        }
+      }
+      const resultBadge = data.win === null ? '<span class="diff-label normal">进行中</span>' :
+        (data.win ? '<span class="diff-label safe">胜利</span>' : '<span class="diff-label hard">失败</span>');
+      els.replaySummaryBar.innerHTML =
+        '<div class="replay-summary-item"><span class="replay-summary-label">剧本结果</span><span class="replay-summary-value">' + resultBadge + '</span></div>' +
+        '<div class="replay-summary-item"><span class="replay-summary-label">接应商队</span><span class="replay-summary-value">' + data.savedCaravans + ' 队</span></div>' +
+        '<div class="replay-summary-item"><span class="replay-summary-label">最终声望</span><span class="replay-summary-value">' + data.reputation + '</span></div>' +
+        '<div class="replay-summary-item"><span class="replay-summary-label">胜利目标</span><span class="replay-summary-value" style="font-size:12px;color:#5a6e78">' + winTargetText + '</span></div>';
+    }
+    function renderReplayTimeline() {
+      const history = currentReplayData.replayHistory;
+      const turningSet = new Set((currentReplayData.turningPoints || []).map(tp => tp.day));
+      let html = "";
+      history.forEach((day, idx) => {
+        const isTurning = day.isTurningPoint;
+        const isActive = idx === currentReplayDayIndex;
+        let cls = "replay-day-btn";
+        if (isTurning) cls += " turning";
+        if (isActive) cls += " active";
+        html += '<button class="' + cls + '" data-day-idx="' + idx + '" title="第 ' + day.day + ' 天' + (day.turningPointReason ? '（转折点：' + day.turningPointReason + '）' : '') + '">D' + day.day + (isTurning ? '★' : '') + '</button>';
+      });
+      els.replayTimeline.innerHTML = html;
+      document.querySelectorAll(".replay-day-btn").forEach(btn => {
+        btn.onclick = () => {
+          currentReplayDayIndex = parseInt(btn.dataset.dayIdx);
+          renderReplayTimeline();
+          renderReplayDay();
+        };
+      });
+    }
+    function renderReplayTurningBanner() {
+      const day = currentReplayData.replayHistory[currentReplayDayIndex];
+      if (day && day.isTurningPoint) {
+        els.replayTurningBanner.innerHTML = '<div class="replay-turning-title">关键转折点</div><div style="font-size:13px;line-height:1.6"><strong>' + (day.turningPointReason || '') + '</strong></div>';
+        els.replayTurningBanner.className = "replay-turning-banner";
+      } else {
+        els.replayTurningBanner.innerHTML = "";
+        els.replayTurningBanner.className = "";
+      }
+    }
+    function formatResourceDiff(res, before, after) {
+      const diff = after - before;
+      if (diff > 0) return '<span class="res-change up">+' + diff + '</span>';
+      if (diff < 0) return '<span class="res-change down">' + diff + '</span>';
+      return '<span class="res-change-flat">±0</span>';
+    }
+    function renderReplayResources(day) {
+      if (!day.endResources) return '<div style="font-size:12px;color:#5a6e78">数据未记录</div>';
+      let html = "";
+      const resKeys = ["wood", "food", "med", "rep"];
+      resKeys.forEach(key => {
+        const before = day.startResources[key];
+        const after = day.endResources[key];
+        html += '<div class="replay-resource-row"><span><b>' + RESOURCE_LABELS[key] + '</b></span><span>' + before + ' → ' + after + ' ' + formatResourceDiff(key, before, after) + '</span></div>';
+      });
+      if (day.resourceChanges && day.resourceChanges.length > 0) {
+        html += '<div class="replay-change-list">';
+        day.resourceChanges.forEach(change => {
+          const isGood = change.amount > 0;
+          const cls = isGood ? 'good' : 'bad';
+          const sign = change.amount > 0 ? '+' : '';
+          html += '<div class="replay-change-item ' + cls + '"><b>' + RESOURCE_LABELS[change.resource] + ' ' + sign + change.amount + '</b> — ' + change.reason + '</div>';
+        });
+        html += '</div>';
+      }
+      return html;
+    }
+    function renderReplayRoutes(day) {
+      if (!day.routes || day.routes.length === 0) return '<div style="font-size:12px;color:#5a6e78">无路线数据</div>';
+      return day.routes.map(route => {
+        let statusTag = "";
+        if (route.blocked) statusTag = '<span class="replay-route-status route-blocked">封路</span>';
+        else if (route.caravan) statusTag = '<span class="replay-route-status route-caravan">商队</span>';
+        else statusTag = '<span class="replay-route-status route-normal">正常</span>';
+        return '<div class="replay-row"><span>' + route.name + '（风险' + route.risk + '）</span><span>' + statusTag + '</span></div>';
+      }).join("");
+    }
+    function renderReplayGuides(day) {
+      if (!day.startGuides || !day.endGuides) return '<div style="font-size:12px;color:#5a6e78">无向导数据</div>';
+      return day.endGuides.map((g, i) => {
+        const before = day.startGuides[i] ? day.startGuides[i].fatigue : 0;
+        const after = g.fatigue;
+        const taskText = g.task ? '派遣至【' + getRouteName(g.task) + '】' : '留守休整';
+        const diff = after - before;
+        const diffStr = diff > 0 ? '<span class="res-change down">+' + diff + '</span>' : (diff < 0 ? '<span class="res-change up">' + diff + '</span>' : '<span class="res-change-flat">±0</span>');
+        return '<div class="replay-guide-card"><div class="replay-guide-name">' + g.name + '</div><div class="replay-guide-meta">疲劳：' + before + ' → ' + after + ' ' + diffStr + '｜' + taskText + '</div></div>';
+      }).join("");
+    }
+    function renderReplayEvent(day) {
+      if (!day.event) return '<div style="font-size:12px;color:#5a6e78">今日无事件</div>';
+      const catLabel = EVENT_CATEGORY_LABELS[day.event.category] || day.event.category;
+      let html = '<div class="replay-event-card"><div class="replay-event-title"><span class="event-category ' + day.event.category + '" style="font-size:11px;padding:1px 8px">' + catLabel + '</span> ' + day.event.name + '</div><div class="replay-event-desc">' + day.event.desc + '</div>';
+      if (day.eventChoice) {
+        html += '<div class="replay-choice-made"><strong>你的选择：</strong>' + day.eventChoice.title + '</div>';
+        if (day.eventChoice.log) {
+          html += '<div style="margin-top:6px;font-size:12px;color:#5a6e78">结果：' + day.eventChoice.log + '</div>';
+        }
+      } else {
+        html += '<div style="font-size:12px;color:#5a6e78">（未做出选择）</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+    function renderReplayLogs(day) {
+      if (!day.logs || day.logs.length === 0) return '<div style="font-size:12px;color:#5a6e78">今日无日志</div>';
+      return '<div class="replay-log-list">' + day.logs.map(log => '<div class="replay-log-entry">' + log + '</div>').reverse().join("") + '</div>';
+    }
+    function renderReplayDay() {
+      const day = currentReplayData.replayHistory[currentReplayDayIndex];
+      if (!day) return;
+      renderReplayTurningBanner();
+      els.replayDayInfo.textContent = "第 " + day.day + " 天 / 共 " + currentReplayData.targetDays + " 天 · 天气：" + day.weather;
+      els.replayPrevBtn.disabled = currentReplayDayIndex === 0;
+      els.replayPrevBtn.classList.toggle("secondary", currentReplayDayIndex === 0);
+      const isLast = currentReplayDayIndex >= currentReplayData.replayHistory.length - 1;
+      els.replayNextBtn.disabled = isLast;
+      els.replayNextBtn.classList.toggle("secondary", isLast);
+      els.replayGrid.innerHTML =
+        '<div class="replay-section"><h3>天气 · 资源变化</h3>' +
+        '<div class="replay-row"><span>天气</span><span><b>' + day.weather + '</b></span></div>' +
+        '<div class="replay-row"><span>接应商队（累计）</span><span>' + day.savedCaravans + ' 队</span></div>' +
+        renderReplayResources(day) +
+        '</div>' +
+        '<div class="replay-section"><h3>今日路线</h3>' +
+        renderReplayRoutes(day) +
+        '</div>' +
+        '<div class="replay-section"><h3>向导状态</h3>' +
+        renderReplayGuides(day) +
+        '</div>' +
+        '<div class="replay-section"><h3>事件选择</h3>' +
+        renderReplayEvent(day) +
+        '</div>' +
+        '<div class="replay-section" style="grid-column:1/-1"><h3>今日日志</h3>' +
+        renderReplayLogs(day) +
+        '</div>';
+    }
+    els.replayCloseBtn.onclick = closeReplay;
+    els.replayPrevBtn.onclick = () => {
+      if (currentReplayDayIndex > 0) {
+        currentReplayDayIndex--;
+        renderReplayTimeline();
+        renderReplayDay();
+      }
+    };
+    els.replayNextBtn.onclick = () => {
+      if (currentReplayDayIndex < currentReplayData.replayHistory.length - 1) {
+        currentReplayDayIndex++;
+        renderReplayTimeline();
+        renderReplayDay();
+      }
+    };
     showDiffPicker();
   </script>
 </body>
