@@ -222,12 +222,39 @@
     .archive-achv-tag.unlocked { background: #e8f5ee; color: #3f7a54; border: 1px solid #b8dcc4; }
     .archive-achv-tag.locked { background: #f0f0f0; color: #9aa7ad; border: 1px solid #dde5e6; }
     .achievement-count { font-size: 12px; color: #5a6e78; margin-left: 6px; }
+    .settings-btn { font-size: 13px; padding: 6px 14px; margin-left: 10px; vertical-align: middle; background: #5a6e78; }
+    .settings-btn:hover { background: #4a5e68; }
+    .settings-modal { width: min(520px, calc(100% - 28px)); }
+    .settings-group { display: grid; gap: 14px; margin: 16px 0; }
+    .setting-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 12px; border: 1px solid #dde5e6; border-radius: 8px; background: #f5f8f8; }
+    .setting-item-info { flex: 1; }
+    .setting-item-title { font-weight: 800; color: #1f2a2f; font-size: 14px; }
+    .setting-item-desc { font-size: 12px; color: #5a6e78; margin-top: 3px; line-height: 1.5; }
+    .setting-toggle { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+    .setting-toggle input { opacity: 0; width: 0; height: 0; }
+    .setting-toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #cfdbdc; border-radius: 26px; transition: background .2s; }
+    .setting-toggle-slider::before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform .2s; }
+    .setting-toggle input:checked + .setting-toggle-slider { background: #315c72; }
+    .setting-toggle input:checked + .setting-toggle-slider::before { transform: translateX(22px); }
+    .settings-footer { display: flex; gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #dde5e6; }
+    .settings-footer button { flex: 1; }
+    .settings-data-hint { font-size: 11px; color: #8a9ea5; margin-top: 10px; padding: 10px; background: #f0f5f5; border-radius: 6px; line-height: 1.6; }
+    body.log-compact .log { height: 280px; }
+    body.log-compact .entry { padding: 4px 8px; font-size: 12px; border-left-width: 3px; }
+    body.no-anim * { transition: none !important; animation: none !important; }
+    body.no-anim .diff-card:hover { transform: none; box-shadow: none; }
+    body.no-anim .scenario-card:hover { transform: none; box-shadow: none; }
+    body.no-anim .event-option:hover { transform: none; }
+    body.no-anim .codex-bar-fill { transition: none; }
   </style>
 </head>
 <body>
   <header>
     <div><h1>高山驿站补给调度 · <span id="scenarioName" style="color:#315c72">标准雪线</span></h1><div id="scenarioIntro">撑过15天，接应商队，让驿站不断粮。</div></div>
-    <button id="newBtn">新开一局</button>
+    <div>
+      <button class="settings-btn" id="settingsBtn">玩法设置</button>
+      <button id="newBtn">新开一局</button>
+    </div>
   </header>
   <main class="app">
     <aside class="panel">
@@ -356,6 +383,64 @@
         <button id="replayNextBtn">下一天 →</button>
       </div>
       <div class="replay-grid" id="replayGrid"></div>
+    </div>
+  </div>
+  <div class="overlay hidden" id="settingsOverlay">
+    <div class="modal settings-modal">
+      <h2>玩法设置</h2>
+      <div class="settings-group">
+        <div class="setting-item">
+          <div class="setting-item-info">
+            <div class="setting-item-title">紧凑日志</div>
+            <div class="setting-item-desc">缩小事件日志行高与字号，在有限空间内展示更多条日志记录。</div>
+          </div>
+          <label class="setting-toggle">
+            <input type="checkbox" id="settingCompactLog">
+            <span class="setting-toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-item-info">
+            <div class="setting-item-title">自动打开复盘</div>
+            <div class="setting-item-desc">游戏结束（胜利/失败）后自动弹出调度复盘面板，无需手动点击。</div>
+          </div>
+          <label class="setting-toggle">
+            <input type="checkbox" id="settingAutoReplay">
+            <span class="setting-toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-item-info">
+            <div class="setting-item-title">隐藏已解锁成就提示</div>
+            <div class="setting-item-desc">结算时不再对已解锁成就显示「新达成!」高亮提示，保持界面简洁。</div>
+          </div>
+          <label class="setting-toggle">
+            <input type="checkbox" id="settingHideAchvHint">
+            <span class="setting-toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-item-info">
+            <div class="setting-item-title">降低动画反馈</div>
+            <div class="setting-item-desc">禁用卡片悬浮、进度条过渡等动画效果，减少视觉干扰，适合低配设备或快速操作。</div>
+          </div>
+          <label class="setting-toggle">
+            <input type="checkbox" id="settingLowAnim">
+            <span class="setting-toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="settings-data-hint">
+        <b>本地数据说明：</b><br>
+        • 设置数据保存在浏览器 localStorage，键名为 <code>mountain_post_settings</code><br>
+        • 剧本档案键名：<code>mountain_post_archives</code>（最多保留 100 条）<br>
+        • 成就数据键名：<code>mountain_post_achievements</code><br>
+        • 清理方式：浏览器开发者工具 → Application → Local Storage → 删除对应键，或在控制台执行 <code>localStorage.clear()</code> 清空全部。
+      </div>
+      <div class="settings-footer">
+        <button class="secondary" id="settingsResetBtn">恢复默认</button>
+        <button id="settingsCloseBtn">完成</button>
+      </div>
     </div>
   </div>
   <script>
@@ -800,6 +885,62 @@
         ids: unlockedIds
       };
     }
+    const SETTINGS_STORAGE_KEY = "mountain_post_settings";
+    const DEFAULT_SETTINGS = {
+      compactLog: false,
+      autoReplay: false,
+      hideAchvHint: false,
+      lowAnim: false
+    };
+    let gameSettings = { ...DEFAULT_SETTINGS };
+    function loadSettings() {
+      try {
+        const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
+        if (!stored) return { ...DEFAULT_SETTINGS };
+        const parsed = JSON.parse(stored);
+        return { ...DEFAULT_SETTINGS, ...parsed };
+      } catch (e) {
+        console.error("加载设置失败:", e);
+        return { ...DEFAULT_SETTINGS };
+      }
+    }
+    function saveSettings() {
+      try {
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(gameSettings));
+      } catch (e) {
+        console.error("保存设置失败:", e);
+      }
+    }
+    function applySettings() {
+      document.body.classList.toggle("log-compact", !!gameSettings.compactLog);
+      document.body.classList.toggle("no-anim", !!gameSettings.lowAnim);
+    }
+    function syncSettingsUI() {
+      els.settingCompactLog.checked = !!gameSettings.compactLog;
+      els.settingAutoReplay.checked = !!gameSettings.autoReplay;
+      els.settingHideAchvHint.checked = !!gameSettings.hideAchvHint;
+      els.settingLowAnim.checked = !!gameSettings.lowAnim;
+    }
+    function openSettings() {
+      syncSettingsUI();
+      els.settingsOverlay.classList.remove("hidden");
+    }
+    function closeSettings() {
+      els.settingsOverlay.classList.add("hidden");
+    }
+    function resetSettings() {
+      gameSettings = { ...DEFAULT_SETTINGS };
+      saveSettings();
+      applySettings();
+      syncSettingsUI();
+    }
+    function bindSettingToggle(inputEl, key) {
+      inputEl.onchange = () => {
+        gameSettings[key] = inputEl.checked;
+        saveSettings();
+        applySettings();
+      };
+    }
     const SCENARIOS = {
       standard: {
         id: "standard",
@@ -941,7 +1082,15 @@
       replayTurningBanner: document.querySelector("#replayTurningBanner"),
       replayPrevBtn: document.querySelector("#replayPrevBtn"), replayNextBtn: document.querySelector("#replayNextBtn"),
       replayCloseBtn: document.querySelector("#replayCloseBtn"),
-      estimatePanel: document.querySelector("#estimatePanel"), estimateGrid: document.querySelector("#estimateGrid"), estimateDetails: document.querySelector("#estimateDetails")
+      estimatePanel: document.querySelector("#estimatePanel"), estimateGrid: document.querySelector("#estimateGrid"), estimateDetails: document.querySelector("#estimateDetails"),
+      settingsOverlay: document.querySelector("#settingsOverlay"),
+      settingCompactLog: document.querySelector("#settingCompactLog"),
+      settingAutoReplay: document.querySelector("#settingAutoReplay"),
+      settingHideAchvHint: document.querySelector("#settingHideAchvHint"),
+      settingLowAnim: document.querySelector("#settingLowAnim"),
+      settingsBtn: document.querySelector("#settingsBtn"),
+      settingsCloseBtn: document.querySelector("#settingsCloseBtn"),
+      settingsResetBtn: document.querySelector("#settingsResetBtn")
     };
     function getScenarioRoutes(scenarioId) {
       const sc = SCENARIOS[scenarioId];
@@ -1719,12 +1868,13 @@
       saveGameArchive(win);
       const unlockedIds = checkScenarioAchievements(sc.id, game, null);
       const newlyUnlocked = unlockAchievements(sc.id, unlockedIds);
+      const displayNewlyUnlocked = gameSettings.hideAchvHint ? [] : newlyUnlocked;
       const allAchv = ACHIEVEMENTS[sc.id] || [];
       let achvHtml = '<div class="result-achievements"><h3>🏆 剧本成就</h3>';
       if (allAchv.length > 0) {
         achvHtml += allAchv.map(achv => {
           const isUnlocked = isAchievementUnlocked(sc.id, achv.id);
-          const isNew = newlyUnlocked.includes(achv.id);
+          const isNew = displayNewlyUnlocked.includes(achv.id);
           return '<div class="result-achv-item ' + (isNew ? 'new' : '') + '">' +
             '<div class="achievement-icon ' + (isUnlocked ? 'unlocked' : 'locked') + '">' + achv.icon + '</div>' +
             '<div class="achievement-info">' +
@@ -1753,6 +1903,11 @@
       els.resultTitle.textContent = win ? (winTitles[sc.id] || "胜利") : (loseTitles[sc.id] || "失败");
       els.resultText.innerHTML = (win ? sc.resultWin(game) : sc.resultLose(game)) + " 难度：" + d.label + achvHtml;
       els.overlay.classList.remove("hidden");
+      if (gameSettings.autoReplay && game.replayHistory && game.replayHistory.length > 0) {
+        setTimeout(() => {
+          openReplayFromGame();
+        }, 300);
+      }
     }
     document.querySelector("#endDayBtn").onclick = endDay;
     document.querySelector("#newBtn").onclick = showDiffPicker;
@@ -2408,6 +2563,19 @@
         renderReplayTimeline();
         renderReplayDay();
       }
+    };
+    gameSettings = loadSettings();
+    applySettings();
+    bindSettingToggle(els.settingCompactLog, "compactLog");
+    bindSettingToggle(els.settingAutoReplay, "autoReplay");
+    bindSettingToggle(els.settingHideAchvHint, "hideAchvHint");
+    bindSettingToggle(els.settingLowAnim, "lowAnim");
+    els.settingsBtn.onclick = openSettings;
+    els.settingsCloseBtn.onclick = closeSettings;
+    els.settingsResetBtn.onclick = () => {
+      showConfirm("恢复默认设置", "确定要将所有玩法设置恢复为默认值吗？", () => {
+        resetSettings();
+      });
     };
     showDiffPicker();
   </script>
