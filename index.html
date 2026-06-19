@@ -1813,11 +1813,11 @@
     function snapshotReplayRoutes() {
       return game.routes.map(r => ({ id: r.id, name: r.name, blocked: r.blocked, caravan: r.caravan, risk: r.risk, reward: r.reward }));
     }
-    function startReplayDay(consequencesExpired) {
+    function startReplayDay(consequencesExpired, startResourcesOverride) {
       game.currentDayData = {
         day: game.day,
         weather: game.weather,
-        startResources: { wood: game.wood, med: game.med, food: game.food, rep: game.rep },
+        startResources: startResourcesOverride || { wood: game.wood, med: game.med, food: game.food, rep: game.rep },
         dispatchStartResources: null,
         endResources: null,
         startGuides: game.guides.map(g => ({ name: g.name, fatigue: g.fatigue, task: g.task })),
@@ -2167,11 +2167,16 @@
         var effectiveCaravanChance = Math.max(0, Math.min(1, rm.caravanChance + caravanMod))
         return { ...route, caravan: Math.random() < effectiveCaravanChance, blocked: blocked };
       });
+      var dayStartResources = { wood: game.wood, med: game.med, food: game.food, rep: game.rep }
+      startReplayDay(tickExpiredConsequences, dayStartResources);
       applyDailyConsequenceEffects()
+      if (game.currentDayData) {
+        game.currentDayData.routes = snapshotReplayRoutes()
+        game.currentDayData.consequencesSnapshot = game.activeConsequences ? JSON.parse(JSON.stringify(game.activeConsequences)) : []
+      }
       game.routes.forEach(r => { if (game.codex[r.id]) { game.codex[r.id].seen++; if (r.blocked) game.codex[r.id].blocked++; } });
       game.guides.forEach(g => g.task = "");
       pendingEvent = drawEvent();
-      startReplayDay(tickExpiredConsequences);
       if (pendingEvent) {
         if (game.currentDayData) {
           game.currentDayData.event = {
