@@ -76,6 +76,44 @@
     .stat-item { font-size: 13px; }
     .stat-item span:first-child { color: #5a6e78; }
     @media (max-width: 1000px) { header { display: block; } .app { grid-template-columns: 1fr; } .log { height: 220px; } .event-card { max-width: calc(100% - 28px); } }
+    .archive-btn { font-size: 13px; padding: 6px 14px; margin-left: 10px; vertical-align: middle; background: #8a5a9e; }
+    .archive-btn:hover { background: #7a4a8e; }
+    .archive-filter { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .archive-filter button { padding: 6px 12px; font-size: 13px; background: #6d7a80; }
+    .archive-filter button.active { background: #315c72; }
+    .archive-list { display: grid; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+    .archive-card { border: 1px solid #cfdbdc; border-radius: 8px; padding: 14px; background: #f5f8f8; }
+    .archive-card.win { border-left: 4px solid #3f7a54; }
+    .archive-card.lose { border-left: 4px solid #a33d31; }
+    .archive-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .archive-title { font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+    .archive-badge { padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 800; color: #fff; }
+    .archive-badge.win { background: #3f7a54; }
+    .archive-badge.lose { background: #a33d31; }
+    .archive-date { font-size: 12px; color: #5a6e78; }
+    .archive-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
+    .archive-stat { background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #dde5e6; }
+    .archive-stat-label { font-size: 11px; color: #5a6e78; display: block; }
+    .archive-stat-value { font-size: 16px; font-weight: 800; color: #1f2a2f; }
+    .archive-detail { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #dde5e6; font-size: 13px; }
+    .archive-detail-row { display: flex; justify-content: space-between; padding: 3px 0; }
+    .archive-detail-row span:first-child { color: #5a6e78; }
+    .archive-log { margin-top: 8px; padding: 8px; background: #fff; border-radius: 6px; font-size: 12px; max-height: 100px; overflow-y: auto; border: 1px solid #dde5e6; }
+    .archive-log-entry { padding: 2px 0; border-bottom: 1px solid #f0f0f0; }
+    .archive-log-entry:last-child { border-bottom: none; }
+    .archive-empty { text-align: center; padding: 40px 20px; color: #5a6e78; }
+    .archive-actions { display: flex; gap: 10px; margin-top: 14px; }
+    .archive-actions button { flex: 1; }
+    .btn-danger { background: #a33d31; }
+    .btn-danger:hover { background: #8a2d21; }
+    .confirm-overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(20,30,35,.6); z-index: 1000; }
+    .confirm-modal { width: min(380px, calc(100% - 28px)); background: #fff; border-radius: 8px; padding: 22px; border: 1px solid #cfdbdc; }
+    .confirm-modal h3 { margin: 0 0 10px; }
+    .confirm-modal p { margin: 0 0 16px; color: #5a6e78; }
+    .confirm-buttons { display: flex; gap: 10px; }
+    .confirm-buttons button { flex: 1; }
+    .route-preference { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .route-tag { padding: 2px 6px; background: #e8f0f2; border-radius: 4px; font-size: 11px; color: #315c72; }
   </style>
 </head>
 <body>
@@ -127,6 +165,33 @@
       <div style="display:flex;gap:10px">
         <button id="startBtn" style="flex:1">出发</button>
         <button class="codex-btn" id="diffCodexBtn" style="flex:1">查看路线图鉴</button>
+        <button class="archive-btn" id="archiveBtn" style="flex:1">结算档案馆</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay hidden" id="archiveOverlay">
+    <div class="modal" style="width:min(700px,calc(100% - 28px));max-height:85vh;overflow-y:auto">
+      <h2>结算档案馆</h2>
+      <div class="archive-filter">
+        <button data-filter="recent" class="active">最近游玩</button>
+        <button data-filter="win">胜利记录</button>
+        <button data-filter="lose">失败记录</button>
+        <button data-filter="rep">最高声望</button>
+      </div>
+      <div class="archive-list" id="archiveList"></div>
+      <div class="archive-actions">
+        <button id="archiveCloseBtn">关闭</button>
+        <button class="btn-danger" id="clearArchiveBtn">清空档案</button>
+      </div>
+    </div>
+  </div>
+  <div class="confirm-overlay hidden" id="confirmOverlay">
+    <div class="confirm-modal">
+      <h3 id="confirmTitle">确认操作</h3>
+      <p id="confirmText">确定要执行此操作吗？</p>
+      <div class="confirm-buttons">
+        <button class="secondary" id="confirmCancelBtn">取消</button>
+        <button class="btn-danger" id="confirmOkBtn">确定</button>
       </div>
     </div>
   </div>
@@ -363,7 +428,10 @@
       resultTitle: document.querySelector("#resultTitle"), resultText: document.querySelector("#resultText"),
       eventOverlay: document.querySelector("#eventOverlay"), eventCategory: document.querySelector("#eventCategory"),
       eventTitle: document.querySelector("#eventTitle"), eventDesc: document.querySelector("#eventDesc"),
-      eventOptions: document.querySelector("#eventOptions"), codexGrid: document.querySelector("#codexGrid")
+      eventOptions: document.querySelector("#eventOptions"), codexGrid: document.querySelector("#codexGrid"),
+      archiveOverlay: document.querySelector("#archiveOverlay"), archiveList: document.querySelector("#archiveList"),
+      confirmOverlay: document.querySelector("#confirmOverlay"), confirmTitle: document.querySelector("#confirmTitle"),
+      confirmText: document.querySelector("#confirmText")
     };
     function showDiffPicker() {
       els.overlay.classList.add("hidden");
@@ -495,9 +563,12 @@
       game.log.unshift("第" + game.day + "天【事件】" + event.name + "：" + effects.log);
       pendingEvent = null;
       els.eventOverlay.classList.add("hidden");
-      if (game.food < 0 || game.wood < 0 || game.med < 0) {
-        return finish(false);
-      }
+      if (game.wood < game.minResources.wood) game.minResources.wood = game.wood;
+      if (game.med < game.minResources.med) game.minResources.med = game.med;
+      if (game.food < game.minResources.food) game.minResources.food = game.food;
+      if (game.food < 0) { game.failureReason = "粮食耗尽"; return finish(false); }
+      if (game.wood < 0) { game.failureReason = "柴火耗尽"; return finish(false); }
+      if (game.med < 0) { game.failureReason = "药品耗尽"; return finish(false); }
       render();
     }
     function applyWeatherModifier(modifier) {
@@ -584,7 +655,10 @@
         codex: {},
         eventCodex: {},
         eventStats: { triggered: 0, byCategory: {} },
-        weatherModifiers: []
+        weatherModifiers: [],
+        minResources: { wood: d.wood, med: d.med, food: d.food },
+        routeDispatches: { north: 0, ridge: 0, valley: 0 },
+        failureReason: null
       };
       routesBase.forEach(r => {
         game.codex[r.id] = { name: r.name, risk: r.risk, reward: r.reward, desc: r.desc, wood: r.wood, food: r.food, med: r.med, seen: 0, blocked: 0, attempts: 0, successes: 0, rewards: { rep: 0, wood: 0, food: 0, med: 0 } };
@@ -637,6 +711,9 @@
         const route = game.routes.find(r => r.id === guide.task);
         if (!route || usedRoutes.has(route.id)) { game.log.unshift(guide.name + "没有有效任务，留守整理马具。"); continue; }
         usedRoutes.add(route.id);
+        if (game.routeDispatches[route.id] !== undefined) {
+          game.routeDispatches[route.id]++;
+        }
         game.wood -= route.wood + (game.weather === "暴雪" ? 1 : 0);
         game.food -= route.food;
         game.med -= route.med;
@@ -665,7 +742,13 @@
       }
       game.food -= 2;
       game.wood -= game.weather === "暴雪" ? 3 : 1;
-      if (game.food < 0 || game.wood < 0 || game.med < 0 || game.guides.some(g => g.fatigue >= 12)) return finish(false);
+      if (game.wood < game.minResources.wood) game.minResources.wood = game.wood;
+      if (game.med < game.minResources.med) game.minResources.med = game.med;
+      if (game.food < game.minResources.food) game.minResources.food = game.food;
+      if (game.food < 0) { game.failureReason = "粮食耗尽"; return finish(false); }
+      if (game.wood < 0) { game.failureReason = "柴火耗尽"; return finish(false); }
+      if (game.med < 0) { game.failureReason = "药品耗尽"; return finish(false); }
+      if (game.guides.some(g => g.fatigue >= 12)) { game.failureReason = "向导疲劳过度"; return finish(false); }
       if (game.day >= 15) return finish(true);
       game.day += 1;
       rollDay();
@@ -674,6 +757,7 @@
     function finish(win) {
       game.ended = true;
       const d = DIFF[game.diff];
+      saveGameArchive(win);
       els.resultTitle.textContent = win ? "驿站守住了雪线" : "驿站没能撑下去";
       els.resultText.textContent = "难度：" + d.label + "｜接应商队：" + game.saved + "队，声望：" + game.rep + "。";
       els.overlay.classList.remove("hidden");
@@ -768,6 +852,206 @@
     document.querySelector("#diffCodexBtn").onclick = openCodex;
     document.querySelector("#resultCodexBtn").onclick = openCodex;
     document.querySelector("#codexCloseBtn").onclick = () => codexOverlay.classList.add("hidden");
+    const ARCHIVE_STORAGE_KEY = "mountain_post_archives";
+    const ARCHIVE_VERSION = 1;
+    function getDefaultArchiveFields() {
+      return {
+        version: ARCHIVE_VERSION,
+        id: null,
+        win: false,
+        day: 0,
+        difficulty: "normal",
+        difficultyLabel: "标准",
+        savedCaravans: 0,
+        reputation: 0,
+        minResources: { wood: 0, med: 0, food: 0 },
+        failureReason: null,
+        routePreference: { north: 0, ridge: 0, valley: 0 },
+        keyLogs: [],
+        timestamp: 0,
+        dateStr: ""
+      };
+    }
+    function migrateArchive(archive) {
+      const defaults = getDefaultArchiveFields();
+      const migrated = { ...defaults, ...archive };
+      if (!migrated.minResources) migrated.minResources = { ...defaults.minResources };
+      else migrated.minResources = { ...defaults.minResources, ...migrated.minResources };
+      if (!migrated.routePreference) migrated.routePreference = { ...defaults.routePreference };
+      else migrated.routePreference = { ...defaults.routePreference, ...migrated.routePreference };
+      if (!migrated.keyLogs) migrated.keyLogs = [];
+      if (!migrated.version) migrated.version = ARCHIVE_VERSION;
+      return migrated;
+    }
+    function loadGameArchives() {
+      try {
+        const stored = localStorage.getItem(ARCHIVE_STORAGE_KEY);
+        if (!stored) return [];
+        const data = JSON.parse(stored);
+        if (!Array.isArray(data)) return [];
+        return data.map(migrateArchive);
+      } catch (e) {
+        console.error("加载档案失败:", e);
+        return [];
+      }
+    }
+    function saveGameArchives(archives) {
+      try {
+        localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(archives));
+      } catch (e) {
+        console.error("保存档案失败:", e);
+      }
+    }
+    function getKeyLogs() {
+      const logs = [];
+      const importantKeywords = ["【事件】", "成功", "受挫", "接应", "暴雪", "封路", "耗尽", "疲劳", "商队"];
+      for (const log of game.log) {
+        if (importantKeywords.some(kw => log.includes(kw))) {
+          logs.push(log);
+        }
+        if (logs.length >= 10) break;
+      }
+      return logs;
+    }
+    function saveGameArchive(win) {
+      const d = DIFF[game.diff];
+      const now = new Date();
+      const archive = {
+        version: ARCHIVE_VERSION,
+        id: now.getTime(),
+        win: win,
+        day: game.day,
+        difficulty: game.diff,
+        difficultyLabel: d.label,
+        savedCaravans: game.saved,
+        reputation: game.rep,
+        minResources: { ...game.minResources },
+        failureReason: win ? null : game.failureReason,
+        routePreference: { ...game.routeDispatches },
+        keyLogs: getKeyLogs(),
+        timestamp: now.getTime(),
+        dateStr: now.toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+      };
+      const archives = loadGameArchives();
+      archives.unshift(archive);
+      if (archives.length > 100) archives.length = 100;
+      saveGameArchives(archives);
+    }
+    let currentArchiveFilter = "recent";
+    function sortArchives(archives, filter) {
+      const sorted = [...archives];
+      switch (filter) {
+        case "recent":
+          sorted.sort((a, b) => b.timestamp - a.timestamp);
+          break;
+        case "win":
+          return sorted.filter(a => a.win).sort((a, b) => b.timestamp - a.timestamp);
+        case "lose":
+          return sorted.filter(a => !a.win).sort((a, b) => b.timestamp - a.timestamp);
+        case "rep":
+          sorted.sort((a, b) => b.reputation - a.reputation);
+          break;
+      }
+      return sorted;
+    }
+    function getRouteName(routeId) {
+      const route = routesBase.find(r => r.id === routeId);
+      return route ? route.name : routeId;
+    }
+    function renderArchiveCard(archive) {
+      const d = DIFF[archive.difficulty];
+      const diffCls = d ? d.cls : "normal";
+      const winCls = archive.win ? "win" : "lose";
+      const winText = archive.win ? "胜利" : "失败";
+      let prefHtml = "";
+      const routes = Object.entries(archive.routePreference).filter(([_, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+      if (routes.length > 0) {
+        prefHtml = '<div class="route-preference">' + routes.map(([id, count]) =>
+          '<span class="route-tag">' + getRouteName(id) + ' × ' + count + '</span>'
+        ).join("") + '</div>';
+      } else {
+        prefHtml = '<div style="font-size:12px;color:#5a6e78">无派遣记录</div>';
+      }
+      let logsHtml = "";
+      if (archive.keyLogs && archive.keyLogs.length > 0) {
+        logsHtml = '<div class="archive-log">' + archive.keyLogs.map(log =>
+          '<div class="archive-log-entry">' + log + '</div>'
+        ).join("") + '</div>';
+      }
+      return '<div class="archive-card ' + winCls + '">' +
+        '<div class="archive-header">' +
+          '<div class="archive-title">' +
+            '<span class="archive-badge ' + winCls + '">' + winText + '</span>' +
+            '<span class="diff-label ' + diffCls + '">' + archive.difficultyLabel + '</span>' +
+            '<span>第 ' + archive.day + ' 天</span>' +
+          '</div>' +
+          '<div class="archive-date">' + archive.dateStr + '</div>' +
+        '</div>' +
+        '<div class="archive-stats">' +
+          '<div class="archive-stat"><span class="archive-stat-label">接应商队</span><span class="archive-stat-value">' + archive.savedCaravans + ' 队</span></div>' +
+          '<div class="archive-stat"><span class="archive-stat-label">最终声望</span><span class="archive-stat-value">' + archive.reputation + '</span></div>' +
+          '<div class="archive-stat"><span class="archive-stat-label">最低柴火</span><span class="archive-stat-value">' + archive.minResources.wood + '</span></div>' +
+          '<div class="archive-stat"><span class="archive-stat-label">最低药品</span><span class="archive-stat-value">' + archive.minResources.med + '</span></div>' +
+          '<div class="archive-stat"><span class="archive-stat-label">最低干粮</span><span class="archive-stat-value">' + archive.minResources.food + '</span></div>' +
+        '</div>' +
+        '<div class="archive-detail">' +
+          (archive.failureReason ?
+            '<div class="archive-detail-row"><span>主要失败原因</span><span class="danger">' + archive.failureReason + '</span></div>' : '') +
+          '<div class="archive-detail-row"><span>路线派遣偏好</span><span></span></div>' +
+          prefHtml +
+          '<div class="archive-detail-row" style="margin-top:8px"><span>关键日志</span><span></span></div>' +
+          logsHtml +
+        '</div>' +
+      '</div>';
+    }
+    function renderArchiveList() {
+      const archives = loadGameArchives();
+      const filtered = sortArchives(archives, currentArchiveFilter);
+      if (filtered.length === 0) {
+        els.archiveList.innerHTML = '<div class="archive-empty">暂无档案记录<br><span style="font-size:12px">完成一局游戏后将自动保存战绩</span></div>';
+        return;
+      }
+      els.archiveList.innerHTML = filtered.map(renderArchiveCard).join("");
+    }
+    function openArchive() {
+      currentArchiveFilter = "recent";
+      document.querySelectorAll(".archive-filter button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.filter === "recent");
+      });
+      renderArchiveList();
+      els.archiveOverlay.classList.remove("hidden");
+    }
+    function closeArchive() {
+      els.archiveOverlay.classList.add("hidden");
+    }
+    function showConfirm(title, text, onConfirm) {
+      els.confirmTitle.textContent = title;
+      els.confirmText.textContent = text;
+      els.confirmOverlay.classList.remove("hidden");
+      document.querySelector("#confirmOkBtn").onclick = () => {
+        els.confirmOverlay.classList.add("hidden");
+        onConfirm();
+      };
+      document.querySelector("#confirmCancelBtn").onclick = () => {
+        els.confirmOverlay.classList.add("hidden");
+      };
+    }
+    function clearAllArchives() {
+      showConfirm("清空档案", "确定要清空所有档案记录吗？此操作无法撤销。", () => {
+        saveGameArchives([]);
+        renderArchiveList();
+      });
+    }
+    document.querySelector("#archiveBtn").onclick = openArchive;
+    document.querySelector("#archiveCloseBtn").onclick = closeArchive;
+    document.querySelector("#clearArchiveBtn").onclick = clearAllArchives;
+    document.querySelectorAll(".archive-filter button").forEach(btn => {
+      btn.onclick = () => {
+        currentArchiveFilter = btn.dataset.filter;
+        document.querySelectorAll(".archive-filter button").forEach(b => b.classList.toggle("active", b === btn));
+        renderArchiveList();
+      };
+    });
     showDiffPicker();
   </script>
 </body>
