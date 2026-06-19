@@ -191,6 +191,37 @@
       .replay-grid { grid-template-columns: 1fr; }
       .replay-summary-bar { grid-template-columns: 1fr 1fr; }
     }
+    .achievement-section { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #dde5e6; }
+    .achievement-list { display: grid; gap: 6px; margin-top: 8px; }
+    .achievement-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; background: #f5f8f8; border: 1px solid #dde5e6; }
+    .achievement-item.unlocked { background: #e8f5ee; border-color: #b8dcc4; }
+    .achievement-item.locked { opacity: 0.6; }
+    .achievement-icon { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; flex-shrink: 0; }
+    .achievement-icon.unlocked { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #fff; }
+    .achievement-icon.locked { background: #cfdbdc; color: #8a9ea5; }
+    .achievement-info { flex: 1; min-width: 0; }
+    .achievement-name { font-size: 13px; font-weight: 700; color: #1f2a2f; }
+    .achievement-desc { font-size: 11px; color: #5a6e78; margin-top: 1px; }
+    .achievement-badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; }
+    .achievement-badge.unlocked { background: #3f7a54; color: #fff; }
+    .achievement-badge.locked { background: #9aa7ad; color: #fff; }
+    .scenario-achievements { margin-top: 8px; }
+    .scenario-achv-row { display: flex; gap: 4px; margin-top: 4px; }
+    .scenario-achv-icon { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; }
+    .scenario-achv-icon.unlocked { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #fff; }
+    .scenario-achv-icon.locked { background: #dde5e6; color: #9aa7ad; }
+    .result-achievements { margin-top: 14px; padding: 12px; background: #f5f8f8; border-radius: 8px; border: 1px solid #dde5e6; }
+    .result-achievements h3 { margin: 0 0 8px; font-size: 15px; color: #8a5a9e; }
+    .result-achv-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dashed #dde5e6; }
+    .result-achv-item:last-child { border-bottom: none; }
+    .result-achv-item.new .achievement-name::after { content: " 新达成!"; color: #ff6b35; font-size: 11px; font-weight: 700; }
+    .archive-achievements { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #dde5e6; }
+    .archive-achv-title { font-size: 12px; font-weight: 700; color: #5a6e78; margin-bottom: 6px; }
+    .archive-achv-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+    .archive-achv-tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .archive-achv-tag.unlocked { background: #e8f5ee; color: #3f7a54; border: 1px solid #b8dcc4; }
+    .archive-achv-tag.locked { background: #f0f0f0; color: #9aa7ad; border: 1px solid #dde5e6; }
+    .achievement-count { font-size: 12px; color: #5a6e78; margin-left: 6px; }
   </style>
 </head>
 <body>
@@ -532,6 +563,243 @@
       weather: "天气异象", supply: "物资事件", guide: "向导事件",
       reputation: "声望事件", random: "随机事件"
     };
+    const ACHIEVEMENTS = {
+      standard: [
+        {
+          id: "standard_survivor",
+          name: "坚守大师",
+          desc: "成功完成标准雪线剧本",
+          icon: "🏔",
+          check: (game, archive) => {
+            if (archive) return archive.win;
+            if (game) return game.ended && !game.failureReason;
+            return false;
+          }
+        },
+        {
+          id: "standard_caravan_collector",
+          name: "商队收集者",
+          desc: "单局接应 10 队以上商队",
+          icon: "🐪",
+          check: (game, archive) => (game ? game.saved : archive.savedCaravans) >= 10
+        },
+        {
+          id: "standard_perfect",
+          name: "零失误",
+          desc: "全程无向导疲劳超过 8 且无物资告急",
+          icon: "✨",
+          check: (game, archive) => {
+            const history = game ? game.replayHistory : archive.replayHistory;
+            if (!history || history.length === 0) return false;
+            let allGood = true;
+            for (const day of history) {
+              if (day.endGuides) {
+                for (const g of day.endGuides) {
+                  if (g.fatigue > 8) allGood = false;
+                }
+              }
+              if (day.endResources) {
+                if (day.endResources.wood <= 2 || day.endResources.food <= 4 || day.endResources.med <= 1) {
+                  allGood = false;
+                }
+              }
+            }
+            return allGood && (archive ? archive.win : game.ended && !game.failureReason);
+          }
+        }
+      ],
+      medshortage: [
+        {
+          id: "medshortage_no_outbreak",
+          name: "疫情防控专家",
+          desc: "全程不触发疫情恶化失败",
+          icon: "💊",
+          check: (game, archive) => {
+            if (archive) {
+              return archive.win && archive.failureReason !== "药品持续短缺，疫情恶化";
+            }
+            return game.ended && !game.failureReason && game.medCriticalStreak < 2;
+          }
+        },
+        {
+          id: "medshortage_herbalist",
+          name: "草药专家",
+          desc: "单局走草药小径 8 次以上",
+          icon: "🌿",
+          check: (game, archive) => {
+            const pref = game ? game.routeDispatches : archive.routePreference;
+            return pref && pref.herbal >= 8;
+          }
+        },
+        {
+          id: "medshortage_savior",
+          name: "瘟疫克星",
+          desc: "声望 40 以上胜利",
+          icon: "🌟",
+          check: (game, archive) => {
+            const rep = game ? game.rep : archive.reputation;
+            const win = game ? (game.ended && !game.failureReason) : archive.win;
+            return rep >= 40 && win;
+          }
+        }
+      ],
+      caravan: [
+        {
+          id: "caravan_early_bird",
+          name: "高效调度",
+          desc: "第 8 天前达成 12 队接应目标",
+          icon: "⚡",
+          check: (game, archive) => {
+            const history = game ? game.replayHistory : archive.replayHistory;
+            if (!history || history.length === 0) return false;
+            for (let i = 0; i < history.length; i++) {
+              if (i < 8 && history[i].savedCaravans >= 12) {
+                const win = game ? (game.ended && !game.failureReason) : archive.win;
+                return win;
+              }
+            }
+            return false;
+          }
+        },
+        {
+          id: "caravan_tycoon",
+          name: "旺季之王",
+          desc: "单局接应商队 15 队以上",
+          icon: "👑",
+          check: (game, archive) => {
+            const saved = game ? game.saved : archive.savedCaravans;
+            return saved >= 15;
+          }
+        },
+        {
+          id: "caravan_wealthy",
+          name: "财源广进",
+          desc: "结束时声望 50 以上",
+          icon: "💰",
+          check: (game, archive) => {
+            const rep = game ? game.rep : archive.reputation;
+            const win = game ? (game.ended && !game.failureReason) : archive.win;
+            return rep >= 50 && win;
+          }
+        }
+      ],
+      rescue: [
+        {
+          id: "rescue_blizzard_hero",
+          name: "暴雪英雄",
+          desc: "在单个暴雪日成功接应 2 队以上",
+          icon: "❄️",
+          check: (game, archive) => {
+            const history = game ? game.replayHistory : archive.replayHistory;
+            if (!history || history.length === 0) return false;
+            for (let i = 0; i < history.length; i++) {
+              const day = history[i];
+              if (day.weather === "暴雪") {
+                const prevSaved = i > 0 ? history[i - 1].savedCaravans : 0;
+                const todaySaved = day.savedCaravans - prevSaved;
+                if (todaySaved >= 2) return true;
+              }
+            }
+            return false;
+          }
+        },
+        {
+          id: "rescue_extreme",
+          name: "极限救援",
+          desc: "10 天内救出 10 队以上",
+          icon: "🚁",
+          check: (game, archive) => {
+            const saved = game ? game.saved : archive.savedCaravans;
+            const win = game ? (game.ended && !game.failureReason) : archive.win;
+            return saved >= 10 && win;
+          }
+        },
+        {
+          id: "rescue_glacier_master",
+          name: "冰原先锋",
+          desc: "冰原直道成功接应 5 次以上",
+          icon: "🧊",
+          check: (game, archive) => {
+            const history = game ? game.replayHistory : archive.replayHistory;
+            if (!history || history.length === 0) return false;
+            let glacierSuccesses = 0;
+            for (let i = 0; i < history.length; i++) {
+              const day = history[i];
+              if (day.guideAssignments && day.guideAssignments.some(ga => ga.routeId === "glacier")) {
+                const prevSaved = i > 0 ? history[i - 1].savedCaravans : 0;
+                const todaySaved = day.savedCaravans - prevSaved;
+                if (todaySaved > 0) {
+                  glacierSuccesses += todaySaved;
+                }
+              }
+            }
+            return glacierSuccesses >= 5;
+          }
+        }
+      ]
+    };
+    const ACHIEVEMENT_STORAGE_KEY = "mountain_post_achievements";
+    function loadAchievements() {
+      try {
+        const stored = localStorage.getItem(ACHIEVEMENT_STORAGE_KEY);
+        if (!stored) return {};
+        return JSON.parse(stored);
+      } catch (e) {
+        console.error("加载成就失败:", e);
+        return {};
+      }
+    }
+    function saveAchievements(achievements) {
+      try {
+        localStorage.setItem(ACHIEVEMENT_STORAGE_KEY, JSON.stringify(achievements));
+      } catch (e) {
+        console.error("保存成就失败:", e);
+      }
+    }
+    function checkScenarioAchievements(scenarioId, game, archive) {
+      const achievements = ACHIEVEMENTS[scenarioId];
+      if (!achievements) return [];
+      const unlocked = [];
+      achievements.forEach(achv => {
+        try {
+          if (achv.check(game, archive)) {
+            unlocked.push(achv.id);
+          }
+        } catch (e) {
+          console.error("成就检测出错:", achv.id, e);
+        }
+      });
+      return unlocked;
+    }
+    function unlockAchievements(scenarioId, achievementIds) {
+      const allAchievements = loadAchievements();
+      if (!allAchievements[scenarioId]) allAchievements[scenarioId] = [];
+      const newlyUnlocked = [];
+      achievementIds.forEach(id => {
+        if (!allAchievements[scenarioId].includes(id)) {
+          allAchievements[scenarioId].push(id);
+          newlyUnlocked.push(id);
+        }
+      });
+      if (newlyUnlocked.length > 0) {
+        saveAchievements(allAchievements);
+      }
+      return newlyUnlocked;
+    }
+    function isAchievementUnlocked(scenarioId, achievementId) {
+      const allAchievements = loadAchievements();
+      return allAchievements[scenarioId] && allAchievements[scenarioId].includes(achievementId);
+    }
+    function getScenarioAchievementProgress(scenarioId) {
+      const achievements = ACHIEVEMENTS[scenarioId];
+      const allAchievements = loadAchievements();
+      const unlockedIds = allAchievements[scenarioId] || [];
+      return {
+        total: achievements ? achievements.length : 0,
+        unlocked: unlockedIds.length,
+        ids: unlockedIds
+      };
+    }
     const SCENARIOS = {
       standard: {
         id: "standard",
@@ -689,6 +957,16 @@
         case "days_and_rep": winDesc = "坚守 " + sc.targetDays + " 天 且 声望 ≥" + sc.win.rep; break;
         case "caravans_and_rep": winDesc = sc.targetDays + " 天内接应 ≥" + sc.win.count + " 队 且 声望 ≥" + sc.win.rep; break;
       }
+      const progress = getScenarioAchievementProgress(sc.id);
+      const achvList = ACHIEVEMENTS[sc.id] || [];
+      let achvIconsHtml = '<div class="scenario-achievements">';
+      achvIconsHtml += '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:#5a6e78;font-weight:700">剧本成就</span><span style="font-size:11px;color:#5a6e78">' + progress.unlocked + '/' + progress.total + '</span></div>';
+      achvIconsHtml += '<div class="scenario-achv-row">';
+      achvList.forEach(achv => {
+        const unlocked = isAchievementUnlocked(sc.id, achv.id);
+        achvIconsHtml += '<div class="scenario-achv-icon ' + (unlocked ? 'unlocked' : 'locked') + '" title="' + achv.name + '：' + achv.desc + '">' + achv.icon + '</div>';
+      });
+      achvIconsHtml += '</div></div>';
       return '<div class="scenario-card ' + (isSelected ? 'selected' : '') + '" data-scenario="' + sc.id + '" style="border-color:' + (isSelected ? sc.color : '') + '">' +
         '<span class="scenario-subtitle" style="background:' + sc.color + '">' + sc.subtitle + '</span>' +
         '<h3 class="scenario-title" style="color:' + sc.color + '">' + sc.name + '</h3>' +
@@ -697,6 +975,7 @@
         '<div class="scenario-info-row"><span>目标</span><span><b>' + winDesc + '</b></span></div>' +
         '<div class="scenario-info-row"><span>可用路线</span><span>' + routeNames + '</span></div>' +
         '<div class="scenario-info-row"><span>事件频率</span><span>' + Math.round(sc.eventTriggerChance * 100) + '%</span></div>' +
+        achvIconsHtml +
         '</div></div>';
     }
     function renderScenarioOptions() {
@@ -1438,6 +1717,27 @@
       const sc = game.scenarioConfig;
       const d = DIFF[game.diff];
       saveGameArchive(win);
+      const unlockedIds = checkScenarioAchievements(sc.id, game, null);
+      const newlyUnlocked = unlockAchievements(sc.id, unlockedIds);
+      const allAchv = ACHIEVEMENTS[sc.id] || [];
+      let achvHtml = '<div class="result-achievements"><h3>🏆 剧本成就</h3>';
+      if (allAchv.length > 0) {
+        achvHtml += allAchv.map(achv => {
+          const isUnlocked = isAchievementUnlocked(sc.id, achv.id);
+          const isNew = newlyUnlocked.includes(achv.id);
+          return '<div class="result-achv-item ' + (isNew ? 'new' : '') + '">' +
+            '<div class="achievement-icon ' + (isUnlocked ? 'unlocked' : 'locked') + '">' + achv.icon + '</div>' +
+            '<div class="achievement-info">' +
+            '<div class="achievement-name">' + achv.name + '</div>' +
+            '<div class="achievement-desc">' + achv.desc + '</div>' +
+            '</div>' +
+            '<span class="achievement-badge ' + (isUnlocked ? 'unlocked' : 'locked') + '">' + (isUnlocked ? '已获得' : '未获得') + '</span>' +
+            '</div>';
+        }).join("");
+      } else {
+        achvHtml += '<div style="font-size:12px;color:#5a6e78">此剧本暂无成就</div>';
+      }
+      achvHtml += '</div>';
       const winTitles = {
         standard: "驿站守住了雪线",
         medshortage: "疫情终于缓解",
@@ -1451,7 +1751,7 @@
         rescue: "救援未能完成"
       };
       els.resultTitle.textContent = win ? (winTitles[sc.id] || "胜利") : (loseTitles[sc.id] || "失败");
-      els.resultText.textContent = (win ? sc.resultWin(game) : sc.resultLose(game)) + " 难度：" + d.label;
+      els.resultText.innerHTML = (win ? sc.resultWin(game) : sc.resultLose(game)) + " 难度：" + d.label + achvHtml;
       els.overlay.classList.remove("hidden");
     }
     document.querySelector("#endDayBtn").onclick = endDay;
@@ -1592,7 +1892,8 @@
         timestamp: 0,
         dateStr: "",
         replayHistory: [],
-        turningPoints: []
+        turningPoints: [],
+        achievements: []
       };
     }
     function migrateArchive(archive) {
@@ -1605,6 +1906,7 @@
       if (!migrated.keyLogs) migrated.keyLogs = [];
       if (!migrated.replayHistory) migrated.replayHistory = [];
       if (!migrated.turningPoints) migrated.turningPoints = [];
+      if (!migrated.achievements) migrated.achievements = [];
       if (!migrated.version) migrated.version = ARCHIVE_VERSION;
       if (!migrated.scenario) {
         migrated.scenario = "standard";
@@ -1654,6 +1956,7 @@
       const sc = game.scenarioConfig;
       const d = DIFF[game.diff];
       const now = new Date();
+      const unlockedIds = checkScenarioAchievements(sc.id, game, null);
       const archive = {
         version: ARCHIVE_VERSION,
         id: now.getTime(),
@@ -1676,7 +1979,8 @@
         timestamp: now.getTime(),
         dateStr: now.toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }),
         replayHistory: JSON.parse(JSON.stringify(game.replayHistory || [])),
-        turningPoints: JSON.parse(JSON.stringify(game.turningPoints || []))
+        turningPoints: JSON.parse(JSON.stringify(game.turningPoints || [])),
+        achievements: unlockedIds
       };
       const archives = loadGameArchives();
       archives.unshift(archive);
@@ -1738,6 +2042,18 @@
         }
       }
       const hasReplay = archive.replayHistory && archive.replayHistory.length > 0;
+      const scenarioAchv = ACHIEVEMENTS[archive.scenario] || [];
+      let archiveAchvHtml = '';
+      if (scenarioAchv.length > 0) {
+        archiveAchvHtml = '<div class="archive-achievements">';
+        archiveAchvHtml += '<div class="archive-achv-title">本局成就</div>';
+        archiveAchvHtml += '<div class="archive-achv-grid">';
+        scenarioAchv.forEach(achv => {
+          const unlocked = archive.achievements && archive.achievements.includes(achv.id);
+          archiveAchvHtml += '<span class="archive-achv-tag ' + (unlocked ? 'unlocked' : 'locked') + '" title="' + achv.desc + '">' + achv.icon + ' ' + achv.name + '</span>';
+        });
+        archiveAchvHtml += '</div></div>';
+      }
       return '<div class="archive-card ' + winCls + '" data-archive-id="' + archive.id + '">' +
         '<div class="archive-header">' +
           '<div class="archive-title">' +
@@ -1764,6 +2080,7 @@
           '<div class="archive-detail-row" style="margin-top:8px"><span>关键日志</span><span></span></div>' +
           logsHtml +
         '</div>' +
+        archiveAchvHtml +
         (hasReplay ? '<button class="archive-replay-btn" data-archive-id="' + archive.id + '">★ 查看调度复盘</button>' : '') +
       '</div>';
     }
