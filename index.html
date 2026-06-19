@@ -121,12 +121,42 @@
     .skill-tooltip:hover::after { content: attr(data-desc); position: absolute; bottom: 100%; left: 0; background: #1f2a2f; color: #fff; padding: 6px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; z-index: 10; margin-bottom: 4px; }
     .injury-tooltip { position: relative; cursor: help; }
     .injury-tooltip:hover::after { content: attr(data-desc); position: absolute; bottom: 100%; left: 0; background: #1f2a2f; color: #fff; padding: 6px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; z-index: 10; margin-bottom: 4px; }
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .header-actions button { font-size: 13px; padding: 8px 12px; }
+    .save-btn { background: #4a7c5e; }
+    .save-btn:hover { background: #3a6a4e; }
+    .load-btn { background: #5a7fa8; }
+    .load-btn:hover { background: #4a6e96; }
+    .clear-btn { background: #8a5a5a; }
+    .clear-btn:hover { background: #7a4a4a; }
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 8px; color: #fff; font-weight: 700; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.7s forwards; }
+    .toast.ok { background: #3f7a54; }
+    .toast.danger { background: #a33d31; }
+    .toast.info { background: #5a7fa8; }
+    .toast.warn { background: #b08a28; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+    .save-notice { background: #fff8e6; border: 1px solid #e6d5a8; color: #8a6d1f; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 13px; }
+    .save-notice strong { color: #8a5a1f; }
+    .migrated-fields { background: #f0f6f8; border: 1px solid #b8cfd9; padding: 8px 12px; border-radius: 4px; margin-top: 8px; font-size: 12px; color: #315c72; }
+    .migrated-fields ul { margin: 4px 0 0 20px; padding: 0; }
+    .save-info { font-size: 12px; color: #5a6e78; margin-top: 4px; }
+    .save-info span { margin-right: 12px; }
   </style>
 </head>
 <body>
   <header>
-    <div><h1>高山驿站补给调度</h1><div>撑过15天，接应商队，让驿站不断粮。</div></div>
-    <button id="newBtn">新开一局</button>
+    <div>
+      <h1>高山驿站补给调度</h1>
+      <div>撑过15天，接应商队，让驿站不断粮。</div>
+      <div class="save-info" id="saveInfo"></div>
+    </div>
+    <div class="header-actions">
+      <button id="saveBtn" class="save-btn">保存进度</button>
+      <button id="loadBtn" class="load-btn">读取存档</button>
+      <button id="clearBtn" class="clear-btn">清除存档</button>
+      <button id="newBtn">新开一局</button>
+    </div>
   </header>
   <main class="app">
     <aside class="panel">
@@ -189,7 +219,9 @@
     <div class="modal">
       <h2 id="resultTitle"></h2>
       <div id="resultText"></div>
+      <div id="resultSaveNotice" class="save-notice hidden"></div>
       <div style="display:flex;gap:10px;margin-top:12px">
+        <button id="saveResultBtn" class="save-btn" style="flex:1">保留本局结果</button>
         <button id="againBtn" style="flex:1">再来一局</button>
         <button class="codex-btn" id="resultCodexBtn" style="flex:1">查看本局图鉴</button>
       </div>
@@ -314,8 +346,11 @@
         penalty: { rep: -12 }
       }
     ];
+    const SAVE_KEY = "alpineStation_save_v1";
+    const SAVE_VERSION = 1;
     let routeRiskModifiers = {};
     let game, chosenDiff = "normal";
+    let lastSaveInfo = null;
     const els = {
       day: document.querySelector("#dayText"), weather: document.querySelector("#weatherText"), wood: document.querySelector("#woodText"),
       med: document.querySelector("#medText"), food: document.querySelector("#foodText"), rep: document.querySelector("#repText"),
@@ -323,7 +358,9 @@
       overlay: document.querySelector("#overlay"), diffOverlay: document.querySelector("#diffOverlay"),
       resultTitle: document.querySelector("#resultTitle"), resultText: document.querySelector("#resultText"),
       statsPanel: document.querySelector("#statsPanel"),
-      commissions: document.querySelector("#commissions"), availableCommissions: document.querySelector("#availableCommissions")
+      commissions: document.querySelector("#commissions"), availableCommissions: document.querySelector("#availableCommissions"),
+      saveInfo: document.querySelector("#saveInfo"),
+      resultSaveNotice: document.querySelector("#resultSaveNotice")
     };
     function showDiffPicker() {
       els.overlay.classList.add("hidden");
@@ -337,6 +374,285 @@
       };
     });
     document.querySelector("#startBtn").onclick = () => { els.diffOverlay.classList.add("hidden"); fresh(chosenDiff); };
+    function showToast(message, type) {
+      const toast = document.createElement("div");
+      toast.className = "toast " + (type || "info");
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+    function formatSaveTime(timestamp) {
+      if (!timestamp) return "未知时间";
+      const d = new Date(timestamp);
+      const pad = n => n.toString().padStart(2, "0");
+      return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    }
+    function getDefaultStats(diff) {
+      const d = DIFF[diff] || DIFF.normal;
+      return {
+        routeDispatches: {},
+        guideDays: {},
+        lowestWood: d.wood,
+        lowestFood: d.food,
+        lowestMed: d.med,
+        failureReason: "",
+        commissionsAccepted: 0,
+        commissionsCompleted: 0,
+        commissionsFailed: 0
+      };
+    }
+    function getDefaultCommissions() {
+      return { active: [], available: [], completed: [], failed: [] };
+    }
+    function getDefaultCodexEntry(route) {
+      return {
+        name: route.name, risk: route.risk, reward: route.reward, desc: route.desc,
+        wood: route.wood, food: route.food, med: route.med,
+        seen: 0, blocked: 0, attempts: 0, successes: 0,
+        rewards: { rep: 0, wood: 0, food: 0, med: 0 }
+      };
+    }
+    function getDefaultGuideStats() {
+      return { successes: 0, failures: 0, restDays: 0, routesDispatched: {} };
+    }
+    function migrateSaveData(data) {
+      const migrated = [];
+      const result = JSON.parse(JSON.stringify(data));
+      if (!result.saveVersion) {
+        result.saveVersion = SAVE_VERSION;
+        migrated.push("存档版本号");
+      }
+      if (!result.savedAt) {
+        result.savedAt = Date.now();
+        migrated.push("保存时间戳");
+      }
+      if (!result.game) {
+        return { data: result, migrated: ["整个游戏数据结构"] };
+      }
+      const g = result.game;
+      if (typeof g.diff === "undefined") { g.diff = "normal"; migrated.push("难度设置"); }
+      if (typeof g.day === "undefined") { g.day = 1; migrated.push("天数"); }
+      if (typeof g.weather === "undefined") { g.weather = "晴"; migrated.push("天气"); }
+      if (typeof g.wood === "undefined") { g.wood = DIFF[g.diff].wood; migrated.push("柴火数量"); }
+      if (typeof g.med === "undefined") { g.med = DIFF[g.diff].med; migrated.push("药品数量"); }
+      if (typeof g.food === "undefined") { g.food = DIFF[g.diff].food; migrated.push("干粮数量"); }
+      if (typeof g.rep === "undefined") { g.rep = 0; migrated.push("声望值"); }
+      if (typeof g.saved === "undefined") { g.saved = 0; migrated.push("接应商队数"); }
+      if (typeof g.ended === "undefined") { g.ended = false; migrated.push("游戏结束状态"); }
+      if (!g.log) { g.log = []; migrated.push("事件日志"); }
+      if (!g.routes) { g.routes = []; migrated.push("路线状态"); }
+      if (!g.codex) {
+        g.codex = {};
+        routesBase.forEach(r => { g.codex[r.id] = getDefaultCodexEntry(r); });
+        migrated.push("路线图鉴");
+      } else {
+        routesBase.forEach(r => {
+          if (!g.codex[r.id]) {
+            g.codex[r.id] = getDefaultCodexEntry(r);
+            migrated.push("图鉴数据：" + r.name);
+          } else {
+            const c = g.codex[r.id];
+            if (typeof c.seen === "undefined") { c.seen = 0; migrated.push("图鉴-出现天数：" + r.name); }
+            if (typeof c.blocked === "undefined") { c.blocked = 0; migrated.push("图鉴-封路次数：" + r.name); }
+            if (typeof c.attempts === "undefined") { c.attempts = 0; migrated.push("图鉴-尝试次数：" + r.name); }
+            if (typeof c.successes === "undefined") { c.successes = 0; migrated.push("图鉴-成功次数：" + r.name); }
+            if (!c.rewards) { c.rewards = { rep: 0, wood: 0, food: 0, med: 0 }; migrated.push("图鉴-累计收益：" + r.name); }
+          }
+        });
+      }
+      if (!g.stats) {
+        g.stats = getDefaultStats(g.diff);
+        migrated.push("本局统计");
+      } else {
+        const ds = getDefaultStats(g.diff);
+        Object.keys(ds).forEach(k => {
+          if (typeof g.stats[k] === "undefined") {
+            g.stats[k] = ds[k];
+            migrated.push("统计字段：" + k);
+          }
+        });
+        if (!g.stats.routeDispatches) {
+          g.stats.routeDispatches = {};
+          routesBase.forEach(r => { g.stats.routeDispatches[r.id] = 0; });
+          migrated.push("统计-各路线派遣");
+        }
+      }
+      if (!g.commissions) {
+        g.commissions = getDefaultCommissions();
+        migrated.push("商队委托");
+      } else {
+        const dc = getDefaultCommissions();
+        Object.keys(dc).forEach(k => {
+          if (!g.commissions[k]) {
+            g.commissions[k] = [];
+            migrated.push("委托列表：" + k);
+          }
+        });
+      }
+      if (!g.guides || g.guides.length === 0) {
+        g.guides = [createGuide("阿措"), createGuide("洛桑")];
+        migrated.push("向导数据");
+      } else {
+        g.guides.forEach((guide, idx) => {
+          if (typeof guide.name === "undefined") { guide.name = "向导" + (idx + 1); migrated.push("向导" + (idx + 1) + "姓名"); }
+          if (typeof guide.fatigue === "undefined") { guide.fatigue = 0; migrated.push(guide.name + "疲劳值"); }
+          if (typeof guide.task === "undefined") { guide.task = ""; migrated.push(guide.name + "任务状态"); }
+          if (typeof guide.exp === "undefined") { guide.exp = 0; migrated.push(guide.name + "经验值"); }
+          if (typeof guide.level === "undefined") { guide.level = getLevelForExp(guide.exp || 0); migrated.push(guide.name + "等级"); }
+          if (!guide.skills) { guide.skills = []; migrated.push(guide.name + "专长列表"); }
+          if (!guide.injuries) { guide.injuries = []; migrated.push(guide.name + "伤病列表"); }
+          if (!guide.tempBuffs) { guide.tempBuffs = []; migrated.push(guide.name + "临时增益"); }
+          if (!guide.stats) { guide.stats = getDefaultGuideStats(); migrated.push(guide.name + "个人统计"); }
+        });
+      }
+      if (!result.routeRiskModifiers) {
+        result.routeRiskModifiers = {};
+        migrated.push("路线风险修正");
+      }
+      return { data: result, migrated };
+    }
+    function hasSave() {
+      try {
+        return !!localStorage.getItem(SAVE_KEY);
+      } catch (e) { return false; }
+    }
+    function saveGame(isResult) {
+      try {
+        if (!game) {
+          showToast("没有可保存的游戏进度", "danger");
+          return false;
+        }
+        const saveData = {
+          saveVersion: SAVE_VERSION,
+          savedAt: Date.now(),
+          isResultSave: !!isResult,
+          game: JSON.parse(JSON.stringify(game)),
+          routeRiskModifiers: JSON.parse(JSON.stringify(routeRiskModifiers))
+        };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+        lastSaveInfo = { savedAt: saveData.savedAt, day: game.day, diff: game.diff, ended: game.ended };
+        updateSaveInfo();
+        if (isResult) {
+          showToast("本局结果已保存，可随时查看", "ok");
+        } else {
+          showToast("进度已保存（第" + game.day + "天）", "ok");
+        }
+        return true;
+      } catch (e) {
+        console.error("保存失败:", e);
+        showToast("保存失败：" + e.message, "danger");
+        return false;
+      }
+    }
+    function loadGame() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) {
+          showToast("没有找到存档", "warn");
+          return false;
+        }
+        let data;
+        try {
+          data = JSON.parse(raw);
+        } catch (e) {
+          showToast("存档数据已损坏", "danger");
+          return false;
+        }
+        const migration = migrateSaveData(data);
+        game = migration.data.game;
+        routeRiskModifiers = migration.data.routeRiskModifiers || {};
+        lastSaveInfo = { savedAt: migration.data.savedAt, day: game.day, diff: game.diff, ended: game.ended };
+        if (migration.migrated.length > 0) {
+          const fieldsList = migration.migrated.slice(0, 8).join("、");
+          const moreText = migration.migrated.length > 8 ? " 等" + migration.migrated.length + "项" : "";
+          showToast("读取成功，已自动补齐：" + fieldsList + moreText, "info");
+          game.log.unshift("【系统】读取了旧版本存档，已自动补齐缺失字段：" + migration.migrated.join("、"));
+        } else {
+          showToast("存档读取成功（第" + game.day + "天）", "ok");
+        }
+        if (migration.data.isResultSave && game.ended) {
+          game.log.unshift("【系统】这是一局已结束游戏的结算存档。");
+        }
+        els.overlay.classList.add("hidden");
+        els.diffOverlay.classList.add("hidden");
+        updateSaveInfo();
+        render();
+        if (game.ended) {
+          const won = game.stats && !game.stats.failureReason;
+          finish(won, true);
+          const notice = els.resultSaveNotice;
+          if (migration.migrated.length > 0) {
+            notice.classList.remove("hidden");
+            notice.innerHTML = "<strong>版本兼容提示</strong>：该存档来自旧版本，已自动补齐以下字段：" +
+              '<div class="migrated-fields"><ul>' +
+              migration.migrated.slice(0, 10).map(f => "<li>" + f + "</li>").join("") +
+              (migration.migrated.length > 10 ? '<li>...以及另外' + (migration.migrated.length - 10) + '项</li>' : "") +
+              "</ul></div>";
+          } else {
+            notice.classList.remove("hidden");
+            notice.innerHTML = "<strong>存档信息</strong>：保存于 " + formatSaveTime(migration.data.savedAt) +
+              "，难度：" + (DIFF[game.diff]?.label || game.diff) + "，第" + game.day + "天结束。";
+          }
+        }
+        return true;
+      } catch (e) {
+        console.error("读取失败:", e);
+        showToast("读取失败：" + e.message, "danger");
+        return false;
+      }
+    }
+    function clearSave() {
+      try {
+        if (!hasSave()) {
+          showToast("当前没有存档", "warn");
+          return false;
+        }
+        if (!confirm("确定要清除存档吗？此操作不可撤销。")) {
+          return false;
+        }
+        localStorage.removeItem(SAVE_KEY);
+        lastSaveInfo = null;
+        updateSaveInfo();
+        showToast("存档已清除", "ok");
+        return true;
+      } catch (e) {
+        console.error("清除失败:", e);
+        showToast("清除失败：" + e.message, "danger");
+        return false;
+      }
+    }
+    function updateSaveInfo() {
+      if (!els.saveInfo) return;
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) {
+        els.saveInfo.innerHTML = '<span>暂无存档</span>';
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        const time = formatSaveTime(data.savedAt);
+        const diff = data.game?.diff ? (DIFF[data.game.diff]?.label || data.game.diff) : "未知";
+        const day = data.game?.day || "?";
+        const ended = data.game?.ended ? "（已结算）" : "";
+        const result = data.isResultSave ? " 结算存档" : "";
+        els.saveInfo.innerHTML =
+          '<span>上次存档：' + time + '</span>' +
+          '<span>难度：' + diff + '</span>' +
+          '<span>第' + day + '天' + ended + result + '</span>';
+      } catch (e) {
+        els.saveInfo.innerHTML = '<span>存档数据异常</span>';
+      }
+    }
+    document.querySelector("#saveBtn").onclick = () => saveGame(false);
+    document.querySelector("#loadBtn").onclick = loadGame;
+    document.querySelector("#clearBtn").onclick = clearSave;
+    document.querySelector("#saveResultBtn").onclick = () => {
+      if (saveGame(true)) {
+        const notice = els.resultSaveNotice;
+        notice.classList.remove("hidden");
+        notice.innerHTML = "<strong>本局结果已保存</strong>！可在主菜单点击「读取存档」查看本次结算。保存时间：" + formatSaveTime(Date.now());
+      }
+    };
     function createGuide(name) {
       return {
         name: name,
@@ -1003,11 +1319,15 @@
       generateAvailableCommissions();
       render();
     }
-    function finish(win) {
+    function finish(win, fromSave) {
       game.ended = true;
+      if (!fromSave) {
+        els.resultSaveNotice.classList.add("hidden");
+        els.resultSaveNotice.innerHTML = "";
+      }
       const d = DIFF[game.diff];
-      let failureReason = "";
-      if (!win) {
+      let failureReason = game.stats?.failureReason || "";
+      if (!win && !fromSave) {
         const reasons = [];
         if (game.food < 0) reasons.push("干粮耗尽");
         if (game.wood < 0) reasons.push("柴火耗尽");
@@ -1016,6 +1336,8 @@
         if (exhaustedGuide) reasons.push(exhaustedGuide.name + "疲劳过度");
         failureReason = reasons.join("、");
         game.stats.failureReason = failureReason;
+      } else if (fromSave && win) {
+        failureReason = "";
       }
       els.resultTitle.textContent = win ? "驿站守住了雪线" : "驿站没能撑下去";
       const totalDispatches = Object.values(game.stats.routeDispatches).reduce((a, b) => a + b, 0);
@@ -1082,6 +1404,7 @@
     document.querySelector("#diffCodexBtn").onclick = openCodex;
     document.querySelector("#resultCodexBtn").onclick = openCodex;
     document.querySelector("#codexCloseBtn").onclick = () => codexOverlay.classList.add("hidden");
+    updateSaveInfo();
     showDiffPicker();
   </script>
 </body>
