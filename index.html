@@ -999,6 +999,9 @@
       els.overlay.classList.add("hidden");
       render();
     }
+    function snapshotReplayRoutes() {
+      return game.routes.map(r => ({ id: r.id, name: r.name, blocked: r.blocked, caravan: r.caravan, risk: r.risk, reward: r.reward }));
+    }
     function startReplayDay() {
       game.currentDayData = {
         day: game.day,
@@ -1007,7 +1010,7 @@
         endResources: null,
         startGuides: game.guides.map(g => ({ name: g.name, fatigue: g.fatigue, task: g.task })),
         endGuides: null,
-        routes: game.routes.map(r => ({ id: r.id, name: r.name, blocked: r.blocked, caravan: r.caravan, risk: r.risk, reward: r.reward })),
+        routes: snapshotReplayRoutes(),
         guideAssignments: [],
         event: null,
         eventChoice: null,
@@ -1035,6 +1038,7 @@
       if (!game.currentDayData) return;
       game.currentDayData.endResources = { wood: game.wood, med: game.med, food: game.food, rep: game.rep };
       game.currentDayData.endGuides = game.guides.map(g => ({ name: g.name, fatigue: g.fatigue, task: g.task }));
+      game.currentDayData.routes = snapshotReplayRoutes();
       game.currentDayData.savedCaravans = game.saved;
       game.currentDayData.guideAssignments = game.guides
         .filter(g => g.task)
