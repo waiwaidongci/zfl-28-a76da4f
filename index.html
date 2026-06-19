@@ -1013,8 +1013,10 @@
         day: game.day,
         weather: game.weather,
         startResources: { wood: game.wood, med: game.med, food: game.food, rep: game.rep },
+        dispatchStartResources: null,
         endResources: null,
         startGuides: game.guides.map(g => ({ name: g.name, fatigue: g.fatigue, task: g.task })),
+        dispatchStartGuides: null,
         endGuides: null,
         routes: snapshotReplayRoutes(),
         guideAssignments: [],
@@ -1210,7 +1212,8 @@
       };
       for (const guide of game.guides) {
         if (!guide.task) {
-          estimate.fatigueChanges.push({ name: guide.name, change: -2, task: "留守休整" });
+          const restChange = Math.max(0, guide.fatigue - 2) - guide.fatigue;
+          estimate.fatigueChanges.push({ name: guide.name, change: restChange, task: "留守休整" });
           continue;
         }
         const route = game.routes.find(r => r.id === guide.task);
@@ -1316,6 +1319,8 @@
       const rewardBonus = rm.rewardBonus || 0;
       const fatigueBonus = rm.fatigueBonus || 0;
       if (game.currentDayData) {
+        game.currentDayData.dispatchStartResources = { wood: game.wood, med: game.med, food: game.food, rep: game.rep };
+        game.currentDayData.dispatchStartGuides = game.guides.map(g => ({ name: g.name, fatigue: g.fatigue, task: g.task }));
         game.currentDayData.estimate = calculateEstimate();
       }
       for (const guide of game.guides) {
@@ -1962,9 +1967,10 @@
       let html = '<div style="margin-top:12px;padding-top:12px;border-top:2px dashed #315c72;">';
       html += '<h4 style="margin:0 0 8px 0;color:#315c72;font-size:13px">📊 预估 vs 实际 对比</h4>';
       const resKeys = ["wood", "food", "med", "rep"];
+      const baseResources = day.dispatchStartResources || day.startResources;
       html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:12px;margin-bottom:8px;">';
       resKeys.forEach(key => {
-        const actual = day.endResources[key] - day.startResources[key];
+        const actual = day.endResources[key] - baseResources[key];
         const estimated = est[key];
         const diff = actual - estimated;
         const diffCls = Math.abs(diff) <= 1 ? 'color:#2e7d32' : 'color:#f57c00';
@@ -1982,12 +1988,13 @@
         html += ' | <b>实际结果:</b> 请查看日志确认';
         html += '</div>';
       }
-      if (est.fatigueChanges && est.fatigueChanges.length > 0 && day.startGuides && day.endGuides) {
+      const baseGuides = day.dispatchStartGuides || day.startGuides;
+      if (est.fatigueChanges && est.fatigueChanges.length > 0 && baseGuides && day.endGuides) {
         html += '<div style="margin-top:8px;"><b style="font-size:12px">向导疲劳对比：</b>';
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px;font-size:11px;margin-top:4px;">';
         est.fatigueChanges.forEach((fc, i) => {
-          if (!day.endGuides[i] || !day.startGuides[i]) return;
-          const actualFatigue = day.endGuides[i].fatigue - day.startGuides[i].fatigue;
+          if (!day.endGuides[i] || !baseGuides[i]) return;
+          const actualFatigue = day.endGuides[i].fatigue - baseGuides[i].fatigue;
           const diff = actualFatigue - fc.change;
           const diffCls = Math.abs(diff) <= 1 ? 'color:#2e7d32' : 'color:#f57c00';
           html += '<div style="padding:4px;background:#f5f7f9;border-radius:4px;">';
