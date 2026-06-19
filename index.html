@@ -327,6 +327,8 @@
     .stats-rank-bar.route { background: #5a7fa8; }
     .stats-rank-bar.failure { background: #a33d31; }
     .stats-rank-count { font-weight: 800; color: #1f2a2f; min-width: 28px; text-align: right; }
+    .stats-rank-detail { font-size: 11px; color: #5a6e78; line-height: 1.45; margin: -1px 0 5px; padding-left: 2px; }
+    .stats-rank-detail b { color: #315c72; }
     .stats-empty { text-align: center; padding: 20px; color: #5a6e78; font-size: 13px; }
     .stats-filter-info { font-size: 11px; color: #8a9ea5; margin-bottom: 8px; }
     .sample-data-btn { font-size: 12px; padding: 5px 12px; margin-left: 10px; vertical-align: middle; background: #4a7c5e; }
@@ -2681,66 +2683,91 @@
         renderStatsDashboard();
       });
     }
+    function createStatsBucket() {
+      return { total: 0, wins: 0, daySum: 0, caravanSum: 0, maxRep: 0, routeMap: {}, failMap: {} };
+    }
+    function addArchiveToStatsBucket(bucket, archive) {
+      if (!archive) return;
+      bucket.total++;
+      if (archive.win === true) bucket.wins++;
+      bucket.daySum += parseInt(archive.day) || 0;
+      bucket.caravanSum += parseInt(archive.savedCaravans) || 0;
+      bucket.maxRep = Math.max(bucket.maxRep, parseInt(archive.reputation) || 0);
+      if (archive.routePreference && typeof archive.routePreference === 'object') {
+        Object.entries(archive.routePreference).forEach(([rid, cnt]) => {
+          const count = parseInt(cnt) || 0;
+          if (count > 0) bucket.routeMap[rid] = (bucket.routeMap[rid] || 0) + count;
+        });
+      }
+      if (archive.win === false && archive.failureReason) {
+        const reason = String(archive.failureReason).trim() || "未知原因";
+        bucket.failMap[reason] = (bucket.failMap[reason] || 0) + 1;
+      }
+    }
+    function rankedStatsEntries(map, limit) {
+      return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, limit);
+    }
+    function finalizeStatsBucket(bucket, meta = {}) {
+      const total = bucket.total;
+      return {
+        ...meta,
+        total,
+        wins: bucket.wins,
+        winRate: total > 0 ? Math.round((bucket.wins / total) * 100) : 0,
+        avgDays: total > 0 ? (bucket.daySum / total).toFixed(1) : "0.0",
+        avgCaravans: total > 0 ? (bucket.caravanSum / total).toFixed(1) : "0.0",
+        maxRep: bucket.maxRep,
+        commonRoutes: rankedStatsEntries(bucket.routeMap, 5),
+        commonFailures: rankedStatsEntries(bucket.failMap, 5)
+      };
+    }
     function computeStats(archives) {
       if (!archives || archives.length === 0) return null;
-      const total = archives.length;
-      const wins = archives.filter(a => a && a.win === true).length;
-      const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
-      const avgDays = total > 0 ? (archives.reduce((s, a) => s + ((a && a.day) || 0), 0) / total).toFixed(1) : "0.0";
-      const avgCaravans = total > 0 ? (archives.reduce((s, a) => s + ((a && a.savedCaravans) || 0), 0) / total).toFixed(1) : "0.0";
-      const maxRep = archives.reduce((m, a) => Math.max(m, (a && a.reputation) || 0), 0);
-      const routeMap = {};
-      archives.forEach(a => {
-        if (a && a.routePreference && typeof a.routePreference === 'object') {
-          Object.entries(a.routePreference).forEach(([rid, cnt]) => {
-            const count = parseInt(cnt) || 0;
-            if (count > 0) routeMap[rid] = (routeMap[rid] || 0) + count;
-          });
-        }
-      });
-      const commonRoutes = Object.entries(routeMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
-      const failMap = {};
-      archives.filter(a => a && a.win === false && a.failureReason).forEach(a => {
-        const reason = String(a.failureReason).trim() || "未知原因";
-        failMap[reason] = (failMap[reason] || 0) + 1;
-      });
-      const commonFailures = Object.entries(failMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const overallBucket = createStatsBucket();
       const scenarioMap = {};
-      archives.forEach(a => {
-        if (!a) return;
-        const key = a.scenario || "standard";
-        if (!scenarioMap[key]) scenarioMap[key] = { total: 0, wins: 0 };
-        scenarioMap[key].total++;
-        if (a.win === true) scenarioMap[key].wins++;
-      });
-      const scenarioStats = Object.entries(scenarioMap).map(([id, v]) => ({
-        id,
-        name: (SCENARIOS[id] && SCENARIOS[id].name) || id,
-        color: (SCENARIOS[id] && SCENARIOS[id].color) || "#315c72",
-        total: v.total,
-        wins: v.wins,
-        winRate: v.total > 0 ? Math.round((v.wins / v.total) * 100) : 0
-      })).sort((a, b) => b.total - a.total);
       const diffMap = {};
       archives.forEach(a => {
         if (!a) return;
-        const key = a.difficulty || "normal";
-        if (!diffMap[key]) diffMap[key] = { total: 0, wins: 0 };
-        diffMap[key].total++;
-        if (a.win === true) diffMap[key].wins++;
+        addArchiveToStatsBucket(overallBucket, a);
+        const scenarioKey = a.scenario || "standard";
+        if (!scenarioMap[scenarioKey]) scenarioMap[scenarioKey] = createStatsBucket();
+        addArchiveToStatsBucket(scenarioMap[scenarioKey], a);
+        const diffKey = a.difficulty || "normal";
+        if (!diffMap[diffKey]) diffMap[diffKey] = createStatsBucket();
+        addArchiveToStatsBucket(diffMap[diffKey], a);
       });
-      const diffStats = Object.entries(diffMap).map(([id, v]) => {
+      const overall = finalizeStatsBucket(overallBucket);
+      const scenarioStats = Object.entries(scenarioMap).map(([id, bucket]) => finalizeStatsBucket(bucket, {
+        id,
+        name: (SCENARIOS[id] && SCENARIOS[id].name) || id,
+        color: (SCENARIOS[id] && SCENARIOS[id].color) || "#315c72"
+      })).sort((a, b) => b.total - a.total);
+      const diffStats = Object.entries(diffMap).map(([id, bucket]) => {
         const d = DIFF[id];
-        return {
+        return finalizeStatsBucket(bucket, {
           id,
           name: d ? d.label : id,
-          cls: d ? d.cls : "normal",
-          total: v.total,
-          wins: v.wins,
-          winRate: v.total > 0 ? Math.round((v.wins / v.total) * 100) : 0
-        };
+          cls: d ? d.cls : "normal"
+        });
       }).sort((a, b) => b.total - a.total);
-      return { total, wins, winRate, avgDays, avgCaravans, maxRep, commonRoutes, commonFailures, scenarioStats, diffStats };
+      return { ...overall, scenarioStats, diffStats };
+    }
+    function buildCompactRankText(entries, formatter, emptyText) {
+      if (!entries || entries.length === 0) return emptyText;
+      return entries.slice(0, 2).map(formatter).join("、");
+    }
+    function renderGroupedStatsRow(item, options) {
+      const pct = options.maxTotal > 0 ? Math.round((item.total / options.maxTotal) * 100) : 0;
+      const labelStyle = options.color ? ' style="color:' + options.color + '"' : '';
+      const barStyle = options.color ? ' style="width:' + pct + '%;background:' + options.color + '"' : ' style="width:' + pct + '%"';
+      const barClass = options.barClass || "";
+      const routesText = buildCompactRankText(item.commonRoutes, ([rid, cnt]) => getRouteName(rid) + '×' + cnt, "暂无路线");
+      const failuresText = buildCompactRankText(item.commonFailures, ([reason, cnt]) => reason + '×' + cnt, "暂无失败原因");
+      let html = '<div class="stats-rank-item"><span class="stats-rank-label"' + labelStyle + '>' + item.name + '</span>';
+      html += '<div class="stats-rank-bar-wrap"><div class="stats-rank-bar ' + barClass + '"' + barStyle + '></div></div>';
+      html += '<span class="stats-rank-count">' + item.winRate + '%</span></div>';
+      html += '<div class="stats-rank-detail"><b>' + item.wins + '/' + item.total + '胜</b> · 均' + item.avgDays + '天 · 商队' + item.avgCaravans + ' · 最高声望' + item.maxRep + '<br>路线：' + routesText + '<br>失败：' + failuresText + '</div>';
+      return html;
     }
     function renderStatsDashboard() {
       const container = els.statsDashboard;
@@ -2765,27 +2792,21 @@
       html += '<div class="stats-cell"><span class="stats-cell-label">最高声望</span><span class="stats-cell-value">' + stats.maxRep + '</span><span class="stats-cell-sub">点</span></div>';
       html += '</div>';
       html += '<div class="stats-breakdown">';
-      html += '<div class="stats-breakdown-section"><div class="stats-breakdown-title">剧本胜率</div>';
+      html += '<div class="stats-breakdown-section"><div class="stats-breakdown-title">剧本统计</div>';
       if (stats.scenarioStats.length > 0) {
         const maxS = Math.max(...stats.scenarioStats.map(s => s.total));
         stats.scenarioStats.forEach(s => {
-          const pct = maxS > 0 ? Math.round((s.total / maxS) * 100) : 0;
-          html += '<div class="stats-rank-item"><span class="stats-rank-label" style="color:' + s.color + '">' + s.name + '</span>';
-          html += '<div class="stats-rank-bar-wrap"><div class="stats-rank-bar scenario" style="width:' + pct + '%;background:' + s.color + '"></div></div>';
-          html += '<span class="stats-rank-count">' + s.winRate + '%</span></div>';
+          html += renderGroupedStatsRow(s, { maxTotal: maxS, color: s.color, barClass: "scenario" });
         });
       } else {
         html += '<div style="font-size:12px;color:#5a6e78">暂无数据</div>';
       }
       html += '</div>';
-      html += '<div class="stats-breakdown-section"><div class="stats-breakdown-title">难度胜率</div>';
+      html += '<div class="stats-breakdown-section"><div class="stats-breakdown-title">难度统计</div>';
       if (stats.diffStats.length > 0) {
         const maxD = Math.max(...stats.diffStats.map(s => s.total));
         stats.diffStats.forEach(s => {
-          const pct = maxD > 0 ? Math.round((s.total / maxD) * 100) : 0;
-          html += '<div class="stats-rank-item"><span class="stats-rank-label">' + s.name + '</span>';
-          html += '<div class="stats-rank-bar-wrap"><div class="stats-rank-bar diff-' + s.cls + '" style="width:' + pct + '%"></div></div>';
-          html += '<span class="stats-rank-count">' + s.winRate + '%</span></div>';
+          html += renderGroupedStatsRow(s, { maxTotal: maxD, barClass: 'diff-' + s.cls });
         });
       } else {
         html += '<div style="font-size:12px;color:#5a6e78">暂无数据</div>';
