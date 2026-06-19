@@ -228,7 +228,7 @@
       snow_blindness: { name: "雪盲", desc: "无法出勤，2天恢复", duration: 2, effects: { noDispatch: true } }
     };
     const LEVEL_EXP = [0, 20, 50, 90, 140, 200, 270, 350, 440, 540];
-    function getExpForLevel(level) { return LEVEL_EXP[level] || (LEVEL_EXP[LEVEL_EXP.length - 1] + (level - LEVEL_EXP.length + 1) * 120); }
+    function getExpForLevel(level) { return level in LEVEL_EXP ? LEVEL_EXP[level] : (LEVEL_EXP[LEVEL_EXP.length - 1] + (level - LEVEL_EXP.length + 1) * 120); }
     function getLevelForExp(exp) {
       for (let i = LEVEL_EXP.length - 1; i >= 0; i--) {
         if (exp >= LEVEL_EXP[i]) return i + 1;
