@@ -50,113 +50,37 @@
     .codex-bar-fill.risk { background: #a33d31; }
     .codex-bar-fill.reward { background: #3f7a54; }
     .codex-bar-fill.block { background: #5a7fa8; }
-    .stats-panel { margin-top: 12px; }
-    .stats-panel h3 { margin: 0 0 8px; font-size: 15px; }
-    .stats-summary { display: grid; gap: 6px; font-size: 13px; }
-    .stats-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #dde5e6; }
-    .stats-row:last-child { border-bottom: none; }
-    .stats-row .label { color: #5a6e78; }
-    .stats-row .value { font-weight: 700; }
-    .route-stats { display: grid; gap: 4px; margin-top: 4px; }
-    .route-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
-    .guide-stats { display: grid; gap: 4px; margin-top: 4px; }
-    .guide-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
-    .low-supplies { color: #a33d31; font-weight: 700; }
-    .failure-reason { color: #a33d31; font-weight: 700; font-size: 13px; margin-top: 6px; padding: 6px 8px; background: #fdf2f0; border-radius: 4px; border-left: 3px solid #a33d31; }
-    .result-stats { margin: 12px 0; padding: 10px 12px; background: #f5f8f8; border-radius: 6px; font-size: 13px; }
-    .result-stats h4 { margin: 0 0 8px; font-size: 14px; }
-    .result-stats .stat-line { display: flex; justify-content: space-between; padding: 3px 0; }
-    .result-stats .stat-line .label { color: #5a6e78; }
-    .result-stats .stat-line .value { font-weight: 700; }
-    .commission-section { margin-top: 16px; }
-    .commission-card { border: 2px solid #cfdbdc; border-radius: 8px; padding: 12px; margin-bottom: 10px; background: #fff; }
-    .commission-card.available { border-color: #4a7c5e; background: #f5faf6; }
-    .commission-card.active { border-color: #315c72; background: #f0f6f8; }
-    .commission-card.urgent { border-color: #a33d31; background: #fdf5f4; }
-    .commission-card h4 { margin: 0 0 6px; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
-    .commission-days { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; color: #fff; }
-    .commission-days.plenty { background: #3f7a54; }
-    .commission-days.few { background: #b08a28; }
-    .commission-days.urgent { background: #a33d31; }
-    .commission-desc { font-size: 12px; color: #5a6e78; margin-bottom: 8px; line-height: 1.4; }
-    .commission-req { font-size: 12px; padding: 6px 8px; background: #f5f8f8; border-radius: 4px; margin-bottom: 6px; }
-    .commission-req .progress { font-weight: 700; color: #315c72; }
-    .commission-reward, .commission-penalty { font-size: 12px; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; }
-    .commission-reward { background: #f0f7f2; color: #3f7a54; }
-    .commission-penalty { background: #fdf2f0; color: #a33d31; }
-    .commission-actions { display: flex; gap: 8px; margin-top: 8px; }
-    .commission-actions button { flex: 1; padding: 6px 10px; font-size: 12px; }
-    .commission-actions .accept-btn { background: #4a7c5e; }
-    .commission-actions .accept-btn:hover { background: #3a6a4e; }
-    .commission-actions .abandon-btn { background: #a33d31; }
-    .commission-actions .abandon-btn:hover { background: #8a2f26; }
-    .risk-buff { display: inline-block; font-size: 11px; padding: 1px 6px; background: #e8f0f2; color: #315c72; border-radius: 3px; margin-left: 6px; }
-    .empty-commissions { text-align: center; color: #5a6e78; font-size: 13px; padding: 12px; background: #f5f8f8; border-radius: 6px; }
-    .commission-stats { margin-top: 8px; font-size: 12px; color: #5a6e78; }
-    .commission-stats span { margin-right: 12px; }
-    .commission-stats .ok { color: #3f7a54; font-weight: 700; }
-    .commission-stats .danger { color: #a33d31; font-weight: 700; }
-    .commission-type { display: inline-block; font-size: 11px; padding: 1px 6px; background: #dde5e6; color: #5a6e78; border-radius: 3px; margin-right: 6px; }
-    .guide-card { display: grid; gap: 8px; }
-    .guide-header { display: flex; justify-content: space-between; align-items: center; }
-    .guide-name { font-weight: 800; font-size: 15px; }
-    .guide-level { background: #315c72; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; }
-    .exp-bar { height: 6px; background: #dde5e6; border-radius: 3px; overflow: hidden; }
-    .exp-fill { height: 100%; background: linear-gradient(90deg, #4a7c5e, #6ba37c); transition: width .4s; }
-    .exp-text { font-size: 11px; color: #5a6e78; text-align: right; }
-    .status-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-    .status-tag { font-size: 11px; padding: 2px 6px; border-radius: 3px; font-weight: 700; }
-    .status-tag.skill { background: #e8f0f2; color: #315c72; }
-    .status-tag.injury { background: #fdf2f0; color: #a33d31; }
-    .status-tag.buff { background: #f0f7f2; color: #3f7a54; }
-    .guide-routes { margin-top: 4px; }
-    .route-availability { font-size: 12px; padding: 3px 6px; margin: 2px 0; border-radius: 3px; display: flex; justify-content: space-between; align-items: center; }
-    .route-availability.allowed { background: #f0f7f2; }
-    .route-availability.restricted { background: #fdf2f0; }
-    .route-availability .fatigue-estimate { font-weight: 700; font-size: 11px; }
-    .guide-stats-row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
-    .guide-stats-row .label { color: #5a6e78; }
-    .guide-stats-row .value { font-weight: 700; }
-    .skill-tooltip { position: relative; cursor: help; }
-    .skill-tooltip:hover::after { content: attr(data-desc); position: absolute; bottom: 100%; left: 0; background: #1f2a2f; color: #fff; padding: 6px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; z-index: 10; margin-bottom: 4px; }
-    .injury-tooltip { position: relative; cursor: help; }
-    .injury-tooltip:hover::after { content: attr(data-desc); position: absolute; bottom: 100%; left: 0; background: #1f2a2f; color: #fff; padding: 6px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; z-index: 10; margin-bottom: 4px; }
-    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .header-actions button { font-size: 13px; padding: 8px 12px; }
-    .save-btn { background: #4a7c5e; }
-    .save-btn:hover { background: #3a6a4e; }
-    .load-btn { background: #5a7fa8; }
-    .load-btn:hover { background: #4a6e96; }
-    .clear-btn { background: #8a5a5a; }
-    .clear-btn:hover { background: #7a4a4a; }
-    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 8px; color: #fff; font-weight: 700; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.7s forwards; }
-    .toast.ok { background: #3f7a54; }
-    .toast.danger { background: #a33d31; }
-    .toast.info { background: #5a7fa8; }
-    .toast.warn { background: #b08a28; }
-    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-    @keyframes toastOut { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
-    .save-notice { background: #fff8e6; border: 1px solid #e6d5a8; color: #8a6d1f; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 13px; }
-    .save-notice strong { color: #8a5a1f; }
-    .migrated-fields { background: #f0f6f8; border: 1px solid #b8cfd9; padding: 8px 12px; border-radius: 4px; margin-top: 8px; font-size: 12px; color: #315c72; }
-    .migrated-fields ul { margin: 4px 0 0 20px; padding: 0; }
-    .save-info { font-size: 12px; color: #5a6e78; margin-top: 4px; }
-    .save-info span { margin-right: 12px; }
-  </style>
+    .event-card { background: linear-gradient(135deg, #f8fbfb 0%, #eef4f5 100%); border: 2px solid #315c72; border-radius: 12px; padding: 20px; max-width: 480px; }
+    .event-card h3 { margin: 0 0 8px; color: #1f2a2f; font-size: 20px; }
+    .event-category { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+    .event-category.weather { background: #5a7fa8; }
+    .event-category.supply { background: #b08a28; }
+    .event-category.guide { background: #4a7c5e; }
+    .event-category.reputation { background: #8a5a9e; }
+    .event-category.random { background: #a33d31; }
+    .event-desc { font-size: 15px; line-height: 1.6; color: #2d3a40; margin: 12px 0 16px; padding: 12px; background: rgba(255,255,255,0.7); border-radius: 6px; border-left: 3px solid #315c72; }
+    .event-options { display: grid; gap: 10px; }
+    .event-option { border: 2px solid #cfdbdc; border-radius: 8px; padding: 12px 14px; cursor: pointer; background: #fff; transition: all .2s; text-align: left; }
+    .event-option:hover { border-color: #315c72; background: #f0f7f8; transform: translateY(-1px); }
+    .event-option:active { transform: translateY(0); }
+    .event-option-title { font-weight: 800; color: #1f2a2f; margin-bottom: 4px; }
+    .event-option-hint { font-size: 12px; color: #5a6e78; }
+    .event-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; margin-right: 4px; font-weight: 700; }
+    .tag-good { background: #d4ede0; color: #3f7a54; }
+    .tag-bad { background: #f2d9d6; color: #a33d31; }
+    .tag-neutral { background: #e3ecf1; color: #315c72; }
+    .codex-event { border-left: 4px solid #8a5a9e; }
+    .codex-event h4 { margin: 6px 0; font-size: 14px; }
+    .codex-event .choice-tag { font-size: 12px; color: #5a6e78; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .stat-item { font-size: 13px; }
+    .stat-item span:first-child { color: #5a6e78; }
+    @media (max-width: 1000px) { header { display: block; } .app { grid-template-columns: 1fr; } .log { height: 220px; } .event-card { max-width: calc(100% - 28px); } }
 </head>
 <body>
   <header>
-    <div>
-      <h1>高山驿站补给调度</h1>
-      <div>撑过15天，接应商队，让驿站不断粮。</div>
-      <div class="save-info" id="saveInfo"></div>
-    </div>
-    <div class="header-actions">
-      <button id="saveBtn" class="save-btn">保存进度</button>
-      <button id="loadBtn" class="load-btn">读取存档</button>
-      <button id="clearBtn" class="clear-btn">清除存档</button>
-      <button id="newBtn">新开一局</button>
-    </div>
+    <div><h1>高山驿站补给调度</h1><div>撑过15天，接应商队，让驿站不断粮。</div></div>
+    <button id="newBtn">新开一局</button>
   </header>
   <main class="app">
     <aside class="panel">
@@ -171,12 +95,6 @@
       </div>
       <h2>向导</h2>
       <div id="guides"></div>
-      <div class="commission-section">
-        <h2>商队委托</h2>
-        <div class="commission-stats" id="commissionStats"></div>
-        <div id="availableCommissions"></div>
-        <div id="commissions"></div>
-      </div>
     </aside>
     <section class="panel">
       <div class="section-title"><h2>今日路线</h2><button class="codex-btn" id="codexBtn">路线图鉴</button></div>
@@ -186,10 +104,6 @@
     <aside class="panel">
       <h2>事件日志</h2>
       <div class="log" id="log"></div>
-      <div class="stats-panel">
-        <h3>本局统计</h3>
-        <div class="stats-summary" id="statsPanel"></div>
-      </div>
     </aside>
   </main>
   <div class="overlay hidden" id="diffOverlay">
@@ -218,20 +132,26 @@
   <div class="overlay hidden" id="overlay">
     <div class="modal">
       <h2 id="resultTitle"></h2>
-      <div id="resultText"></div>
-      <div id="resultSaveNotice" class="save-notice hidden"></div>
+      <p id="resultText"></p>
       <div style="display:flex;gap:10px;margin-top:12px">
-        <button id="saveResultBtn" class="save-btn" style="flex:1">保留本局结果</button>
         <button id="againBtn" style="flex:1">再来一局</button>
         <button class="codex-btn" id="resultCodexBtn" style="flex:1">查看本局图鉴</button>
       </div>
     </div>
   </div>
   <div class="overlay hidden" id="codexOverlay">
-    <div class="modal" style="width:min(520px,calc(100% - 28px))">
-      <h2>路线图鉴</h2>
+    <div class="modal" style="width:min(560px,calc(100% - 28px));max-height:85vh;overflow-y:auto">
+      <h2>游戏图鉴</h2>
       <div class="codex-grid" id="codexGrid"></div>
       <button id="codexCloseBtn" style="margin-top:14px">关闭图鉴</button>
+    </div>
+  </div>
+  <div class="overlay hidden" id="eventOverlay">
+    <div class="event-card">
+      <span class="event-category" id="eventCategory"></span>
+      <h3 id="eventTitle"></h3>
+      <div class="event-desc" id="eventDesc"></div>
+      <div class="event-options" id="eventOptions"></div>
     </div>
   </div>
   <script>
@@ -240,127 +160,209 @@
       { id: "ridge", name: "雪脊短线", risk: 3, reward: 4, wood: 3, food: 2, med: 1, desc: "沿雪线山脊穿行的险峻捷径，能最快抵达山外。途中常有落石与冰缝，但接应商队效率最高。" },
       { id: "valley", name: "松谷绕行", risk: 1, reward: 2, wood: 1, food: 4, med: 0, desc: "绕过松林谷地的安全路线，几乎没有雪崩风险。林间可以采集少量食物，但路程较远收益偏低。" }
     ];
-    const SKILLS = {
-      north_expert: { name: "北坡向导", desc: "北坡盐道风险-1，疲劳-1", route: "north", effects: { risk: -1, fatigue: -1 } },
-      ridge_expert: { name: "雪脊行者", desc: "雪脊短线风险-1，疲劳-1", route: "ridge", effects: { risk: -1, fatigue: -1 } },
-      valley_expert: { name: "松谷猎手", desc: "松谷绕行风险-1，疲劳-1", route: "valley", effects: { risk: -1, fatigue: -1 } },
-      pathfinder: { name: "寻路者", desc: "所有路线风险-1", route: "all", effects: { risk: -1 } },
-      survivalist: { name: "求生专家", desc: "所有路线物资消耗-1", route: "all", effects: { wood: -1, food: -1, med: -1 } },
-      endurance: { name: "坚韧不拔", desc: "疲劳增长-30%", route: "all", effects: { fatigueMul: 0.7 } },
-      lucky: { name: "福星高照", desc: "成功率+10%", route: "all", effects: { successBonus: 0.1 } },
-      healer: { name: "草药师", desc: "失败时药品消耗-1，留守时恢复更快", route: "all", effects: { medSave: 1, restBonus: 1 } },
-      speedster: { name: "飞毛腿", desc: "所有路线疲劳-1", route: "all", effects: { fatigue: -1 } },
-      packmule: { name: "驮兽", desc: "所有路线额外获得+1柴火", route: "all", effects: { bonusWood: 1 } }
-    };
-    const INJURIES = {
-      sprained_ankle: { name: "脚踝扭伤", desc: "无法出勤，3天恢复", duration: 3, effects: { noDispatch: true, fatigueRecovery: -1 } },
-      frostbite: { name: "轻度冻伤", desc: "可出勤但所有路线疲劳+2，3天恢复", duration: 3, effects: { fatigue: 2 } },
-      exhaustion: { name: "虚脱乏力", desc: "无法出勤，2天恢复", duration: 2, effects: { noDispatch: true, fatigueRecovery: -2 } },
-      bruised_ribs: { name: "肋骨挫伤", desc: "可出勤但风险+1，4天恢复", duration: 4, effects: { risk: 1 } },
-      snow_blindness: { name: "雪盲", desc: "无法出勤，2天恢复", duration: 2, effects: { noDispatch: true } }
-    };
-    const LEVEL_EXP = [0, 20, 50, 90, 140, 200, 270, 350, 440, 540];
-    function getExpForLevel(level) { return level in LEVEL_EXP ? LEVEL_EXP[level] : (LEVEL_EXP[LEVEL_EXP.length - 1] + (level - LEVEL_EXP.length + 1) * 120); }
-    function getLevelForExp(exp) {
-      for (let i = LEVEL_EXP.length - 1; i >= 0; i--) {
-        if (exp >= LEVEL_EXP[i]) return i + 1;
-      }
-      return 1;
-    }
     const DIFF = {
       safe:   { label: "稳妥", cls: "safe",   wood: 28, med: 12, food: 32, stormProb: 0.15, fatigueBase: 1, fatigueStorm: 1, fatigueMul: 0.8 },
       normal: { label: "标准", cls: "normal", wood: 20, med: 8,  food: 24, stormProb: 0.24, fatigueBase: 1, fatigueStorm: 2, fatigueMul: 1.0 },
       hard:   { label: "险境", cls: "hard",   wood: 14, med: 5,  food: 16, stormProb: 0.36, fatigueBase: 2, fatigueStorm: 3, fatigueMul: 1.3 }
     };
-    const COMMISSION_TEMPLATES = [
+    const EVENTS_POOL = [
       {
-        id: "salt_urgent", name: "紧急盐运", type: "deliver",
-        desc: "山外盐商急需一批盐晶护送，需在指定路线完成接应。",
-        deadlineRange: [3, 5],
-        investment: { wood: 2, food: 3, med: 1 },
-        requirement: { route: "north", successCount: 2 },
-        reward: { rep: 12, wood: 6, food: 8, riskReduction: { route: "north", days: 3, amount: 1 } },
-        penalty: { rep: -8, food: -6 }
+        id: "storm_warning", category: "weather", name: "暴雪预警",
+        desc: "山间传来低沉的轰鸣，云层正在迅速聚集。老向导说这是暴风雪来临的前兆，但也有人说只是普通的阴风。",
+        baseWeight: 5,
+        conditions: { minDay: 2, maxDay: 14 },
+        weightMod: { weather: { "晴": 1.2, "阴风": 1.8, "暴雪": 0.3 }, diff: { safe: 0.8, normal: 1.0, hard: 1.4 } },
+        options: [
+          { title: "加固驿站，囤积柴火", hint: "消耗柴火，但降低未来暴雪影响",
+            effects: { wood: -3, weatherModifier: { stormProb: -0.08, days: 3 }, log: "决定加固驿站，消耗柴火应对暴雪。" } },
+          { title: "观察云层，静观其变", hint: "节省物资，但风险较高",
+            effects: { weatherModifier: { stormProb: 0.15, days: 2 }, log: "决定观察天气变化，节省物资。" } }
+        ]
       },
       {
-        id: "ridge_rescue", name: "雪脊搜救", type: "rescue",
-        desc: "一支探险队在雪脊失联，需要成功接应商队的同时搜寻幸存者。",
-        deadlineRange: [2, 4],
-        investment: { wood: 3, food: 2, med: 2 },
-        requirement: { route: "ridge", successCount: 2 },
-        reward: { rep: 15, med: 5, riskReduction: { route: "ridge", days: 4, amount: 1 } },
-        penalty: { rep: -10, med: -3 }
+        id: "traveler_merchant", category: "supply", name: "过路商人",
+        desc: "一位披着厚斗篷的商人途径驿站，愿意用高价收购多余的药品，或者用物资换取声望。",
+        baseWeight: 4,
+        conditions: { minDay: 1, maxDay: 13, minMed: 3 },
+        weightMod: { med: { low: 0.5, medium: 1.0, high: 1.5 }, rep: { low: 1.3, medium: 1.0, high: 0.7 } },
+        options: [
+          { title: "出售药品换粮", hint: "+6干粮 -3药品",
+            effects: { med: -3, food: 6, log: "向商人出售了药品，换取了干粮。" } },
+          { title: "赠送药品博取名声", hint: "+5声望 -2药品",
+            effects: { med: -2, rep: 5, log: "向商人赠送了药品，博得了好名声。" } }
+        ]
       },
       {
-        id: "valley_supply", name: "谷地补给线", type: "patrol",
-        desc: "松林谷地的猎户需要持续的物资补给，保持路线畅通。",
-        deadlineRange: [4, 6],
-        investment: { wood: 1, food: 4, med: 0 },
-        requirement: { route: "valley", successCount: 3 },
-        reward: { rep: 10, food: 12, riskReduction: { route: "valley", days: 5, amount: 1 } },
-        penalty: { rep: -6, food: -8 }
+        id: "guide_injury", category: "guide", name: "向导受伤",
+        desc: "一名向导在昨日的归途中不慎扭伤了脚踝，需要立即处理。是让他带伤坚持，还是让他休息恢复？",
+        baseWeight: 4,
+        conditions: { minDay: 3, maxDay: 14 },
+        weightMod: { guideFatigue: { low: 0.5, medium: 1.2, high: 1.8 }, diff: { safe: 0.7, normal: 1.0, hard: 1.5 } },
+        options: [
+          { title: "用药品治疗", hint: "-2药品，向导恢复",
+            effects: { med: -2, guideEffect: { type: "heal", target: "mostFatigued", amount: 4 }, log: "使用药品为向导治疗，恢复了状态。" } },
+          { title: "让他休养一天", hint: "不消耗药品，但向导今日无法出勤",
+            effects: { guideEffect: { type: "rest", target: "mostFatigued" }, log: "让受伤的向导休养一天，不安排任务。" } }
+        ]
       },
       {
-        id: "prestige_caravan", name: "声望商队", type: "escort",
-        desc: "一位大商人的商队要经过雪线，需要多次成功接应以建立信任。",
-        deadlineRange: [5, 7],
-        investment: { wood: 4, food: 4, med: 2 },
-        requirement: { anyRoute: true, successCount: 4 },
-        reward: { rep: 25, wood: 10, food: 10, med: 5 },
-        penalty: { rep: -15 }
+        id: "caravan_distress", category: "reputation", name: "商队求援",
+        desc: "远处传来信号弹的光芒，一支商队在风雪中迷失了方向。是否冒险派人接应？",
+        baseWeight: 5,
+        conditions: { minDay: 4, maxDay: 12 },
+        weightMod: { rep: { low: 1.5, medium: 1.0, high: 0.6 }, weather: { "晴": 1.3, "阴风": 1.0, "暴雪": 0.7 } },
+        options: [
+          { title: "派出向导接应", hint: "高风险高回报，+8声望",
+            effects: { rep: 8, routeEffect: { type: "addCaravan", route: "ridge" }, guideEffect: { type: "addFatigue", target: "random", amount: 2 }, log: "派出向导接应商队，获得了声望。" } },
+          { title: "驿站资源有限，无法支援", hint: "-3声望，但保存实力",
+            effects: { rep: -3, log: "拒绝了商队的求援，声望有所下降。" } }
+        ]
       },
       {
-        id: "storm_prep", name: "暴雪预警", type: "prepare",
-        desc: "天气预报显示暴雪将至，需要在北坡和雪脊各接应一次以加固驿站。",
-        deadlineRange: [3, 4],
-        investment: { wood: 5, food: 2, med: 1 },
-        requirement: { multiRoute: ["north", "ridge"], successCount: 2 },
-        reward: { rep: 18, wood: 12, med: 4 },
-        penalty: { rep: -10, wood: -8 }
+        id: "supply_cache", category: "supply", name: "发现物资窖藏",
+        desc: "驿站后院的老松树下，向导发现了一个被遗忘的旧地窖，里面似乎有东西。",
+        baseWeight: 3,
+        conditions: { minDay: 2, maxDay: 13 },
+        weightMod: { food: { low: 1.6, medium: 1.0, high: 0.5 }, wood: { low: 1.4, medium: 1.0, high: 0.6 } },
+        options: [
+          { title: "仔细搜寻，全部搬运", hint: "+4柴火 +4干粮，但向导疲劳+2",
+            effects: { wood: 4, food: 4, guideEffect: { type: "addFatigue", target: "random", amount: 2 }, log: "仔细搜寻了地窖，获得了大量物资。" } },
+          { title: "只拿必需品，封好地窖", hint: "+2柴火 +2干粮",
+            effects: { wood: 2, food: 2, log: "只拿了必需品，保留了地窖以备不时之需。" } }
+        ]
       },
       {
-        id: "medicine_run", name: "药材急运", type: "deliver",
-        desc: "山下村落爆发疫病，急需通过松谷路线运送药品。",
-        deadlineRange: [2, 3],
-        investment: { wood: 1, food: 2, med: 3 },
-        requirement: { route: "valley", successCount: 2 },
-        reward: { rep: 14, med: 8, food: 6 },
-        penalty: { rep: -12, med: -4 }
+        id: "route_blockage", category: "weather", name: "路段塌方",
+        desc: "昨夜的风雨导致某条路段发生了小型塌方，需要决定是否立即清理。",
+        baseWeight: 4,
+        conditions: { minDay: 3, maxDay: 14 },
+        weightMod: { weather: { "晴": 0.6, "阴风": 1.2, "暴雪": 1.8 } },
+        options: [
+          { title: "立即组织清理", hint: "-2柴火，确保路线畅通",
+            effects: { wood: -2, routeEffect: { type: "ensureOpen", route: "random" }, log: "组织清理了塌方路段，确保了路线畅通。" } },
+          { title: "暂时封锁，绕行", hint: "随机一条路线今日封锁",
+            effects: { routeEffect: { type: "block", route: "random" }, log: "决定暂时封锁塌方路段，今日只能绕行。" } }
+        ]
       },
       {
-        id: "triple_challenge", name: "三路线挑战", type: "challenge",
-        desc: "一位路过的赌徒与你打赌，要在每条路线各成功接应一次。",
-        deadlineRange: [5, 7],
-        investment: { wood: 3, food: 5, med: 2 },
-        requirement: { multiRoute: ["north", "ridge", "valley"], successCount: 3 },
-        reward: { rep: 30, wood: 15, food: 15, med: 8 },
-        penalty: { rep: -20, wood: -5, food: -5 }
+        id: "village_request", category: "reputation", name: "山下村民求助",
+        desc: "山下村落派来人说，村里有老人病重，急需药品。但驿站的药品也不充裕。",
+        baseWeight: 4,
+        conditions: { minDay: 3, maxDay: 13, minMed: 4 },
+        weightMod: { rep: { low: 1.5, medium: 1.0, high: 0.6 }, med: { low: 0.5, medium: 1.0, high: 1.5 } },
+        options: [
+          { title: "慷慨赠予药品", hint: "-4药品 +6声望",
+            effects: { med: -4, rep: 6, log: "向山下村民赠予了药品，声望大增。" } },
+          { title: "只能分出少量", hint: "-1药品 +2声望",
+            effects: { med: -1, rep: 2, log: "只能分出少量药品帮助村民。" } }
+        ]
       },
       {
-        id: "ridge_master", name: "雪脊大师", type: "challenge",
-        desc: "证明你能驾驭最危险的雪脊路线，连续成功接应。",
-        deadlineRange: [3, 5],
-        investment: { wood: 3, food: 3, med: 2 },
-        requirement: { route: "ridge", successCount: 3 },
-        reward: { rep: 20, riskReduction: { route: "ridge", days: 7, amount: 2 } },
-        penalty: { rep: -12 }
+        id: "guide_conflict", category: "guide", name: "向导争执",
+        desc: "两名向导因为路线选择发生了激烈争执，情绪都很激动。需要你出面调解。",
+        baseWeight: 3,
+        conditions: { minDay: 4, maxDay: 14 },
+        weightMod: { guideFatigue: { low: 0.6, medium: 1.1, high: 1.7 }, diff: { hard: 1.4, normal: 1.0, safe: 0.7 } },
+        options: [
+          { title: "严厉训斥，立即平息", hint: "平息争执，但两人疲劳+1",
+            effects: { guideEffect: { type: "addFatigue", target: "all", amount: 1 }, log: "严厉训斥了两名向导，平息了争执。" } },
+          { title: "耐心调解，分别安抚", hint: "消耗时间但恢复士气，两人疲劳-1",
+            effects: { guideEffect: { type: "heal", target: "all", amount: 1 }, food: -1, log: "耐心调解了争执，还消耗了一些干粮招待他们。" } }
+        ]
+      },
+      {
+        id: "abandoned_sled", category: "random", name: "废弃雪橇",
+        desc: "在驿站附近发现了一架被遗弃的雪橇，上面还有一些物资，但周围有野兽出没的痕迹。",
+        baseWeight: 3,
+        conditions: { minDay: 2, maxDay: 14 },
+        weightMod: { weather: { "晴": 1.4, "阴风": 1.0, "暴雪": 0.5 } },
+        options: [
+          { title: "冒险取回物资", hint: "+5声望 +3药品，但向导疲劳+3",
+            effects: { rep: 5, med: 3, guideEffect: { type: "addFatigue", target: "random", amount: 3 }, log: "冒险取回了雪橇上的物资，收获颇丰。" } },
+          { title: "太危险了，放弃", hint: "无影响",
+            effects: { log: "认为太危险，放弃了雪橇上的物资。" } }
+        ]
+      },
+      {
+        id: "weather_anomaly", category: "weather", name: "异常天气",
+        desc: "天空出现了奇怪的霞光，老向导说这预示着天气即将剧变。",
+        baseWeight: 3,
+        conditions: { minDay: 5, maxDay: 12 },
+        weightMod: { weather: { "晴": 1.5, "阴风": 1.0, "暴雪": 0.4 }, diff: { hard: 1.3, normal: 1.0, safe: 0.8 } },
+        options: [
+          { title: "提前准备御寒物资", hint: "-3柴火 -2干粮，未来3天天晴概率+20%",
+            effects: { wood: -3, food: -2, weatherModifier: { clearProb: 0.2, days: 3 }, log: "提前准备了御寒物资，应对可能的天气变化。" } },
+          { title: "这只是普通的霞光", hint: "未来2天暴雪概率+15%",
+            effects: { weatherModifier: { stormProb: 0.15, days: 2 }, log: "认为只是普通霞光，没有采取措施。" } }
+        ]
+      },
+      {
+        id: "mountain_spirits", category: "random", name: "山神传说",
+        desc: "向导们说昨夜梦见了山神，有人认为是吉兆，有人认为是警示。你决定如何解读？",
+        baseWeight: 2,
+        conditions: { minDay: 3, maxDay: 13 },
+        weightMod: { rep: { low: 0.8, medium: 1.0, high: 1.4 } },
+        options: [
+          { title: "举行简单的祭祀仪式", hint: "-1干粮 +4声望",
+            effects: { food: -1, rep: 4, log: "举行了简单的祭祀仪式，安抚了众人的情绪。" } },
+          { title: "相信科学，不信传言", hint: "无影响，但向导们略有不满",
+            effects: { guideEffect: { type: "addFatigue", target: "all", amount: 1 }, log: "对山神传说一笑置之，但向导们略有不满。" } }
+        ]
+      },
+      {
+        id: "supply_route", category: "supply", name: "补给商队",
+        desc: "一支补给商队从远方而来，愿意以优惠价格出售物资，但只收声望作为交换。",
+        baseWeight: 3,
+        conditions: { minDay: 4, maxDay: 12, minRep: 5 },
+        weightMod: { rep: { low: 0.5, medium: 1.0, high: 1.5 }, food: { low: 1.5, medium: 1.0, high: 0.5 } },
+        options: [
+          { title: "用声望换补给", hint: "-5声望 +4柴火 +4干粮 +2药品",
+            effects: { rep: -5, wood: 4, food: 4, med: 2, log: "用声望换取了大量补给物资。" } },
+          { title: "声望宝贵，婉言谢绝", hint: "无影响",
+            effects: { log: "认为声望更宝贵，婉言谢绝了商队的提议。" } }
+        ]
+      },
+      {
+        id: "guide_motivation", category: "guide", name: "士气鼓舞",
+        desc: "连日的风雪让向导们士气低落。你需要想办法提振士气。",
+        baseWeight: 4,
+        conditions: { minDay: 5, maxDay: 14 },
+        weightMod: { guideFatigue: { low: 0.4, medium: 1.0, high: 1.8 }, food: { low: 0.6, medium: 1.0, high: 1.4 } },
+        options: [
+          { title: "加餐犒劳众人", hint: "-3干粮，所有向导疲劳-3",
+            effects: { food: -3, guideEffect: { type: "heal", target: "all", amount: 3 }, log: "加餐犒劳了向导们，士气大振。" } },
+          { title: "发表激情演讲", hint: "所有向导疲劳-1",
+            effects: { guideEffect: { type: "heal", target: "all", amount: 1 }, log: "发表了激情演讲，一定程度上提振了士气。" } }
+        ]
+      },
+      {
+        id: "old_map", category: "random", name: "古老地图",
+        desc: "在驿站的旧箱子里发现了一张泛黄的地图，上面标注着一条少有人知的秘密路线。",
+        baseWeight: 2,
+        conditions: { minDay: 3, maxDay: 13 },
+        weightMod: { rep: { low: 0.7, medium: 1.0, high: 1.5 } },
+        options: [
+          { title: "派人勘察新路线", hint: "+6声望，北坡盐道今日奖励+2",
+            effects: { rep: 6, routeEffect: { type: "boostReward", route: "north", amount: 2 }, log: "派人勘察了新路线，发现了捷径。" } },
+          { title: "地图可能过时，还是走熟路", hint: "无影响",
+            effects: { log: "认为地图可能过时，还是选择走熟悉的路线。" } }
+        ]
       }
     ];
-    const SAVE_KEY = "alpineStation_save_v1";
-    const SAVE_VERSION = 1;
-    let routeRiskModifiers = {};
-    let game, chosenDiff = "normal";
-    let lastSaveInfo = null;
+    const EVENT_CATEGORY_LABELS = {
+      weather: "天气异象", supply: "物资事件", guide: "向导事件",
+      reputation: "声望事件", random: "随机事件"
+    };
+    let game, chosenDiff = "normal", pendingEvent = null;
     const els = {
       day: document.querySelector("#dayText"), weather: document.querySelector("#weatherText"), wood: document.querySelector("#woodText"),
       med: document.querySelector("#medText"), food: document.querySelector("#foodText"), rep: document.querySelector("#repText"),
       guides: document.querySelector("#guides"), routes: document.querySelector("#routes"), log: document.querySelector("#log"),
       overlay: document.querySelector("#overlay"), diffOverlay: document.querySelector("#diffOverlay"),
       resultTitle: document.querySelector("#resultTitle"), resultText: document.querySelector("#resultText"),
-      statsPanel: document.querySelector("#statsPanel"),
-      commissions: document.querySelector("#commissions"), availableCommissions: document.querySelector("#availableCommissions"),
-      saveInfo: document.querySelector("#saveInfo"),
-      resultSaveNotice: document.querySelector("#resultSaveNotice")
+      eventOverlay: document.querySelector("#eventOverlay"), eventCategory: document.querySelector("#eventCategory"),
+      eventTitle: document.querySelector("#eventTitle"), eventDesc: document.querySelector("#eventDesc"),
+      eventOptions: document.querySelector("#eventOptions"), codexGrid: document.querySelector("#codexGrid")
     };
     function showDiffPicker() {
       els.overlay.classList.add("hidden");
@@ -374,703 +376,243 @@
       };
     });
     document.querySelector("#startBtn").onclick = () => { els.diffOverlay.classList.add("hidden"); fresh(chosenDiff); };
-    function showToast(message, type) {
-      const toast = document.createElement("div");
-      toast.className = "toast " + (type || "info");
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-    function formatSaveTime(timestamp) {
-      if (!timestamp) return "未知时间";
-      const d = new Date(timestamp);
-      const pad = n => n.toString().padStart(2, "0");
-      return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
-    }
-    function getDefaultStats(diff) {
-      const d = DIFF[diff] || DIFF.normal;
-      return {
-        routeDispatches: {},
-        guideDays: {},
-        lowestWood: d.wood,
-        lowestFood: d.food,
-        lowestMed: d.med,
-        failureReason: "",
-        commissionsAccepted: 0,
-        commissionsCompleted: 0,
-        commissionsFailed: 0
-      };
-    }
-    function getDefaultCommissions() {
-      return { active: [], available: [], completed: [], failed: [] };
-    }
-    function getDefaultCodexEntry(route) {
-      return {
-        name: route.name, risk: route.risk, reward: route.reward, desc: route.desc,
-        wood: route.wood, food: route.food, med: route.med,
-        seen: 0, blocked: 0, attempts: 0, successes: 0,
-        rewards: { rep: 0, wood: 0, food: 0, med: 0 }
-      };
-    }
-    function getDefaultGuideStats() {
-      return { successes: 0, failures: 0, restDays: 0, routesDispatched: {} };
-    }
-    function getDefaultRouteState(route) {
-      return { ...route, caravan: true, blocked: false };
-    }
-    function migrateSaveData(data) {
-      const migrated = [];
-      const result = JSON.parse(JSON.stringify(data));
-      if (!result.saveVersion) {
-        result.saveVersion = SAVE_VERSION;
-        migrated.push("存档版本号");
-      }
-      if (!result.savedAt) {
-        result.savedAt = Date.now();
-        migrated.push("保存时间戳");
-      }
-      if (!result.game) {
-        return { data: result, migrated: ["整个游戏数据结构"] };
-      }
-      const g = result.game;
-      if (typeof g.diff === "undefined") { g.diff = "normal"; migrated.push("难度设置"); }
-      if (typeof g.day === "undefined") { g.day = 1; migrated.push("天数"); }
-      if (typeof g.weather === "undefined") { g.weather = "晴"; migrated.push("天气"); }
-      if (typeof g.wood === "undefined") { g.wood = DIFF[g.diff].wood; migrated.push("柴火数量"); }
-      if (typeof g.med === "undefined") { g.med = DIFF[g.diff].med; migrated.push("药品数量"); }
-      if (typeof g.food === "undefined") { g.food = DIFF[g.diff].food; migrated.push("干粮数量"); }
-      if (typeof g.rep === "undefined") { g.rep = 0; migrated.push("声望值"); }
-      if (typeof g.saved === "undefined") { g.saved = 0; migrated.push("接应商队数"); }
-      if (typeof g.ended === "undefined") { g.ended = false; migrated.push("游戏结束状态"); }
-      if (!g.log) { g.log = []; migrated.push("事件日志"); }
-      if (!Array.isArray(g.routes) || g.routes.length === 0) {
-        g.routes = routesBase.map(getDefaultRouteState);
-        migrated.push("路线状态");
-      } else {
-        const routesById = {};
-        g.routes.forEach(route => { if (route && route.id) routesById[route.id] = route; });
-        g.routes = routesBase.map(route => {
-          const savedRoute = routesById[route.id];
-          if (!savedRoute) {
-            migrated.push("路线状态：" + route.name);
-            return getDefaultRouteState(route);
-          }
-          const mergedRoute = { ...getDefaultRouteState(route), ...savedRoute };
-          if (typeof savedRoute.caravan === "undefined") { migrated.push("路线商队状态：" + route.name); }
-          if (typeof savedRoute.blocked === "undefined") { migrated.push("路线封路状态：" + route.name); }
-          return mergedRoute;
-        });
-      }
-      if (!g.codex) {
-        g.codex = {};
-        routesBase.forEach(r => { g.codex[r.id] = getDefaultCodexEntry(r); });
-        migrated.push("路线图鉴");
-      } else {
-        routesBase.forEach(r => {
-          if (!g.codex[r.id]) {
-            g.codex[r.id] = getDefaultCodexEntry(r);
-            migrated.push("图鉴数据：" + r.name);
-          } else {
-            const c = g.codex[r.id];
-            if (typeof c.seen === "undefined") { c.seen = 0; migrated.push("图鉴-出现天数：" + r.name); }
-            if (typeof c.blocked === "undefined") { c.blocked = 0; migrated.push("图鉴-封路次数：" + r.name); }
-            if (typeof c.attempts === "undefined") { c.attempts = 0; migrated.push("图鉴-尝试次数：" + r.name); }
-            if (typeof c.successes === "undefined") { c.successes = 0; migrated.push("图鉴-成功次数：" + r.name); }
-            if (!c.rewards) { c.rewards = { rep: 0, wood: 0, food: 0, med: 0 }; migrated.push("图鉴-累计收益：" + r.name); }
-          }
-        });
-      }
-      if (!g.stats) {
-        g.stats = getDefaultStats(g.diff);
-        migrated.push("本局统计");
-      } else {
-        const ds = getDefaultStats(g.diff);
-        Object.keys(ds).forEach(k => {
-          if (typeof g.stats[k] === "undefined") {
-            g.stats[k] = ds[k];
-            migrated.push("统计字段：" + k);
-          }
-        });
-        if (!g.stats.routeDispatches) {
-          g.stats.routeDispatches = {};
-          routesBase.forEach(r => { g.stats.routeDispatches[r.id] = 0; });
-          migrated.push("统计-各路线派遣");
-        }
-      }
-      if (!g.commissions) {
-        g.commissions = getDefaultCommissions();
-        migrated.push("商队委托");
-      } else {
-        const dc = getDefaultCommissions();
-        Object.keys(dc).forEach(k => {
-          if (!g.commissions[k]) {
-            g.commissions[k] = [];
-            migrated.push("委托列表：" + k);
-          }
-        });
-      }
-      if (!g.guides || g.guides.length === 0) {
-        g.guides = [createGuide("阿措"), createGuide("洛桑")];
-        migrated.push("向导数据");
-      } else {
-        g.guides.forEach((guide, idx) => {
-          if (typeof guide.name === "undefined") { guide.name = "向导" + (idx + 1); migrated.push("向导" + (idx + 1) + "姓名"); }
-          if (typeof guide.fatigue === "undefined") { guide.fatigue = 0; migrated.push(guide.name + "疲劳值"); }
-          if (typeof guide.task === "undefined") { guide.task = ""; migrated.push(guide.name + "任务状态"); }
-          if (typeof guide.exp === "undefined") { guide.exp = 0; migrated.push(guide.name + "经验值"); }
-          if (typeof guide.level === "undefined") { guide.level = getLevelForExp(guide.exp || 0); migrated.push(guide.name + "等级"); }
-          if (!guide.skills) { guide.skills = []; migrated.push(guide.name + "专长列表"); }
-          if (!guide.injuries) { guide.injuries = []; migrated.push(guide.name + "伤病列表"); }
-          if (!guide.tempBuffs) { guide.tempBuffs = []; migrated.push(guide.name + "临时增益"); }
-          if (!guide.stats) { guide.stats = getDefaultGuideStats(); migrated.push(guide.name + "个人统计"); }
-        });
-      }
-      if (!result.routeRiskModifiers) {
-        result.routeRiskModifiers = {};
-        migrated.push("路线风险修正");
-      }
-      return { data: result, migrated };
-    }
-    function hasSave() {
-      try {
-        return !!localStorage.getItem(SAVE_KEY);
-      } catch (e) { return false; }
-    }
-    function saveGame(isResult) {
-      try {
-        if (!game) {
-          showToast("没有可保存的游戏进度", "danger");
-          return false;
-        }
-        const saveData = {
-          saveVersion: SAVE_VERSION,
-          savedAt: Date.now(),
-          isResultSave: !!isResult,
-          game: JSON.parse(JSON.stringify(game)),
-          routeRiskModifiers: JSON.parse(JSON.stringify(routeRiskModifiers))
-        };
-        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-        lastSaveInfo = { savedAt: saveData.savedAt, day: game.day, diff: game.diff, ended: game.ended };
-        updateSaveInfo();
-        if (isResult) {
-          showToast("本局结果已保存，可随时查看", "ok");
-        } else {
-          showToast("进度已保存（第" + game.day + "天）", "ok");
-        }
-        return true;
-      } catch (e) {
-        console.error("保存失败:", e);
-        showToast("保存失败：" + e.message, "danger");
-        return false;
-      }
-    }
-    function loadGame() {
-      try {
-        const raw = localStorage.getItem(SAVE_KEY);
-        if (!raw) {
-          showToast("没有找到存档", "warn");
-          return false;
-        }
-        let data;
-        try {
-          data = JSON.parse(raw);
-        } catch (e) {
-          showToast("存档数据已损坏", "danger");
-          return false;
-        }
-        const migration = migrateSaveData(data);
-        game = migration.data.game;
-        routeRiskModifiers = migration.data.routeRiskModifiers || {};
-        lastSaveInfo = { savedAt: migration.data.savedAt, day: game.day, diff: game.diff, ended: game.ended };
-        if (migration.migrated.length > 0) {
-          const fieldsList = migration.migrated.slice(0, 8).join("、");
-          const moreText = migration.migrated.length > 8 ? " 等" + migration.migrated.length + "项" : "";
-          showToast("读取成功，已自动补齐：" + fieldsList + moreText, "info");
-          game.log.unshift("【系统】读取了旧版本存档，已自动补齐缺失字段：" + migration.migrated.join("、"));
-        } else {
-          showToast("存档读取成功（第" + game.day + "天）", "ok");
-        }
-        if (migration.data.isResultSave && game.ended) {
-          game.log.unshift("【系统】这是一局已结束游戏的结算存档。");
-        }
-        els.overlay.classList.add("hidden");
-        els.diffOverlay.classList.add("hidden");
-        updateSaveInfo();
-        render();
-        if (game.ended) {
-          const won = game.stats && !game.stats.failureReason;
-          finish(won, true);
-          const notice = els.resultSaveNotice;
-          if (migration.migrated.length > 0) {
-            notice.classList.remove("hidden");
-            notice.innerHTML = "<strong>版本兼容提示</strong>：该存档来自旧版本，已自动补齐以下字段：" +
-              '<div class="migrated-fields"><ul>' +
-              migration.migrated.slice(0, 10).map(f => "<li>" + f + "</li>").join("") +
-              (migration.migrated.length > 10 ? '<li>...以及另外' + (migration.migrated.length - 10) + '项</li>' : "") +
-              "</ul></div>";
-          } else {
-            notice.classList.remove("hidden");
-            notice.innerHTML = "<strong>存档信息</strong>：保存于 " + formatSaveTime(migration.data.savedAt) +
-              "，难度：" + (DIFF[game.diff]?.label || game.diff) + "，第" + game.day + "天结束。";
-          }
-        }
-        return true;
-      } catch (e) {
-        console.error("读取失败:", e);
-        showToast("读取失败：" + e.message, "danger");
-        return false;
-      }
-    }
-    function clearSave() {
-      try {
-        if (!hasSave()) {
-          showToast("当前没有存档", "warn");
-          return false;
-        }
-        if (!confirm("确定要清除存档吗？此操作不可撤销。")) {
-          return false;
-        }
-        localStorage.removeItem(SAVE_KEY);
-        lastSaveInfo = null;
-        updateSaveInfo();
-        showToast("存档已清除", "ok");
-        return true;
-      } catch (e) {
-        console.error("清除失败:", e);
-        showToast("清除失败：" + e.message, "danger");
-        return false;
-      }
-    }
-    function updateSaveInfo() {
-      if (!els.saveInfo) return;
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (!raw) {
-        els.saveInfo.innerHTML = '<span>暂无存档</span>';
-        return;
-      }
-      try {
-        const data = JSON.parse(raw);
-        const time = formatSaveTime(data.savedAt);
-        const diff = data.game?.diff ? (DIFF[data.game.diff]?.label || data.game.diff) : "未知";
-        const day = data.game?.day || "?";
-        const ended = data.game?.ended ? "（已结算）" : "";
-        const result = data.isResultSave ? " 结算存档" : "";
-        els.saveInfo.innerHTML =
-          '<span>上次存档：' + time + '</span>' +
-          '<span>难度：' + diff + '</span>' +
-          '<span>第' + day + '天' + ended + result + '</span>';
-      } catch (e) {
-        els.saveInfo.innerHTML = '<span>存档数据异常</span>';
-      }
-    }
-    document.querySelector("#saveBtn").onclick = () => saveGame(false);
-    document.querySelector("#loadBtn").onclick = loadGame;
-    document.querySelector("#clearBtn").onclick = clearSave;
-    document.querySelector("#saveResultBtn").onclick = () => {
-      if (saveGame(true)) {
-        const notice = els.resultSaveNotice;
-        notice.classList.remove("hidden");
-        notice.innerHTML = "<strong>本局结果已保存</strong>！可在主菜单点击「读取存档」查看本次结算。保存时间：" + formatSaveTime(Date.now());
-      }
-    };
-    function createGuide(name) {
-      return {
-        name: name,
-        fatigue: 0,
-        task: "",
-        exp: 0,
-        level: 1,
-        skills: [],
-        injuries: [],
-        tempBuffs: [],
-        stats: { successes: 0, failures: 0, restDays: 0, routesDispatched: {} }
-      };
-    }
-    function getGuideEffects(guide, routeId) {
-      const effects = { risk: 0, fatigue: 0, wood: 0, food: 0, med: 0, fatigueMul: 1, successBonus: 0, medSave: 0, restBonus: 0, bonusWood: 0, noDispatch: false };
-      guide.skills.forEach(skillId => {
-        const skill = SKILLS[skillId];
-        if (skill && (skill.route === "all" || skill.route === routeId)) {
-          Object.keys(skill.effects).forEach(key => {
-            if (key === "fatigueMul") effects.fatigueMul *= skill.effects[key];
-            else effects[key] += skill.effects[key];
-          });
-        }
-      });
-      guide.injuries.forEach(injuryId => {
-        const injury = INJURIES[injuryId.id];
-        if (injury) {
-          Object.keys(injury.effects).forEach(key => {
-            effects[key] = (key === "noDispatch") ? (effects[key] || injury.effects[key]) : (effects[key] + injury.effects[key]);
-          });
-        }
-      });
-      guide.tempBuffs.forEach(buff => {
-        if (buff.route === "all" || buff.route === routeId) {
-          Object.keys(buff.effects).forEach(key => {
-            if (key === "fatigueMul") effects.fatigueMul *= buff.effects[key];
-            else effects[key] += buff.effects[key];
-          });
-        }
-      });
-      return effects;
-    }
-    function canGuideDispatch(guide, routeId) {
-      const effects = getGuideEffects(guide, routeId);
-      if (effects.noDispatch) return false;
-      if (routeId && guide.fatigue >= 10) return false;
+    function checkEventConditions(event) {
+      const c = event.conditions || {};
+      if (c.minDay && game.day < c.minDay) return false;
+      if (c.maxDay && game.day > c.maxDay) return false;
+      if (c.minMed && game.med < c.minMed) return false;
+      if (c.minRep && game.rep < c.minRep) return false;
+      if (c.minFood && game.food < c.minFood) return false;
+      if (c.minWood && game.wood < c.minWood) return false;
       return true;
     }
-    function estimateFatigue(guide, routeId, weather) {
-      if (!routeId) {
-        const effects = getGuideEffects(guide, null);
-        return -(2 + effects.restBonus);
-      }
-      const route = routesBase.find(r => r.id === routeId);
-      if (!route) return 0;
-      const d = DIFF[game.diff];
-      const effects = getGuideEffects(guide, routeId);
-      const baseFatigue = route.risk + (weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
-      const adjustedFatigue = (baseFatigue + effects.fatigue) * effects.fatigueMul * d.fatigueMul;
-      return Math.max(0, Math.round(adjustedFatigue));
+    function getResourceLevel(value, low, high) {
+      if (value <= low) return "low";
+      if (value >= high) return "high";
+      return "medium";
     }
-    function addExp(guide, amount, source) {
-      const oldLevel = guide.level;
-      guide.exp += amount;
-      const newLevel = getLevelForExp(guide.exp);
-      if (newLevel > oldLevel) {
-        guide.level = newLevel;
-        unlockRandomSkill(guide);
-        game.log.unshift("第" + game.day + "天，" + guide.name + "升级了！现在是" + guide.level + "级，获得新专长。");
-      } else {
-        game.log.unshift("第" + game.day + "天，" + guide.name + "获得" + amount + "点经验（" + source + "）。");
+    function calculateEventWeight(event) {
+      let weight = event.baseWeight;
+      const mod = event.weightMod || {};
+      if (mod.weather && mod.weather[game.weather] !== undefined) {
+        weight *= mod.weather[game.weather];
       }
-    }
-    function unlockRandomSkill(guide) {
-      const availableSkills = Object.keys(SKILLS).filter(s => !guide.skills.includes(s));
-      if (availableSkills.length > 0) {
-        const randomSkill = availableSkills[Math.floor(Math.random() * availableSkills.length)];
-        guide.skills.push(randomSkill);
+      if (mod.diff && mod.diff[game.diff] !== undefined) {
+        weight *= mod.diff[game.diff];
       }
-    }
-    function addInjury(guide, injuryId) {
-      const existing = guide.injuries.find(i => i.id === injuryId);
-      if (existing) {
-        existing.days = INJURIES[injuryId].duration;
-      } else {
-        guide.injuries.push({ id: injuryId, days: INJURIES[injuryId].duration });
+      if (mod.med) {
+        const level = getResourceLevel(game.med, 4, 10);
+        if (mod.med[level] !== undefined) weight *= mod.med[level];
       }
-      game.log.unshift("第" + game.day + "天，" + guide.name + "受伤了：" + INJURIES[injuryId].name + "。");
+      if (mod.food) {
+        const level = getResourceLevel(game.food, 10, 25);
+        if (mod.food[level] !== undefined) weight *= mod.food[level];
+      }
+      if (mod.wood) {
+        const level = getResourceLevel(game.wood, 8, 20);
+        if (mod.wood[level] !== undefined) weight *= mod.wood[level];
+      }
+      if (mod.rep) {
+        const level = getResourceLevel(game.rep, 3, 15);
+        if (mod.rep[level] !== undefined) weight *= mod.rep[level];
+      }
+      if (mod.guideFatigue) {
+        const avgFatigue = game.guides.reduce((sum, g) => sum + g.fatigue, 0) / game.guides.length;
+        const level = getResourceLevel(avgFatigue, 2, 6);
+        if (mod.guideFatigue[level] !== undefined) weight *= mod.guideFatigue[level];
+      }
+      return Math.max(0.1, weight);
     }
-    function healInjuries(guide) {
-      const healed = [];
-      guide.injuries = guide.injuries.filter(injury => {
-        injury.days--;
-        if (injury.days <= 0) {
-          healed.push(INJURIES[injury.id].name);
-          return false;
+    function drawEvent() {
+      const eligible = EVENTS_POOL.filter(e => checkEventConditions(e));
+      if (eligible.length === 0) return null;
+      if (game.day === 1) return null;
+      if (Math.random() > 0.75) return null;
+      const totalWeight = eligible.reduce((sum, e) => sum + calculateEventWeight(e), 0);
+      let random = Math.random() * totalWeight;
+      for (const event of eligible) {
+        random -= calculateEventWeight(event);
+        if (random <= 0) return event;
+      }
+      return eligible[0];
+    }
+    function renderEvent(event) {
+      els.eventCategory.textContent = EVENT_CATEGORY_LABELS[event.category];
+      els.eventCategory.className = "event-category " + event.category;
+      els.eventTitle.textContent = event.name;
+      els.eventDesc.textContent = event.desc;
+      els.eventOptions.innerHTML = event.options.map((opt, i) => {
+        const effectTags = getEffectTags(opt.effects);
+        return '<div class="event-option" data-choice="' + i + '">' +
+          '<div class="event-option-title">' + opt.title + '</div>' +
+          '<div class="event-option-hint">' + opt.hint + '</div>' +
+          '<div style="margin-top:6px">' + effectTags + '</div>' +
+          '</div>';
+      }).join("");
+      document.querySelectorAll(".event-option").forEach(btn => {
+        btn.onclick = () => resolveEvent(parseInt(btn.dataset.choice));
+      });
+      els.eventOverlay.classList.remove("hidden");
+    }
+    function getEffectTags(effects) {
+      let tags = "";
+      if (effects.wood > 0) tags += '<span class="event-tag tag-good">柴+' + effects.wood + '</span>';
+      if (effects.wood < 0) tags += '<span class="event-tag tag-bad">柴' + effects.wood + '</span>';
+      if (effects.food > 0) tags += '<span class="event-tag tag-good">粮+' + effects.food + '</span>';
+      if (effects.food < 0) tags += '<span class="event-tag tag-bad">粮' + effects.food + '</span>';
+      if (effects.med > 0) tags += '<span class="event-tag tag-good">药+' + effects.med + '</span>';
+      if (effects.med < 0) tags += '<span class="event-tag tag-bad">药' + effects.med + '</span>';
+      if (effects.rep > 0) tags += '<span class="event-tag tag-good">声望+' + effects.rep + '</span>';
+      if (effects.rep < 0) tags += '<span class="event-tag tag-bad">声望' + effects.rep + '</span>';
+      if (effects.weatherModifier) tags += '<span class="event-tag tag-neutral">天气影响</span>';
+      if (effects.routeEffect) tags += '<span class="event-tag tag-neutral">路线影响</span>';
+      if (effects.guideEffect) tags += '<span class="event-tag tag-neutral">向导影响</span>';
+      return tags || '<span class="event-tag tag-neutral">无直接影响</span>';
+    }
+    function resolveEvent(choiceIndex) {
+      const event = pendingEvent;
+      const choice = event.options[choiceIndex];
+      const effects = choice.effects;
+      if (effects.wood) game.wood += effects.wood;
+      if (effects.food) game.food += effects.food;
+      if (effects.med) game.med += effects.med;
+      if (effects.rep) game.rep += effects.rep;
+      if (effects.weatherModifier) applyWeatherModifier(effects.weatherModifier);
+      if (effects.routeEffect) applyRouteEffect(effects.routeEffect);
+      if (effects.guideEffect) applyGuideEffect(effects.guideEffect);
+      if (!game.eventCodex[event.id]) {
+        game.eventCodex[event.id] = { name: event.name, category: event.category, desc: event.desc, seen: 0, choices: {} };
+      }
+      game.eventCodex[event.id].seen++;
+      const choiceKey = "choice_" + choiceIndex;
+      if (!game.eventCodex[event.id].choices[choiceKey]) {
+        game.eventCodex[event.id].choices[choiceKey] = { title: choice.title, count: 0 };
+      }
+      game.eventCodex[event.id].choices[choiceKey].count++;
+      game.eventStats.triggered++;
+      game.eventStats.byCategory[event.category] = (game.eventStats.byCategory[event.category] || 0) + 1;
+      game.log.unshift("第" + game.day + "天【事件】" + event.name + "：" + effects.log);
+      pendingEvent = null;
+      els.eventOverlay.classList.add("hidden");
+      if (game.food < 0 || game.wood < 0 || game.med < 0) {
+        return finish(false);
+      }
+      render();
+    }
+    function applyWeatherModifier(modifier) {
+      if (!game.weatherModifiers) game.weatherModifiers = [];
+      game.weatherModifiers.push({ ...modifier, remainingDays: modifier.days });
+    }
+    function applyRouteEffect(routeEffect) {
+      let targetRoute = routeEffect.route;
+      if (targetRoute === "random") {
+        const available = game.routes.filter(r => !r.blocked);
+        if (available.length > 0) {
+          targetRoute = available[Math.floor(Math.random() * available.length)].id;
+        } else {
+          targetRoute = game.routes[Math.floor(Math.random() * game.routes.length)].id;
         }
-        return true;
-      });
-      if (healed.length > 0) {
-        game.log.unshift("第" + game.day + "天，" + guide.name + "恢复了：" + healed.join("、") + "。");
+      }
+      const route = game.routes.find(r => r.id === targetRoute);
+      if (!route) return;
+      switch (routeEffect.type) {
+        case "block":
+          route.blocked = true;
+          game.codex[route.id].blocked++;
+          break;
+        case "ensureOpen":
+          route.blocked = false;
+          break;
+        case "addCaravan":
+          route.caravan = true;
+          break;
+        case "boostReward":
+          route.reward += routeEffect.amount;
+          break;
       }
     }
-    function decayTempBuffs(guide) {
-      guide.tempBuffs = guide.tempBuffs.filter(buff => {
-        buff.days--;
-        return buff.days > 0;
+    function applyGuideEffect(guideEffect) {
+      let targets = [];
+      switch (guideEffect.target) {
+        case "all":
+          targets = game.guides;
+          break;
+        case "random":
+          targets = [game.guides[Math.floor(Math.random() * game.guides.length)]];
+          break;
+        case "mostFatigued":
+          const most = game.guides.reduce((prev, curr) => prev.fatigue > curr.fatigue ? prev : curr);
+          targets = [most];
+          break;
+        case "leastFatigued":
+          const least = game.guides.reduce((prev, curr) => prev.fatigue < curr.fatigue ? prev : curr);
+          targets = [least];
+          break;
+      }
+      targets.forEach(guide => {
+        switch (guideEffect.type) {
+          case "heal":
+            guide.fatigue = Math.max(0, guide.fatigue - guideEffect.amount);
+            break;
+          case "addFatigue":
+            guide.fatigue += guideEffect.amount;
+            break;
+          case "rest":
+            guide.task = "";
+            guide.fatigue = Math.max(0, guide.fatigue - 2);
+            break;
+        }
       });
+    }
+    function getEffectiveWeatherProb(baseProb) {
+      if (!game.weatherModifiers || game.weatherModifiers.length === 0) return baseProb;
+      let mod = 0;
+      game.weatherModifiers.forEach(wm => {
+        if (wm.stormProb !== undefined) mod += wm.stormProb;
+        if (wm.clearProb !== undefined) mod -= wm.clearProb;
+      });
+      return Math.max(0, Math.min(1, baseProb + mod));
     }
     function fresh(diff) {
       const d = DIFF[diff];
       game = {
         day: 1, weather: "晴", wood: d.wood, med: d.med, food: d.food, rep: 0, saved: 0, ended: false, diff: diff,
-        guides: [createGuide("阿措"), createGuide("洛桑")],
+        guides: [{ name: "阿措", fatigue: 0, task: "" }, { name: "洛桑", fatigue: 0, task: "" }],
         log: ["第1天，驿站开门，山口风很轻。难度：" + d.label],
         routes: [],
         codex: {},
-        stats: {
-          routeDispatches: {},
-          guideDays: {},
-          lowestWood: d.wood,
-          lowestFood: d.food,
-          lowestMed: d.med,
-          failureReason: "",
-          commissionsAccepted: 0,
-          commissionsCompleted: 0,
-          commissionsFailed: 0
-        },
-        commissions: {
-          active: [],
-          available: [],
-          completed: [],
-          failed: []
-        }
+        eventCodex: {},
+        eventStats: { triggered: 0, byCategory: {} },
+        weatherModifiers: []
       };
       routesBase.forEach(r => {
         game.codex[r.id] = { name: r.name, risk: r.risk, reward: r.reward, desc: r.desc, wood: r.wood, food: r.food, med: r.med, seen: 0, blocked: 0, attempts: 0, successes: 0, rewards: { rep: 0, wood: 0, food: 0, med: 0 } };
-        game.stats.routeDispatches[r.id] = 0;
       });
-      game.guides.forEach(g => { game.stats.guideDays[g.name] = 0; });
-      routeRiskModifiers = {};
+      EVENTS_POOL.forEach(e => {
+        game.eventCodex[e.id] = { name: e.name, category: e.category, desc: e.desc, seen: 0, choices: {} };
+      });
       rollDay();
-      generateAvailableCommissions();
       els.overlay.classList.add("hidden");
       render();
     }
     function rollDay() {
       const d = DIFF[game.diff];
-      const storm = Math.random() < d.stormProb;
+      const effectiveStormProb = getEffectiveWeatherProb(d.stormProb);
+      const storm = Math.random() < effectiveStormProb;
       game.weather = storm ? "暴雪" : Math.random() < 0.35 ? "阴风" : "晴";
       game.routes = routesBase.map(route => ({ ...route, caravan: Math.random() < .74, blocked: storm && Math.random() < .33 }));
       game.routes.forEach(r => { game.codex[r.id].seen++; if (r.blocked) game.codex[r.id].blocked++; });
       game.guides.forEach(g => g.task = "");
-    }
-    function generateAvailableCommissions() {
-      const count = Math.floor(Math.random() * 2) + 1;
-      const shuffled = [...COMMISSION_TEMPLATES].sort(() => Math.random() - 0.5);
-      const selected = shuffled.slice(0, count);
-      game.commissions.available = selected.map(template => {
-        const deadline = template.deadlineRange[0] + Math.floor(Math.random() * (template.deadlineRange[1] - template.deadlineRange[0] + 1));
-        return {
-          ...template,
-          instanceId: template.id + "_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9),
-          daysRemaining: deadline,
-          totalDays: deadline,
-          progress: { successCount: 0, routesCompleted: [] }
-        };
-      });
-    }
-    function acceptCommission(instanceId) {
-      const idx = game.commissions.available.findIndex(c => c.instanceId === instanceId);
-      if (idx === -1) return;
-      const commission = game.commissions.available.splice(idx, 1)[0];
-      if (!canAffordInvestment(commission.investment)) {
-        game.commissions.available.splice(idx, 0, commission);
-        game.log.unshift("第" + game.day + "天，物资不足，无法接取委托：「" + commission.name + "」。");
-        render();
-        return;
-      }
-      applyInvestment(commission.investment);
-      game.commissions.active.push(commission);
-      game.stats.commissionsAccepted++;
-      game.log.unshift("第" + game.day + "天，接取委托：「" + commission.name + "」，投入" + getResourceText(commission.investment) + "。期限" + commission.daysRemaining + "天。");
-      render();
-    }
-    function canAffordInvestment(investment) {
-      return game.wood >= (investment.wood || 0) && game.food >= (investment.food || 0) && game.med >= (investment.med || 0);
-    }
-    function applyInvestment(investment) {
-      game.wood -= investment.wood || 0;
-      game.food -= investment.food || 0;
-      game.med -= investment.med || 0;
-      updateLowestSupplies();
-    }
-    function updateLowestSupplies() {
-      if (game.wood < game.stats.lowestWood) game.stats.lowestWood = game.wood;
-      if (game.food < game.stats.lowestFood) game.stats.lowestFood = game.food;
-      if (game.med < game.stats.lowestMed) game.stats.lowestMed = game.med;
-    }
-    function abandonCommission(instanceId) {
-      const idx = game.commissions.active.findIndex(c => c.instanceId === instanceId);
-      if (idx === -1) return;
-      const commission = game.commissions.active.splice(idx, 1)[0];
-      applyPenalty(commission.penalty);
-      game.stats.commissionsFailed++;
-      game.commissions.failed.push({ ...commission, failedOnDay: game.day, reason: "主动放弃" });
-      game.log.unshift("第" + game.day + "天，放弃委托：「" + commission.name + "」，承受惩罚。");
-      render();
-    }
-    function applyPenalty(penalty) {
-      if (penalty.rep) game.rep = Math.max(0, game.rep + penalty.rep);
-      if (penalty.wood) game.wood = Math.max(0, game.wood + penalty.wood);
-      if (penalty.food) game.food = Math.max(0, game.food + penalty.food);
-      if (penalty.med) game.med = Math.max(0, game.med + penalty.med);
-    }
-    function applyReward(reward) {
-      if (reward.rep) game.rep += reward.rep;
-      if (reward.wood) game.wood += reward.wood;
-      if (reward.food) game.food += reward.food;
-      if (reward.med) game.med += reward.med;
-      if (reward.riskReduction) {
-        const rr = reward.riskReduction;
-        if (!routeRiskModifiers[rr.route]) routeRiskModifiers[rr.route] = [];
-        routeRiskModifiers[rr.route].push({ days: rr.days, amount: rr.amount });
-      }
-    }
-    function getCurrentRiskModifier(routeId) {
-      if (!routeRiskModifiers[routeId]) return 0;
-      return routeRiskModifiers[routeId].reduce((sum, m) => sum + m.amount, 0);
-    }
-    function updateCommissionProgress(routeId, success) {
-      if (!success) return;
-      game.commissions.active.forEach(commission => {
-        const req = commission.requirement;
-        let shouldCount = false;
-        if (req.route && req.route === routeId) {
-          shouldCount = true;
-        } else if (req.anyRoute) {
-          shouldCount = true;
-        } else if (req.multiRoute && req.multiRoute.includes(routeId) && !commission.progress.routesCompleted.includes(routeId)) {
-          shouldCount = true;
-          commission.progress.routesCompleted.push(routeId);
-        }
-        if (shouldCount) {
-          commission.progress.successCount++;
-        }
-      });
-    }
-    function checkAndCompleteCommissions() {
-      const completed = [];
-      game.commissions.active = game.commissions.active.filter(commission => {
-        const req = commission.requirement;
-        let isComplete = false;
-        if (req.multiRoute) {
-          isComplete = commission.progress.routesCompleted.length >= req.multiRoute.length && commission.progress.successCount >= req.successCount;
-        } else {
-          isComplete = commission.progress.successCount >= req.successCount;
-        }
-        if (isComplete) {
-          completed.push(commission);
-          return false;
-        }
-        return true;
-      });
-      completed.forEach(commission => {
-        applyReward(commission.reward);
-        game.stats.commissionsCompleted++;
-        game.commissions.completed.push({ ...commission, completedOnDay: game.day });
-        let rewardText = "声望+" + (commission.reward.rep || 0);
-        if (commission.reward.wood) rewardText += " 柴+" + commission.reward.wood;
-        if (commission.reward.food) rewardText += " 粮+" + commission.reward.food;
-        if (commission.reward.med) rewardText += " 药+" + commission.reward.med;
-        if (commission.reward.riskReduction) {
-          const routeName = routesBase.find(r => r.id === commission.reward.riskReduction.route)?.name || commission.reward.riskReduction.route;
-          rewardText += " " + routeName + "风险-" + commission.reward.riskReduction.amount + "（" + commission.reward.riskReduction.days + "天）";
-        }
-        game.log.unshift("第" + game.day + "天，委托完成：「" + commission.name + "」！奖励：" + rewardText);
-      });
-    }
-    function advanceCommissions() {
-      const expired = [];
-      game.commissions.active = game.commissions.active.filter(commission => {
-        commission.daysRemaining--;
-        if (commission.daysRemaining <= 0) {
-          expired.push(commission);
-          return false;
-        }
-        return true;
-      });
-      expired.forEach(commission => {
-        applyPenalty(commission.penalty);
-        game.stats.commissionsFailed++;
-        game.commissions.failed.push({ ...commission, failedOnDay: game.day, reason: "逾期未完成" });
-        let penaltyText = "";
-        if (commission.penalty.rep) penaltyText += "声望" + commission.penalty.rep + " ";
-        if (commission.penalty.wood) penaltyText += "柴" + commission.penalty.wood + " ";
-        if (commission.penalty.food) penaltyText += "粮" + commission.penalty.food + " ";
-        if (commission.penalty.med) penaltyText += "药" + commission.penalty.med;
-        game.log.unshift("第" + game.day + "天，委托逾期：「" + commission.name + "」，惩罚：" + penaltyText);
-      });
-    }
-    function decayRiskModifiers() {
-      Object.keys(routeRiskModifiers).forEach(routeId => {
-        routeRiskModifiers[routeId] = routeRiskModifiers[routeId].filter(m => {
-          m.days--;
-          return m.days > 0;
+      if (game.weatherModifiers) {
+        game.weatherModifiers = game.weatherModifiers.filter(wm => {
+          wm.remainingDays--;
+          return wm.remainingDays > 0;
         });
-        if (routeRiskModifiers[routeId].length === 0) delete routeRiskModifiers[routeId];
-      });
-    }
-    function getRequirementText(req) {
-      if (req.route) {
-        const routeName = routesBase.find(r => r.id === req.route)?.name || req.route;
-        return "在「" + routeName + "」成功接应 " + req.successCount + " 次";
       }
-      if (req.anyRoute) {
-        return "任意路线成功接应 " + req.successCount + " 次";
+      pendingEvent = drawEvent();
+      if (pendingEvent) {
+        renderEvent(pendingEvent);
       }
-      if (req.multiRoute) {
-        const routeNames = req.multiRoute.map(id => routesBase.find(r => r.id === id)?.name || id).join("、");
-        return "在「" + routeNames + "」各接应1次，共 " + req.successCount + " 次";
-      }
-      return "未知要求";
-    }
-    function getResourceText(resources) {
-      const parts = [];
-      if (resources.wood) parts.push("柴" + resources.wood);
-      if (resources.food) parts.push("粮" + resources.food);
-      if (resources.med) parts.push("药" + resources.med);
-      return parts.length ? parts.join(" ") : "无";
-    }
-    function renderGuideCard(guide, index) {
-      const currentLevel = guide.level;
-      const currentExp = guide.exp;
-      const expForCurrent = getExpForLevel(currentLevel - 1);
-      const expForNext = getExpForLevel(currentLevel);
-      const expProgress = expForNext > expForCurrent
-        ? Math.min(100, Math.round((currentExp - expForCurrent) / (expForNext - expForCurrent) * 100))
-        : 100;
-      const skillTags = guide.skills.map(skillId => {
-        const skill = SKILLS[skillId];
-        return '<span class="status-tag skill skill-tooltip" data-desc="' + skill.desc + '">' + skill.name + '</span>';
-      }).join("");
-      const injuryTags = guide.injuries.map(injury => {
-        const injuryDef = INJURIES[injury.id];
-        return '<span class="status-tag injury injury-tooltip" data-desc="' + injuryDef.desc + '">' + injuryDef.name + '(' + injury.days + '天)</span>';
-      }).join("");
-      const buffTags = guide.tempBuffs.map(buff => {
-        return '<span class="status-tag buff">' + buff.name + '(' + buff.days + '天)</span>';
-      }).join("");
-      const statusTags = skillTags + injuryTags + buffTags;
-      const routeOptions = game.routes.map(r => {
-        const canGo = canGuideDispatch(guide, r.id);
-        const estimatedFatigue = estimateFatigue(guide, r.id, game.weather);
-        return { ...r, canGo, estimatedFatigue };
-      });
-      const restFatigue = estimateFatigue(guide, null, game.weather);
-      let routeAvailabilityHtml = '<div class="guide-routes"><div style="font-size:12px;color:#5a6e78;margin-bottom:4px">今日可执行路线：</div>';
-      routeAvailabilityHtml += '<div class="route-availability allowed"><span>留守休整</span><span class="fatigue-estimate">预计疲劳 ' + restFatigue + '</span></div>';
-      routeOptions.forEach(r => {
-        const routeClass = r.canGo ? 'allowed' : 'restricted';
-        const routeName = r.canGo ? r.name : r.name + '（不可出勤）';
-        const displayRisk = r.canGo ? Math.max(0, r.risk - getCurrentRiskModifier(r.id) + getGuideEffects(guide, r.id).risk) : r.risk;
-        routeAvailabilityHtml += '<div class="route-availability ' + routeClass + '"><span>' + routeName + '</span><span class="fatigue-estimate">预计疲劳 +' + r.estimatedFatigue + ' · 风险 ' + displayRisk + '</span></div>';
-      });
-      routeAvailabilityHtml += '</div>';
-      const effects = getGuideEffects(guide, null);
-      let statusSourceHtml = '<div style="margin-top:6px"><div style="font-size:12px;color:#5a6e78;margin-bottom:2px">状态来源：</div>';
-      if (guide.skills.length > 0) {
-        statusSourceHtml += '<div style="font-size:11px;color:#315c72">专长：' + guide.skills.map(s => SKILLS[s].name).join('、') + '</div>';
-      }
-      if (guide.injuries.length > 0) {
-        statusSourceHtml += '<div style="font-size:11px;color:#a33d31">伤病：' + guide.injuries.map(i => INJURIES[i.id].name + '(' + i.days + '天)').join('、') + '</div>';
-      }
-      if (guide.tempBuffs.length > 0) {
-        statusSourceHtml += '<div style="font-size:11px;color:#3f7a54">临时：' + guide.tempBuffs.map(b => b.name + '(' + b.days + '天)').join('、') + '</div>';
-      }
-      if (guide.skills.length === 0 && guide.injuries.length === 0 && guide.tempBuffs.length === 0) {
-        statusSourceHtml += '<div style="font-size:11px;color:#5a6e78">无特殊状态</div>';
-      }
-      statusSourceHtml += '</div>';
-      return '<div class="card guide-card">' +
-        '<div class="guide-header">' +
-          '<span class="guide-name">' + guide.name + '</span>' +
-          '<span class="guide-level">Lv.' + guide.level + '</span>' +
-        '</div>' +
-        '<div class="guide-stats-row"><span class="label">疲劳</span><span class="value">' + guide.fatigue + ' / 12</span></div>' +
-        '<div class="guide-stats-row"><span class="label">经验</span><span class="value">' + guide.exp + ' / ' + expForNext + '</span></div>' +
-        '<div class="exp-bar"><div class="exp-fill" style="width:' + expProgress + '%"></div></div>' +
-        '<div class="exp-text">' + expProgress + '% 到下一级</div>' +
-        (statusTags ? '<div class="status-tags">' + statusTags + '</div>' : '') +
-        routeAvailabilityHtml +
-        statusSourceHtml +
-        '<select data-guide="' + index + '">' +
-          '<option value="">留守休整</option>' +
-          routeOptions.map(r => '<option value="' + r.id + '" ' + (r.canGo ? '' : 'disabled') + '>' + r.name + (r.canGo ? '' : '（不可出勤）') + '</option>').join("") +
-        '</select>' +
-      '</div>';
     }
     function render() {
       const d = DIFF[game.diff];
@@ -1080,206 +622,29 @@
       els.med.textContent = game.med;
       els.food.textContent = game.food;
       els.rep.textContent = game.rep;
-      els.guides.innerHTML = game.guides.map((g, i) => renderGuideCard(g, i)).join("");
+      els.guides.innerHTML = game.guides.map((g, i) => '<div class="card"><b>'+g.name+'</b><div>疲劳：'+g.fatigue+'</div><select data-guide="'+i+'"><option value="">留守休整</option>'+game.routes.map(r => '<option value="'+r.id+'">'+r.name+'</option>').join("")+'</select></div>').join("");
       document.querySelectorAll("[data-guide]").forEach(sel => { sel.value = game.guides[sel.dataset.guide].task; sel.onchange = () => game.guides[sel.dataset.guide].task = sel.value; });
-      els.routes.innerHTML = game.routes.map(r => {
-        const riskMod = getCurrentRiskModifier(r.id);
-        const displayRisk = Math.max(0, r.risk - riskMod);
-        const riskText = riskMod > 0 ? '<span class="risk-buff">风险-' + riskMod + '</span>' : '';
-        return '<div class="card"><h3>' + r.name + riskText + '</h3><div>风险 ' + displayRisk + ' · 奖励声望 ' + r.reward + '</div><div>消耗：柴' + r.wood + ' 干粮' + r.food + ' 药' + r.med + '</div><div class="' + (r.blocked ? 'danger' : 'ok') + '">' + (r.blocked ? '暴雪封路' : r.caravan ? '有商队求援' : '今日较安静') + '</div></div>';
-      }).join("");
+      els.routes.innerHTML = game.routes.map(r => '<div class="card"><h3>'+r.name+'</h3><div>风险 '+r.risk+' · 奖励声望 '+r.reward+'</div><div>消耗：柴'+r.wood+' 干粮'+r.food+' 药'+r.med+'</div><div class="'+(r.blocked?'danger':'ok')+'">'+(r.blocked?'暴雪封路':r.caravan?'有商队求援':'今日较安静')+'</div></div>').join("");
       els.log.innerHTML = game.log.map(item => '<div class="entry">'+item+'</div>').join("");
-      renderCommissions();
-      renderStatsPanel();
-    }
-    function renderCommissions() {
-      const cs = game.commissions;
-      const stats = game.stats;
-      document.querySelector("#commissionStats").innerHTML =
-        '<span>进行中: <b>' + cs.active.length + '</b></span>' +
-        '<span class="ok">已完成: ' + stats.commissionsCompleted + '</span>' +
-        '<span class="danger">已失败: ' + stats.commissionsFailed + '</span>';
-      let availableHtml = '<h3 style="margin:10px 0 8px;font-size:14px;color:#4a7c5e">可接取委托</h3>';
-      if (cs.available.length === 0) {
-        availableHtml += '<div class="empty-commissions">今日暂无新委托</div>';
-      } else {
-        availableHtml += cs.available.map(c => {
-          const reqText = getRequirementText(c.requirement);
-          const investmentText = '最低投入：' + getResourceText(c.investment);
-          const canAccept = canAffordInvestment(c.investment);
-          let rewardText = '奖励：声望+' + (c.reward.rep || 0);
-          if (c.reward.wood) rewardText += ' 柴+' + c.reward.wood;
-          if (c.reward.food) rewardText += ' 粮+' + c.reward.food;
-          if (c.reward.med) rewardText += ' 药+' + c.reward.med;
-          if (c.reward.riskReduction) {
-            const routeName = routesBase.find(r => r.id === c.reward.riskReduction.route)?.name || c.reward.riskReduction.route;
-            rewardText += ' ' + routeName + '风险-' + c.reward.riskReduction.amount + '（' + c.reward.riskReduction.days + '天）';
-          }
-          let penaltyText = '失败惩罚：';
-          if (c.penalty.rep) penaltyText += '声望' + c.penalty.rep + ' ';
-          if (c.penalty.wood) penaltyText += '柴' + c.penalty.wood + ' ';
-          if (c.penalty.food) penaltyText += '粮' + c.penalty.food + ' ';
-          if (c.penalty.med) penaltyText += '药' + c.penalty.med;
-          const typeLabel = '<span class="commission-type">' + c.type + '</span>';
-          return '<div class="commission-card available">' +
-            '<h4>' + typeLabel + c.name + '<span class="commission-days plenty">期限 ' + c.daysRemaining + ' 天</span></h4>' +
-            '<div class="commission-desc">' + c.desc + '</div>' +
-            '<div class="commission-req">' + investmentText + '</div>' +
-            '<div class="commission-req">' + reqText + '</div>' +
-            '<div class="commission-reward">' + rewardText + '</div>' +
-            '<div class="commission-penalty">' + penaltyText + '</div>' +
-            '<div class="commission-actions">' +
-            '<button class="accept-btn" data-accept="' + c.instanceId + '"' + (canAccept ? '' : ' disabled') + '>' + (canAccept ? '接取委托' : '物资不足') + '</button>' +
-            '</div>' +
-            '</div>';
-        }).join("");
-      }
-      els.availableCommissions.innerHTML = availableHtml;
-      let activeHtml = '<h3 style="margin:10px 0 8px;font-size:14px;color:#315c72">进行中委托</h3>';
-      if (cs.active.length === 0) {
-        activeHtml += '<div class="empty-commissions">暂无进行中的委托</div>';
-      } else {
-        activeHtml += cs.active.map(c => {
-          const req = c.requirement;
-          const reqText = getRequirementText(req);
-          const investmentText = '已投入：' + getResourceText(c.investment);
-          let progressText = '';
-          if (req.multiRoute) {
-            progressText = '已完成路线：' + c.progress.routesCompleted.length + '/' + req.multiRoute.length + '，成功次数：' + c.progress.successCount + '/' + req.successCount;
-          } else {
-            progressText = '进度：' + c.progress.successCount + '/' + req.successCount;
-          }
-          let rewardText = '奖励：声望+' + (c.reward.rep || 0);
-          if (c.reward.wood) rewardText += ' 柴+' + c.reward.wood;
-          if (c.reward.food) rewardText += ' 粮+' + c.reward.food;
-          if (c.reward.med) rewardText += ' 药+' + c.reward.med;
-          if (c.reward.riskReduction) {
-            const routeName = routesBase.find(r => r.id === c.reward.riskReduction.route)?.name || c.reward.riskReduction.route;
-            rewardText += ' ' + routeName + '风险-' + c.reward.riskReduction.amount + '（' + c.reward.riskReduction.days + '天）';
-          }
-          let penaltyText = '失败惩罚：';
-          if (c.penalty.rep) penaltyText += '声望' + c.penalty.rep + ' ';
-          if (c.penalty.wood) penaltyText += '柴' + c.penalty.wood + ' ';
-          if (c.penalty.food) penaltyText += '粮' + c.penalty.food + ' ';
-          if (c.penalty.med) penaltyText += '药' + c.penalty.med;
-          const daysRatio = c.daysRemaining / c.totalDays;
-          let daysClass = 'plenty';
-          let cardClass = 'active';
-          if (daysRatio <= 0.33 || c.daysRemaining <= 1) {
-            daysClass = 'urgent';
-            cardClass = 'urgent';
-          } else if (daysRatio <= 0.6) {
-            daysClass = 'few';
-          }
-          const typeLabel = '<span class="commission-type">' + c.type + '</span>';
-          return '<div class="commission-card ' + cardClass + '">' +
-            '<h4>' + typeLabel + c.name + '<span class="commission-days ' + daysClass + '">剩余 ' + c.daysRemaining + ' 天</span></h4>' +
-            '<div class="commission-desc">' + c.desc + '</div>' +
-            '<div class="commission-req">' + investmentText + '</div>' +
-            '<div class="commission-req">' + reqText + '</div>' +
-            '<div class="commission-req"><span class="progress">' + progressText + '</span></div>' +
-            '<div class="commission-reward">' + rewardText + '</div>' +
-            '<div class="commission-penalty">' + penaltyText + '</div>' +
-            '<div class="commission-actions">' +
-            '<button class="abandon-btn" data-abandon="' + c.instanceId + '">放弃委托</button>' +
-            '</div>' +
-            '</div>';
-        }).join("");
-      }
-      els.commissions.innerHTML = activeHtml;
-      document.querySelectorAll("[data-accept]").forEach(btn => {
-        btn.onclick = () => acceptCommission(btn.dataset.accept);
-      });
-      document.querySelectorAll("[data-abandon]").forEach(btn => {
-        btn.onclick = () => abandonCommission(btn.dataset.abandon);
-      });
-    }
-    function renderStatsPanel() {
-      const s = game.stats;
-      let html = "";
-      html += '<div class="stats-row"><span class="label">接应商队</span><span class="value">' + game.saved + ' 队</span></div>';
-      html += '<div class="stats-row"><span class="label">各路线派遣</span></div>';
-      html += '<div class="route-stats">';
-      routesBase.forEach(r => {
-        html += '<div class="route-stat"><span style="color:#5a6e78">· ' + r.name + '</span><span>' + (s.routeDispatches[r.id] || 0) + ' 次</span></div>';
-      });
-      html += '</div>';
-      html += '<div class="stats-row"><span class="label">向导成长</span></div>';
-      html += '<div class="guide-stats">';
-      game.guides.forEach(g => {
-        const successRate = (g.stats.successes + g.stats.failures) > 0
-          ? Math.round(g.stats.successes / (g.stats.successes + g.stats.failures) * 100)
-          : 0;
-        html += '<div class="guide-stat"><span style="color:#5a6e78">· ' + g.name + ' Lv.' + g.level + '</span><span>经验 ' + g.exp + '</span></div>';
-        html += '<div class="guide-stat"><span style="color:#5a6e78">&nbsp;&nbsp;成功/失败</span><span>' + g.stats.successes + ' / ' + g.stats.failures + '（' + successRate + '%）</span></div>';
-        html += '<div class="guide-stat"><span style="color:#5a6e78">&nbsp;&nbsp;休整天数</span><span>' + g.stats.restDays + ' 天</span></div>';
-        if (g.skills.length > 0) {
-          html += '<div class="guide-stat"><span style="color:#315c72">&nbsp;&nbsp;专长</span><span>' + g.skills.map(s => SKILLS[s].name).join('、') + '</span></div>';
-        }
-      });
-      html += '</div>';
-      html += '<div class="stats-row"><span class="label">向导出勤</span></div>';
-      html += '<div class="guide-stats">';
-      game.guides.forEach(g => {
-        html += '<div class="guide-stat"><span style="color:#5a6e78">· ' + g.name + '</span><span>' + (s.guideDays[g.name] || 0) + ' 天</span></div>';
-      });
-      html += '</div>';
-      html += '<div class="stats-row"><span class="label">委托统计</span></div>';
-      html += '<div class="route-stats">';
-      html += '<div class="route-stat"><span style="color:#5a6e78">· 已接取</span><span>' + (s.commissionsAccepted || 0) + ' 个</span></div>';
-      html += '<div class="route-stat"><span style="color:#3f7a54">· 已完成</span><span>' + (s.commissionsCompleted || 0) + ' 个</span></div>';
-      html += '<div class="route-stat"><span style="color:#a33d31">· 已失败</span><span>' + (s.commissionsFailed || 0) + ' 个</span></div>';
-      html += '</div>';
-      html += '<div class="stats-row"><span class="label">物资最低点</span><span class="value">柴' + s.lowestWood + ' 粮' + s.lowestFood + ' 药' + s.lowestMed + '</span></div>';
-      if (s.failureReason) {
-        html += '<div class="failure-reason">失败原因：' + s.failureReason + '</div>';
-      }
-      els.statsPanel.innerHTML = html;
     }
     function endDay() {
       if (game.ended) return;
       const d = DIFF[game.diff];
       const usedRoutes = new Set();
       for (const guide of game.guides) {
-        const effects = getGuideEffects(guide, guide.task);
-        if (!guide.task) {
-          const restAmount = 2 + effects.restBonus;
-          guide.fatigue = Math.max(0, guide.fatigue - restAmount);
-          guide.stats.restDays++;
-          addExp(guide, 3, "留守休整");
-          continue;
-        }
+        if (!guide.task) { guide.fatigue = Math.max(0, guide.fatigue - 2); continue; }
         const route = game.routes.find(r => r.id === guide.task);
-        if (!route || usedRoutes.has(route.id)) {
-          game.log.unshift(guide.name + "没有有效任务，留守整理马具。");
-          guide.fatigue = Math.max(0, guide.fatigue - 2 - effects.restBonus);
-          continue;
-        }
-        if (!canGuideDispatch(guide, route.id)) {
-          game.log.unshift(guide.name + "因伤病或疲劳无法出勤，留守休整。");
-          guide.fatigue = Math.max(0, guide.fatigue - 2 - effects.restBonus);
-          continue;
-        }
+        if (!route || usedRoutes.has(route.id)) { game.log.unshift(guide.name + "没有有效任务，留守整理马具。"); continue; }
         usedRoutes.add(route.id);
-        game.stats.guideDays[guide.name]++;
-        game.stats.routeDispatches[route.id]++;
-        guide.stats.routesDispatched[route.id] = (guide.stats.routesDispatched[route.id] || 0) + 1;
-        const woodCost = Math.max(0, route.wood + (game.weather === "暴雪" ? 1 : 0) + effects.wood);
-        const foodCost = Math.max(0, route.food + effects.food);
-        const medCost = Math.max(0, route.med + effects.med);
-        game.wood -= woodCost;
-        game.food -= foodCost;
-        game.med -= medCost;
-        const riskMod = getCurrentRiskModifier(route.id);
-        const effectiveRisk = Math.max(0, route.risk - riskMod + effects.risk);
-        const baseFatigue = route.risk + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
-        const adjustedFatigue = Math.max(0, Math.round((baseFatigue + effects.fatigue) * effects.fatigueMul * d.fatigueMul));
-        guide.fatigue += adjustedFatigue;
-        const failChance = route.blocked ? .75 : Math.max(0.05, (effectiveRisk + guide.fatigue / 4) / 12 - effects.successBonus);
+        game.wood -= route.wood + (game.weather === "暴雪" ? 1 : 0);
+        game.food -= route.food;
+        game.med -= route.med;
+        const rawFatigue = route.risk + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
+        guide.fatigue += Math.round(rawFatigue * d.fatigueMul);
+        const failChance = route.blocked ? .75 : (route.risk + guide.fatigue / 4) / 12;
         const cx = game.codex[route.id];
         cx.attempts++;
-        const success = route.caravan && Math.random() > failChance;
-        if (success) {
+        if (route.caravan && Math.random() > failChance) {
           game.rep += route.reward;
           game.saved += 1;
           cx.successes++;
@@ -1287,104 +652,35 @@
           cx.rewards.wood += route.wood;
           cx.rewards.food += route.food;
           cx.rewards.med += route.med;
-          if (effects.bonusWood > 0) {
-            game.wood += effects.bonusWood;
-            cx.rewards.wood += effects.bonusWood;
-          }
-          guide.stats.successes++;
-          updateCommissionProgress(route.id, true);
-          addExp(guide, 8 + route.risk * 2, route.name + "成功救援");
           game.log.unshift("第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功。");
-          if (Math.random() < 0.08 + route.risk * 0.02) {
-            const buffChoices = Object.keys(SKILLS).filter(s => !guide.skills.includes(s) && (SKILLS[s].route === "all" || SKILLS[s].route === route.id));
-            if (buffChoices.length > 0) {
-              const buffSkill = buffChoices[Math.floor(Math.random() * buffChoices.length)];
-              guide.tempBuffs.push({ route: route.id, effects: SKILLS[buffSkill].effects, days: 2, name: SKILLS[buffSkill].name });
-              game.log.unshift("第"+game.day+"天，"+guide.name+"在"+route.name+"领悟了临时技巧："+SKILLS[buffSkill].name+"（2天）。");
-            }
-          }
         } else if (route.caravan) {
-          const actualMedCost = Math.max(0, 1 - effects.medSave);
-          game.med -= actualMedCost;
-          guide.stats.failures++;
-          addExp(guide, 4, route.name + "救援受挫");
+          game.med -= 1;
           game.log.unshift("第"+game.day+"天，"+route.name+"救援受挫，消耗了额外药品。");
-          const injuryChance = 0.2 + route.risk * 0.1 + (guide.fatigue > 7 ? 0.2 : 0);
-          if (Math.random() < injuryChance) {
-            const injuryChoices = Object.keys(INJURIES);
-            const randomInjury = injuryChoices[Math.floor(Math.random() * injuryChoices.length)];
-            addInjury(guide, randomInjury);
-          }
         } else {
-          game.wood += 1 + effects.bonusWood;
-          cx.rewards.wood += 1 + effects.bonusWood;
-          addExp(guide, 2, route.name + "巡查");
+          game.wood += 1;
+          cx.rewards.wood += 1;
           game.log.unshift("第"+game.day+"天，"+guide.name+"巡查"+route.name+"，带回少量柴火。");
         }
       }
-      game.guides.forEach(guide => {
-        healInjuries(guide);
-        decayTempBuffs(guide);
-      });
-      checkAndCompleteCommissions();
       game.food -= 2;
       game.wood -= game.weather === "暴雪" ? 3 : 1;
-      updateLowestSupplies();
       if (game.food < 0 || game.wood < 0 || game.med < 0 || game.guides.some(g => g.fatigue >= 12)) return finish(false);
       if (game.day >= 15) return finish(true);
       game.day += 1;
-      advanceCommissions();
-      decayRiskModifiers();
       rollDay();
-      generateAvailableCommissions();
       render();
     }
-    function finish(win, fromSave) {
+    function finish(win) {
       game.ended = true;
-      if (!fromSave) {
-        els.resultSaveNotice.classList.add("hidden");
-        els.resultSaveNotice.innerHTML = "";
-      }
       const d = DIFF[game.diff];
-      let failureReason = game.stats?.failureReason || "";
-      if (!win && !fromSave) {
-        const reasons = [];
-        if (game.food < 0) reasons.push("干粮耗尽");
-        if (game.wood < 0) reasons.push("柴火耗尽");
-        if (game.med < 0) reasons.push("药品耗尽");
-        const exhaustedGuide = game.guides.find(g => g.fatigue >= 12);
-        if (exhaustedGuide) reasons.push(exhaustedGuide.name + "疲劳过度");
-        failureReason = reasons.join("、");
-        game.stats.failureReason = failureReason;
-      } else if (fromSave && win) {
-        failureReason = "";
-      }
       els.resultTitle.textContent = win ? "驿站守住了雪线" : "驿站没能撑下去";
-      const totalDispatches = Object.values(game.stats.routeDispatches).reduce((a, b) => a + b, 0);
-      const totalGuideDays = Object.values(game.stats.guideDays).reduce((a, b) => a + b, 0);
-      let resultHtml = '<p style="margin:0 0 8px">难度：' + d.label + '｜坚持天数：' + game.day + ' / 15</p>';
-      resultHtml += '<div class="result-stats">';
-      resultHtml += '<h4>本局摘要</h4>';
-      resultHtml += '<div class="stat-line"><span class="label">接应商队</span><span class="value">' + game.saved + ' 队</span></div>';
-      resultHtml += '<div class="stat-line"><span class="label">累计声望</span><span class="value">' + game.rep + '</span></div>';
-      resultHtml += '<div class="stat-line"><span class="label">路线派遣</span><span class="value">' + totalDispatches + ' 次</span></div>';
-      resultHtml += '<div class="stat-line"><span class="label">向导出勤</span><span class="value">' + totalGuideDays + ' 人天</span></div>';
-      resultHtml += '<div class="stat-line"><span class="label">委托完成</span><span class="value" style="color:#3f7a54">' + game.stats.commissionsCompleted + ' 个</span></div>';
-      resultHtml += '<div class="stat-line"><span class="label">委托失败</span><span class="value" style="color:#a33d31">' + game.stats.commissionsFailed + ' 个</span></div>';
-      resultHtml += '<div class="stat-line"><span class="label">物资最低</span><span class="value">柴' + game.stats.lowestWood + ' 粮' + game.stats.lowestFood + ' 药' + game.stats.lowestMed + '</span></div>';
-      if (!win && failureReason) {
-        resultHtml += '<div class="stat-line"><span class="label">失败原因</span><span class="value" style="color:#a33d31">' + failureReason + '</span></div>';
-      }
-      resultHtml += '</div>';
-      els.resultText.innerHTML = resultHtml;
-      renderStatsPanel();
+      els.resultText.textContent = "难度：" + d.label + "｜接应商队：" + game.saved + "队，声望：" + game.rep + "。";
       els.overlay.classList.remove("hidden");
     }
     document.querySelector("#endDayBtn").onclick = endDay;
     document.querySelector("#newBtn").onclick = showDiffPicker;
     document.querySelector("#againBtn").onclick = showDiffPicker;
     const codexOverlay = document.querySelector("#codexOverlay");
-    const codexGrid = document.querySelector("#codexGrid");
     function getDefaultCodex(routeId) {
       const r = routesBase.find(x => x.id === routeId);
       return {
@@ -1395,7 +691,8 @@
       };
     }
     function renderCodex() {
-      codexGrid.innerHTML = routesBase.map(r => {
+      let html = '<h3 style="margin:0 0 8px;color:#315c72">路线图鉴</h3>';
+      html += routesBase.map(r => {
         const c = (game && game.codex) ? game.codex[r.id] : getDefaultCodex(r.id);
         const blockProb = c.seen > 0 ? Math.round(c.blocked / c.seen * 100) : 0;
         const successRate = c.attempts > 0 ? Math.round(c.successes / c.attempts * 100) : 0;
@@ -1415,6 +712,52 @@
           (noData ? '' : '<div class="codex-row"><span>累计收益</span><span>声望+' + c.rewards.rep + ' 柴+' + c.rewards.wood + ' 粮+' + c.rewards.food + ' 药+' + c.rewards.med + '</span></div>') +
         '</div>';
       }).join("");
+      html += '<h3 style="margin:12px 0 8px;color:#8a5a9e">事件图鉴</h3>';
+      if (game && game.eventStats) {
+        html += '<div class="codex-card"><h4>本局事件统计</h4>' +
+          '<div class="stats-grid">' +
+          '<div class="stat-item"><span>触发总数</span><span>' + game.eventStats.triggered + ' 次</span></div>' +
+          '<div class="stat-item"><span>天气事件</span><span>' + (game.eventStats.byCategory.weather || 0) + ' 次</span></div>' +
+          '<div class="stat-item"><span>物资事件</span><span>' + (game.eventStats.byCategory.supply || 0) + ' 次</span></div>' +
+          '<div class="stat-item"><span>向导事件</span><span>' + (game.eventStats.byCategory.guide || 0) + ' 次</span></div>' +
+          '<div class="stat-item"><span>声望事件</span><span>' + (game.eventStats.byCategory.reputation || 0) + ' 次</span></div>' +
+          '<div class="stat-item"><span>随机事件</span><span>' + (game.eventStats.byCategory.random || 0) + ' 次</span></div>' +
+          '</div></div>';
+      }
+      html += EVENTS_POOL.map(e => {
+        const c = (game && game.eventCodex) ? game.eventCodex[e.id] : { name: e.name, category: e.category, desc: e.desc, seen: 0, choices: {} };
+        const noData = !c.seen;
+        let choicesHtml = '';
+        if (!noData && c.choices) {
+          choicesHtml = '<div style="margin-top:8px">';
+          Object.keys(c.choices).forEach(key => {
+            const choice = c.choices[key];
+            choicesHtml += '<div class="choice-tag">· ' + choice.title + '：选择 ' + choice.count + ' 次</div>';
+          });
+          choicesHtml += '</div>';
+        }
+        const catLabel = EVENT_CATEGORY_LABELS[c.category];
+        return '<div class="codex-card codex-event"><span class="event-category ' + c.category + '" style="font-size:11px;padding:1px 8px">' + catLabel + '</span>' +
+          '<h4>' + c.name + '</h4>' +
+          '<div style="font-size:12px;color:#5a6e78;line-height:1.5">' + c.desc + '</div>' +
+          '<div class="codex-row"><span>触发次数</span><span>' + (noData ? '尚未触发' : c.seen + ' 次') + '</span></div>' +
+          choicesHtml +
+        '</div>';
+      }).join("");
+      if (game) {
+        html += '<h3 style="margin:12px 0 8px;color:#315c72">本局统计</h3>';
+        const d = DIFF[game.diff];
+        html += '<div class="codex-card">' +
+          '<div class="codex-row"><span>难度</span><span>' + d.label + '</span></div>' +
+          '<div class="codex-row"><span>当前天数</span><span>' + game.day + ' / 15</span></div>' +
+          '<div class="codex-row"><span>接应商队</span><span>' + game.saved + ' 队</span></div>' +
+          '<div class="codex-row"><span>当前声望</span><span>' + game.rep + '</span></div>' +
+          '<div class="codex-row"><span>当前物资</span><span>柴' + game.wood + ' 粮' + game.food + ' 药' + game.med + '</span></div>' +
+          '<div class="codex-row"><span>向导状态</span><span>' + game.guides.map(g => g.name + '(' + g.fatigue + ')').join('、') + '</span></div>' +
+          '<div class="codex-row"><span>事件触发</span><span>' + game.eventStats.triggered + ' 次</span></div>' +
+        '</div>';
+      }
+      codexGrid.innerHTML = html;
     }
     function openCodex() {
       renderCodex();
@@ -1424,7 +767,6 @@
     document.querySelector("#diffCodexBtn").onclick = openCodex;
     document.querySelector("#resultCodexBtn").onclick = openCodex;
     document.querySelector("#codexCloseBtn").onclick = () => codexOverlay.classList.add("hidden");
-    updateSaveInfo();
     showDiffPicker();
   </script>
 </body>
