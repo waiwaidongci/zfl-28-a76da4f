@@ -1207,6 +1207,13 @@
           console.error("StorageUtil.getString 失败:", key, e);
           return fallback;
         }
+      },
+      setString(key, value) {
+        try {
+          localStorage.setItem(key, String(value));
+        } catch (e) {
+          console.error("StorageUtil.setString 失败:", key, e);
+        }
       }
     };
     const routesBase = [
@@ -6532,10 +6539,11 @@
     ];
     let currentTutorialStep = 0;
     function loadTutorialCompleted() {
-      return StorageUtil.getString(TUTORIAL_STORAGE_KEY, null) === "true";
+      const raw = StorageUtil.getString(TUTORIAL_STORAGE_KEY, null);
+      return raw === "true" || raw === "\"true\"";
     }
     function saveTutorialCompleted() {
-      StorageUtil.set(TUTORIAL_STORAGE_KEY, "true");
+      StorageUtil.setString(TUTORIAL_STORAGE_KEY, "true");
     }
     function renderTutorialStep() {
       const step = TUTORIAL_STEPS[currentTutorialStep];
