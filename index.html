@@ -129,6 +129,10 @@
     .setup-section-title::before { content: ""; display: inline-block; width: 4px; height: 16px; background: #315c72; border-radius: 2px; }
     .scenario-badge { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 800; color: #fff; }
     .archive-scenario-tag { padding: 2px 6px; border-radius: 3px; font-size: 11px; color: #fff; font-weight: 800; }
+    .trait-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: help; }
+    .trait-badge.trait-positive { background: #d4ede0; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .trait-badge.trait-negative { background: #f2d9d6; color: #a33d31; border: 1px solid #ef9a9a; }
+    .trait-badge.trait-neutral { background: #e3ecf1; color: #315c72; border: 1px solid #b0bec5; }
     .setup-modal { width: min(780px, calc(100% - 28px)); max-height: 90vh; overflow-y: auto; }
     @media (max-width: 600px) {
       .scenario-options { grid-template-columns: 1fr; }
@@ -770,12 +774,23 @@
             <span class="setting-toggle-slider"></span>
           </label>
         </div>
+        <div class="setting-item">
+          <div class="setting-item-info">
+            <div class="setting-item-title">关闭生涯加成</div>
+            <div class="setting-item-desc">禁用向导生涯特质带来的所有加成和减益效果。仅影响游戏数值，生涯记录和特质解锁仍会正常累积。适合追求纯剧本挑战的玩家。</div>
+          </div>
+          <label class="setting-toggle">
+            <input type="checkbox" id="settingDisableCareer">
+            <span class="setting-toggle-slider"></span>
+          </label>
+        </div>
       </div>
       <div class="settings-data-hint">
         <b>本地数据说明：</b><br>
         • 设置数据保存在浏览器 localStorage，键名为 <code>mountain_post_settings</code><br>
         • 剧本档案键名：<code>mountain_post_archives</code>（最多保留 100 条）<br>
         • 成就数据键名：<code>mountain_post_achievements</code><br>
+        • 向导生涯数据键名：<code>mountain_post_career</code>（累计统计与特质解锁）<br>
         • 清理方式：浏览器开发者工具 → Application → Local Storage → 删除对应键，或在控制台执行 <code>localStorage.clear()</code> 清空全部。
       </div>
       <div class="settings-footer">
@@ -1612,7 +1627,8 @@
       compactLog: false,
       autoReplay: false,
       hideAchvHint: false,
-      lowAnim: false
+      lowAnim: false,
+      disableCareerBonus: false
     };
     let gameSettings = { ...DEFAULT_SETTINGS };
     function loadSettings() {
@@ -1642,6 +1658,7 @@
       els.settingAutoReplay.checked = !!gameSettings.autoReplay;
       els.settingHideAchvHint.checked = !!gameSettings.hideAchvHint;
       els.settingLowAnim.checked = !!gameSettings.lowAnim;
+      els.settingDisableCareer.checked = !!gameSettings.disableCareerBonus;
     }
     function openSettings() {
       syncSettingsUI();
@@ -1662,6 +1679,282 @@
         saveSettings();
         applySettings();
       };
+    }
+    const CAREER_STORAGE_KEY = "mountain_post_career";
+    const DEFAULT_CAREER = {
+      version: 1,
+      guides: {
+        "阿措": {
+          totalGames: 0,
+          totalDays: 0,
+          totalRoutes: 0,
+          totalSuccesses: 0,
+          totalFailures: 0,
+          routeStats: {},
+          stormDays: 0,
+          restDays: 0,
+          consecutiveRest: 0,
+          maxConsecutiveRest: 0,
+          rescueFailStreak: 0,
+          traits: []
+        },
+        "洛桑": {
+          totalGames: 0,
+          totalDays: 0,
+          totalRoutes: 0,
+          totalSuccesses: 0,
+          totalFailures: 0,
+          routeStats: {},
+          stormDays: 0,
+          restDays: 0,
+          consecutiveRest: 0,
+          maxConsecutiveRest: 0,
+          rescueFailStreak: 0,
+          traits: []
+        }
+      },
+      unlockedTraits: {}
+    };
+    const TRAITS = {
+      herbal_expert: {
+        id: "herbal_expert",
+        name: "草药通",
+        desc: "擅长草药小径，成功率提升且药品消耗减少",
+        icon: "🌿",
+        effects: {
+          routeBonus: { herbal: { successMod: 0.1, medCostMod: -0.5 } }
+        },
+        unlockCondition: (stats) => stats.routeStats.herbal && stats.routeStats.herbal.attempts >= 12
+      },
+      storm_resilient: {
+        id: "storm_resilient",
+        name: "暴雪行者",
+        desc: "暴雪天气下疲劳增长减少",
+        icon: "❄️",
+        effects: {
+          stormFatigueMod: -0.25
+        },
+        unlockCondition: (stats) => stats.stormDays >= 8
+      },
+      rest_master: {
+        id: "rest_master",
+        name: "养精蓄锐",
+        desc: "连续留守后恢复速度更快",
+        icon: "💤",
+        effects: {
+          restBonus: { consecutiveThreshold: 2, extraRecovery: 1 }
+        },
+        unlockCondition: (stats) => stats.maxConsecutiveRest >= 3
+      },
+      rescue_frustration: {
+        id: "rescue_frustration",
+        name: "受挫消沉",
+        desc: "救援失败后短期士气受损，成功率下降",
+        icon: "😔",
+        effects: {
+          failurePenalty: { duration: 2, successMod: -0.15 }
+        },
+        unlockCondition: (stats) => stats.totalFailures >= 5,
+        isNegative: true
+      },
+      route_veteran: {
+        id: "route_veteran",
+        name: "老马识途",
+        desc: "走过 20 次以上的路线风险降低",
+        icon: "🦌",
+        effects: {
+          veteranRoute: { threshold: 20, riskMod: -1 }
+        },
+        unlockCondition: (stats) => {
+          let maxAttempts = 0;
+          for (const rid in stats.routeStats) {
+            if (stats.routeStats[rid].attempts > maxAttempts) {
+              maxAttempts = stats.routeStats[rid].attempts;
+            }
+          }
+          return maxAttempts >= 20;
+        }
+      },
+      quick_recovery: {
+        id: "quick_recovery",
+        name: "回复神速",
+        desc: "每次留守额外多恢复 1 点疲劳",
+        icon: "⚡",
+        effects: {
+          flatRecoveryBonus: 1
+        },
+        unlockCondition: (stats) => stats.restDays >= 15
+      },
+      lucky_guide: {
+        id: "lucky_guide",
+        name: "福星高照",
+        desc: "商队路线基础成功率小幅提升",
+        icon: "🍀",
+        effects: {
+          caravanSuccessBonus: 0.05
+        },
+        unlockCondition: (stats) => stats.totalSuccesses >= 25
+      }
+    };
+    let careerData = null;
+    function loadCareerData() {
+      try {
+        const stored = localStorage.getItem(CAREER_STORAGE_KEY);
+        if (!stored) return JSON.parse(JSON.stringify(DEFAULT_CAREER));
+        const parsed = JSON.parse(stored);
+        return migrateCareerData(parsed);
+      } catch (e) {
+        console.error("加载生涯数据失败:", e);
+        return JSON.parse(JSON.stringify(DEFAULT_CAREER));
+      }
+    }
+    function migrateCareerData(data) {
+      const result = JSON.parse(JSON.stringify(DEFAULT_CAREER));
+      if (!data) return result;
+      if (data.guides) {
+        for (const name in result.guides) {
+          if (data.guides[name]) {
+            result.guides[name] = { ...result.guides[name], ...data.guides[name] };
+            if (!result.guides[name].routeStats) result.guides[name].routeStats = {};
+            if (!result.guides[name].traits) result.guides[name].traits = [];
+          }
+        }
+      }
+      if (data.unlockedTraits) result.unlockedTraits = { ...data.unlockedTraits };
+      result.version = DEFAULT_CAREER.version;
+      return result;
+    }
+    function saveCareerData() {
+      try {
+        localStorage.setItem(CAREER_STORAGE_KEY, JSON.stringify(careerData));
+      } catch (e) {
+        console.error("保存生涯数据失败:", e);
+      }
+    }
+    function resetCareerData() {
+      careerData = JSON.parse(JSON.stringify(DEFAULT_CAREER));
+      saveCareerData();
+    }
+    function getGuideTraits(guideName) {
+      if (!careerData || !careerData.guides[guideName]) return [];
+      const stats = careerData.guides[guideName];
+      const activeTraits = [];
+      for (const tid in TRAITS) {
+        const trait = TRAITS[tid];
+        if (stats.traits.includes(tid)) {
+          activeTraits.push(trait);
+        }
+      }
+      return activeTraits;
+    }
+    function checkTraitUnlocks(guideName) {
+      if (!careerData || !careerData.guides[guideName]) return [];
+      const stats = careerData.guides[guideName];
+      const newTraits = [];
+      for (const tid in TRAITS) {
+        const trait = TRAITS[tid];
+        if (!stats.traits.includes(tid) && trait.unlockCondition(stats)) {
+          stats.traits.push(tid);
+          newTraits.push(trait);
+          if (!careerData.unlockedTraits[guideName]) careerData.unlockedTraits[guideName] = [];
+          if (!careerData.unlockedTraits[guideName].includes(tid)) {
+            careerData.unlockedTraits[guideName].push(tid);
+          }
+        }
+      }
+      return newTraits;
+    }
+    function isCareerBonusEnabled() {
+      return !gameSettings.disableCareerBonus;
+    }
+    function getGuideTraitEffects(guideName, context) {
+      const effects = {
+        successMod: 0,
+        fatigueMod: 0,
+        medCostMod: 0,
+        recoveryBonus: 0,
+        riskMod: 0,
+        routeSpecific: {}
+      };
+      if (!isCareerBonusEnabled()) return effects;
+      const traits = getGuideTraits(guideName);
+      const stats = careerData.guides[guideName];
+      traits.forEach(trait => {
+        if (!trait.effects) return;
+        if (trait.effects.stormFatigueMod && context && context.isStormDay) {
+          effects.fatigueMod += trait.effects.stormFatigueMod;
+        }
+        if (trait.effects.flatRecoveryBonus) {
+          effects.recoveryBonus += trait.effects.flatRecoveryBonus;
+        }
+        if (trait.effects.restBonus && context && context.consecutiveRestDays >= trait.effects.restBonus.consecutiveThreshold) {
+          effects.recoveryBonus += trait.effects.restBonus.extraRecovery;
+        }
+        if (trait.effects.caravanSuccessBonus && context && context.isCaravanRoute) {
+          effects.successMod += trait.effects.caravanSuccessBonus;
+        }
+        if (trait.effects.routeBonus && context && context.routeId && trait.effects.routeBonus[context.routeId]) {
+          const routeEffect = trait.effects.routeBonus[context.routeId];
+          if (routeEffect.successMod) effects.successMod += routeEffect.successMod;
+          if (routeEffect.medCostMod) effects.medCostMod += routeEffect.medCostMod;
+        }
+        if (trait.effects.veteranRoute && context && context.routeId && stats) {
+          const routeStat = stats.routeStats[context.routeId];
+          if (routeStat && routeStat.attempts >= trait.effects.veteranRoute.threshold) {
+            effects.riskMod += trait.effects.veteranRoute.riskMod;
+          }
+        }
+        if (trait.effects.failurePenalty && context && stats && stats.rescueFailStreak > 0) {
+          const penalty = trait.effects.failurePenalty;
+          effects.successMod += penalty.successMod;
+        }
+      });
+      return effects;
+    }
+    function updateCareerAfterDay(guideName, dayResult) {
+      if (!careerData || !careerData.guides[guideName]) return;
+      const stats = careerData.guides[guideName];
+      stats.totalDays++;
+      if (dayResult.routeId) {
+        stats.totalRoutes++;
+        if (!stats.routeStats[dayResult.routeId]) {
+          stats.routeStats[dayResult.routeId] = { attempts: 0, successes: 0, failures: 0 };
+        }
+        stats.routeStats[dayResult.routeId].attempts++;
+        if (dayResult.success) {
+          stats.totalSuccesses++;
+          stats.routeStats[dayResult.routeId].successes++;
+          if (stats.rescueFailStreak > 0) stats.rescueFailStreak--;
+        } else if (dayResult.failure) {
+          stats.totalFailures++;
+          stats.routeStats[dayResult.routeId].failures++;
+          stats.rescueFailStreak = 2;
+        }
+        stats.consecutiveRest = 0;
+      }
+      if (dayResult.rested) {
+        stats.restDays++;
+        stats.consecutiveRest++;
+        if (stats.consecutiveRest > stats.maxConsecutiveRest) {
+          stats.maxConsecutiveRest = stats.consecutiveRest;
+        }
+        if (stats.rescueFailStreak > 0) stats.rescueFailStreak--;
+      }
+      if (dayResult.isStormDay) {
+        stats.stormDays++;
+      }
+      const newTraits = checkTraitUnlocks(guideName);
+      saveCareerData();
+      return newTraits;
+    }
+    function updateCareerAfterGame(guideName, gameResult) {
+      if (!careerData || !careerData.guides[guideName]) return;
+      const stats = careerData.guides[guideName];
+      stats.totalGames++;
+      saveCareerData();
+    }
+    function initCareerSystem() {
+      careerData = loadCareerData();
     }
     const SCENARIOS = {
       standard: {
@@ -1950,6 +2243,7 @@
       settingAutoReplay: document.querySelector("#settingAutoReplay"),
       settingHideAchvHint: document.querySelector("#settingHideAchvHint"),
       settingLowAnim: document.querySelector("#settingLowAnim"),
+      settingDisableCareer: document.querySelector("#settingDisableCareer"),
       settingsBtn: document.querySelector("#settingsBtn"),
       settingsCloseBtn: document.querySelector("#settingsCloseBtn"),
       settingsResetBtn: document.querySelector("#settingsResetBtn"),
@@ -3918,6 +4212,22 @@
           }
         }
       }
+      let guideTraits = [];
+      if (!gameSettings.disableCareerBonus && careerData) {
+        game.guides.forEach(guide => {
+          const stats = careerData.guides[guide.name];
+          const traits = stats ? stats.traits : [];
+          const traitDetails = traits.map(tid => {
+            const trait = TRAITS[tid];
+            return trait ? { id: tid, name: trait.name, icon: trait.icon, desc: trait.desc, isNegative: trait.isNegative } : null;
+          }).filter(Boolean);
+          guideTraits.push({
+            name: guide.name,
+            fatigue: guide.fatigue,
+            traits: traitDetails
+          });
+        });
+      }
       return {
         day: game.day,
         weather: game.weather,
@@ -3929,7 +4239,8 @@
         goalProgress: goalProgress,
         yesterdayChanges: yesterdayChanges,
         scenarioName: sc.name,
-        scenarioSubtitle: sc.subtitle
+        scenarioSubtitle: sc.subtitle,
+        guideTraits: guideTraits
       };
     }
     function renderBriefing(briefingData) {
@@ -3995,6 +4306,26 @@
       } else {
         yesterdayHtml = '<div class="briefing-empty">今日是第一天，暂无昨日记录</div>';
       }
+      let guideTraitsHtml = "";
+      if (briefingData.guideTraits && briefingData.guideTraits.length > 0) {
+        guideTraitsHtml = '<div class="briefing-guide-list">';
+        briefingData.guideTraits.forEach(g => {
+          guideTraitsHtml += '<div class="briefing-guide-item">';
+          guideTraitsHtml += '<div class="briefing-guide-name"><b>' + g.name + '</b> <span style="font-size:12px;color:#5a6e78">（疲劳：' + g.fatigue + '）</span></div>';
+          if (g.traits.length > 0) {
+            guideTraitsHtml += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">';
+            g.traits.forEach(t => {
+              const traitCls = t.isNegative ? 'trait-negative' : 'trait-positive';
+              guideTraitsHtml += '<span class="trait-badge ' + traitCls + '" title="' + t.desc + '">' + t.icon + ' ' + t.name + '</span>';
+            });
+            guideTraitsHtml += '</div>';
+          } else {
+            guideTraitsHtml += '<div style="font-size:12px;color:#5a6e78;margin-top:4px">尚未解锁特质</div>';
+          }
+          guideTraitsHtml += '</div>';
+        });
+        guideTraitsHtml += '</div>';
+      }
       els.briefingTitle.textContent = "每日简报 · 第 " + briefingData.day + " 天";
       els.briefingDate.textContent = scenarioName + " · " + scenarioSubtitle;
       els.briefingGrid.innerHTML =
@@ -4003,6 +4334,7 @@
         '<div class="briefing-weather-info"><strong>' + briefingData.weather + '</strong><br><span>' + (briefingData.weather === "暴雪" ? "注意防寒与路线封锁" : (briefingData.weather === "阴风" ? "能见度降低，注意安全" : "天气晴好，适合出行") ) + '</span></div></div>' +
         '</div>' +
         '<div class="briefing-section"><h3>🎯 剧本目标进度</h3>' + goalHtml + '</div>' +
+        (guideTraitsHtml ? '<div class="briefing-section"><h3>🌟 向导生涯特质</h3>' + guideTraitsHtml + '</div>' : '') +
         '<div class="briefing-section"><h3>🛤 路线状态</h3>' + routesHtml + '</div>' +
         '<div class="briefing-section"><h3>⚡ 持续影响</h3>' + effectsHtml + '</div>' +
         '<div class="briefing-section" style="grid-column:1/-1"><h3>📋 昨日关键变化</h3>' + yesterdayHtml + '</div>';
@@ -4168,12 +4500,28 @@
         successRoutes: 0,
         details: [],
         storm: game.weather === "暴雪",
-        blockedRoutes: 0
+        blockedRoutes: 0,
+        careerTraitEffects: []
       };
       for (const guide of game.guides) {
+        const careerStats = careerData && careerData.guides[guide.name] ? careerData.guides[guide.name] : null;
+        const consecutiveRestDays = careerStats ? careerStats.consecutiveRest : 0;
+        const rescueFailStreak = careerStats ? careerStats.rescueFailStreak : 0;
         if (!guide.task) {
-          const restChange = Math.max(0, guide.fatigue - 2) - guide.fatigue;
-          estimate.fatigueChanges.push({ name: guide.name, change: restChange, task: "留守休整" });
+          let restAmount = 2;
+          let traitRestBonus = 0;
+          if (isCareerBonusEnabled() && careerStats) {
+            const context = { consecutiveRestDays: consecutiveRestDays + 1 };
+            const effects = getGuideTraitEffects(guide.name, context);
+            traitRestBonus = effects.recoveryBonus;
+            if (traitRestBonus !== 0) {
+              estimate.careerTraitEffects.push({ guide: guide.name, type: "recovery", value: traitRestBonus });
+            }
+          }
+          restAmount += traitRestBonus;
+          const restChange = Math.max(0, guide.fatigue - restAmount) - guide.fatigue;
+          const restDesc = traitRestBonus > 0 ? "留守休整（含生涯加成+" + traitRestBonus + "）" : "留守休整";
+          estimate.fatigueChanges.push({ name: guide.name, change: restChange, task: restDesc });
           continue;
         }
         const route = game.routes.find(r => r.id === guide.task);
@@ -4191,23 +4539,47 @@
         }
         usedRoutes.add(route.id);
         estimate.totalRoutes++;
+        let traitEffects = { successMod: 0, fatigueMod: 0, medCostMod: 0, riskMod: 0 };
+        if (isCareerBonusEnabled() && careerStats) {
+          const context = {
+            routeId: route.id,
+            isStormDay: game.weather === "暴雪",
+            isCaravanRoute: route.caravan,
+            rescueFailStreak: rescueFailStreak
+          };
+          traitEffects = getGuideTraitEffects(guide.name, context);
+          if (traitEffects.successMod !== 0 || traitEffects.fatigueMod !== 0 || traitEffects.medCostMod !== 0 || traitEffects.riskMod !== 0) {
+            estimate.careerTraitEffects.push({ guide: guide.name, route: route.name, effects: { ...traitEffects } });
+          }
+        }
         const stormWoodCost = (rm.stormRouteImmune && rm.stormRouteImmune.includes(route.id)) ? 0 : (game.weather === "暴雪" ? 1 : 0);
         const woodCost = route.wood + stormWoodCost;
         estimate.wood -= woodCost;
         estimate.food -= route.food;
-        estimate.med -= route.med;
-        const rawFatigue = route.risk + fatigueBonus + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
-        const fatigueGain = Math.round(rawFatigue * d.fatigueMul);
+        const baseMedCost = route.med;
+        const adjustedMedCost = traitEffects.medCostMod !== 0 ? Math.round(baseMedCost * (1 + traitEffects.medCostMod)) : baseMedCost;
+        estimate.med -= adjustedMedCost;
+        const adjustedRisk = Math.max(0, route.risk + traitEffects.riskMod);
+        const rawFatigue = adjustedRisk + fatigueBonus + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
+        let fatigueGain = Math.round(rawFatigue * d.fatigueMul);
+        if (traitEffects.fatigueMod !== 0) {
+          fatigueGain = Math.max(1, Math.round(fatigueGain * (1 + traitEffects.fatigueMod)));
+        }
         estimate.fatigueChanges.push({ name: guide.name, change: fatigueGain, task: route.name });
-        const failChance = (route.risk + (guide.fatigue + fatigueGain) / 4) / 12;
-        const successChance = Math.max(0, Math.min(1, 1 - failChance));
+        const failChance = (adjustedRisk + (guide.fatigue + fatigueGain) / 4) / 12;
+        let successChance = Math.max(0, Math.min(1, 1 - failChance));
+        if (traitEffects.successMod !== 0) {
+          successChance = Math.max(0, Math.min(1, successChance + traitEffects.successMod));
+        }
         const realReward = route.reward + rewardBonus;
         if (route.caravan) {
           estimate.successRate += successChance;
           estimate.successRoutes++;
           estimate.rep += realReward * successChance;
           estimate.med -= 1 * (1 - successChance);
-          estimate.details.push(guide.name + "走【" + route.name + "】接应商队：成功率约" + Math.round(successChance * 100) + "%，成功声望+" + realReward + "，失败药品-1");
+          const successPct = Math.round(successChance * 100);
+          const traitNote = traitEffects.successMod !== 0 ? "（生涯加成" + (traitEffects.successMod > 0 ? "+" : "") + Math.round(traitEffects.successMod * 100) + "%）" : "";
+          estimate.details.push(guide.name + "走【" + route.name + "】接应商队：成功率约" + successPct + "%" + traitNote + "，成功声望+" + realReward + "，失败药品-1");
         } else {
           estimate.wood += 1;
           estimate.details.push(guide.name + "巡查【" + route.name + "】：带回柴火+1，疲劳+" + fatigueGain);
@@ -4278,6 +4650,7 @@
       const usedRoutes = new Set();
       const rewardBonus = rm.rewardBonus || 0;
       const fatigueBonus = rm.fatigueBonus || 0;
+      const dayNewTraits = {};
       if (game.currentDayData) {
         game.currentDayData.dispatchStartResources = { wood: game.wood, med: game.med, food: game.food, rep: game.rep };
         game.currentDayData.dispatchStartGuides = game.guides.map(g => ({ name: g.name, fatigue: g.fatigue, task: g.task }));
@@ -4293,66 +4666,118 @@
         guideMaxFatigueMod += c.effect.maxFatigueMod || 0
       })
       for (const guide of game.guides) {
+        const careerStats = careerData && careerData.guides[guide.name] ? careerData.guides[guide.name] : null;
+        const consecutiveRestDays = careerStats ? careerStats.consecutiveRest : 0;
+        const rescueFailStreak = careerStats ? careerStats.rescueFailStreak : 0;
+        const dayResult = { rested: false, routeId: null, success: false, failure: false, isStormDay: game.weather === "暴雪" };
         if (!guide.task) {
           var restAmount = 2 + guideFatigueBonus
+          let traitRestBonus = 0;
+          if (isCareerBonusEnabled() && careerStats) {
+            const context = { consecutiveRestDays: consecutiveRestDays + 1 };
+            const effects = getGuideTraitEffects(guide.name, context);
+            traitRestBonus = effects.recoveryBonus;
+          }
+          restAmount += traitRestBonus;
           guide.fatigue = Math.max(0, guide.fatigue - restAmount);
-          recordReplayLog(guide.name + "留守休整，疲劳-" + restAmount + "。");
-          continue;
-        }
-        const route = game.routes.find(r => r.id === guide.task);
-        if (!route || usedRoutes.has(route.id)) {
-          const logMsg = guide.name + "没有有效任务，留守整理马具。";
-          game.log.unshift(logMsg);
-          recordReplayLog(logMsg);
-          continue;
-        }
-        if (route.blocked) {
-          const logMsg = guide.name + "尝试走" + route.name + "，但道路已封，无功而返。";
-          game.log.unshift(logMsg);
-          recordReplayLog(logMsg);
-          continue;
-        }
-        usedRoutes.add(route.id);
-        if (game.routeDispatches[route.id] !== undefined) {
-          game.routeDispatches[route.id]++;
-        }
-        const stormWoodCost = (rm.stormRouteImmune && rm.stormRouteImmune.includes(route.id)) ? 0 : (game.weather === "暴雪" ? 1 : 0);
-        const woodCost = route.wood + stormWoodCost;
-        game.wood -= woodCost;
-        recordResourceChange("wood", -woodCost, guide.name + "执行【" + route.name + "】调度消耗" + (stormWoodCost > 0 ? "（含暴雪御寒" + stormWoodCost + "）" : ""));
-        game.food -= route.food;
-        if (route.food !== 0) recordResourceChange("food", -route.food, guide.name + "执行【" + route.name + "】调度消耗");
-        game.med -= route.med;
-        if (route.med !== 0) recordResourceChange("med", -route.med, guide.name + "执行【" + route.name + "】调度消耗");
-        const rawFatigue = route.risk + fatigueBonus + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
-        var fatigueGainMul = d.fatigueMul * (1 + guideFatigueGainMod);
-        const fatigueGain = Math.max(1, Math.round(rawFatigue * fatigueGainMul));
-        guide.fatigue += fatigueGain;
-        const failChance = route.blocked ? .75 : (route.risk + guide.fatigue / 4) / 12;
-        const cx = game.codex[route.id];
-        if (cx) cx.attempts++;
-        const realReward = route.reward + rewardBonus;
-        if (route.caravan && rand() > failChance) {
-          game.rep += realReward;
-          recordResourceChange("rep", realReward, guide.name + "在【" + route.name + "】接应商队成功");
-          game.saved += 1;
-          if (cx) { cx.successes++; cx.rewards.rep += realReward; cx.rewards.wood += route.wood; cx.rewards.food += route.food; cx.rewards.med += route.med; }
-          const logMsg = "第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功，声望+"+realReward+"，疲劳+" + fatigueGain + "。";
-          game.log.unshift(logMsg);
-          recordReplayLog(logMsg);
-        } else if (route.caravan) {
-          game.med -= 1;
-          recordResourceChange("med", -1, route.name + "救援受挫，消耗额外药品");
-          const logMsg = "第"+game.day+"天，"+guide.name+"在"+route.name+"救援受挫，消耗了额外药品，疲劳+" + fatigueGain + "。";
-          game.log.unshift(logMsg);
-          recordReplayLog(logMsg);
+          const restDesc = traitRestBonus > 0 ? "（含生涯加成+" + traitRestBonus + "）" : "";
+          recordReplayLog(guide.name + "留守休整" + restDesc + "，疲劳-" + restAmount + "。");
+          dayResult.rested = true;
         } else {
-          game.wood += 1;
-          recordResourceChange("wood", 1, guide.name + "巡查【" + route.name + "】带回柴火");
-          if (cx) cx.rewards.wood += 1;
-          const logMsg = "第"+game.day+"天，"+guide.name+"巡查"+route.name+"，带回少量柴火，疲劳+" + fatigueGain + "。";
-          game.log.unshift(logMsg);
-          recordReplayLog(logMsg);
+          const route = game.routes.find(r => r.id === guide.task);
+          if (!route || usedRoutes.has(route.id)) {
+            const logMsg = guide.name + "没有有效任务，留守整理马具。";
+            game.log.unshift(logMsg);
+            recordReplayLog(logMsg);
+            dayResult.rested = true;
+          } else if (route.blocked) {
+            const logMsg = guide.name + "尝试走" + route.name + "，但道路已封，无功而返。";
+            game.log.unshift(logMsg);
+            recordReplayLog(logMsg);
+            dayResult.rested = true;
+          } else {
+            usedRoutes.add(route.id);
+            if (game.routeDispatches[route.id] !== undefined) {
+              game.routeDispatches[route.id]++;
+            }
+            let traitEffects = { successMod: 0, fatigueMod: 0, medCostMod: 0, riskMod: 0 };
+            if (isCareerBonusEnabled() && careerStats) {
+              const context = {
+                routeId: route.id,
+                isStormDay: game.weather === "暴雪",
+                isCaravanRoute: route.caravan,
+                rescueFailStreak: rescueFailStreak
+              };
+              traitEffects = getGuideTraitEffects(guide.name, context);
+            }
+            const stormWoodCost = (rm.stormRouteImmune && rm.stormRouteImmune.includes(route.id)) ? 0 : (game.weather === "暴雪" ? 1 : 0);
+            const woodCost = route.wood + stormWoodCost;
+            game.wood -= woodCost;
+            recordResourceChange("wood", -woodCost, guide.name + "执行【" + route.name + "】调度消耗" + (stormWoodCost > 0 ? "（含暴雪御寒" + stormWoodCost + "）" : ""));
+            game.food -= route.food;
+            if (route.food !== 0) recordResourceChange("food", -route.food, guide.name + "执行【" + route.name + "】调度消耗");
+            const baseMedCost = route.med;
+            const adjustedMedCost = traitEffects.medCostMod !== 0 ? Math.round(baseMedCost * (1 + traitEffects.medCostMod)) : baseMedCost;
+            game.med -= adjustedMedCost;
+            if (adjustedMedCost !== baseMedCost) {
+              recordResourceChange("med", -adjustedMedCost, guide.name + "执行【" + route.name + "】调度消耗（生涯调整）");
+            } else if (route.med !== 0) {
+              recordResourceChange("med", -route.med, guide.name + "执行【" + route.name + "】调度消耗");
+            }
+            const adjustedRisk = Math.max(0, route.risk + traitEffects.riskMod);
+            const rawFatigue = adjustedRisk + fatigueBonus + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
+            var fatigueGainMul = d.fatigueMul * (1 + guideFatigueGainMod);
+            let fatigueGain = Math.max(1, Math.round(rawFatigue * fatigueGainMul));
+            if (traitEffects.fatigueMod !== 0) {
+              fatigueGain = Math.max(1, Math.round(fatigueGain * (1 + traitEffects.fatigueMod)));
+            }
+            guide.fatigue += fatigueGain;
+            const failChance = route.blocked ? .75 : (adjustedRisk + guide.fatigue / 4) / 12;
+            let actualFailChance = failChance;
+            if (traitEffects.successMod !== 0) {
+              actualFailChance = Math.max(0, Math.min(1, failChance - traitEffects.successMod));
+            }
+            const cx = game.codex[route.id];
+            if (cx) cx.attempts++;
+            const realReward = route.reward + rewardBonus;
+            dayResult.routeId = route.id;
+            if (route.caravan && rand() > actualFailChance) {
+              game.rep += realReward;
+              recordResourceChange("rep", realReward, guide.name + "在【" + route.name + "】接应商队成功");
+              game.saved += 1;
+              if (cx) { cx.successes++; cx.rewards.rep += realReward; cx.rewards.wood += route.wood; cx.rewards.food += route.food; cx.rewards.med += adjustedMedCost; }
+              const traitNote = traitEffects.successMod > 0 ? "（生涯加成）" : "";
+              const logMsg = "第"+game.day+"天，"+guide.name+"在"+route.name+"接应商队成功" + traitNote + "，声望+"+realReward+"，疲劳+" + fatigueGain + "。";
+              game.log.unshift(logMsg);
+              recordReplayLog(logMsg);
+              dayResult.success = true;
+            } else if (route.caravan) {
+              game.med -= 1;
+              recordResourceChange("med", -1, route.name + "救援受挫，消耗额外药品");
+              const traitNote = traitEffects.successMod < 0 ? "（生涯减益）" : "";
+              const logMsg = "第"+game.day+"天，"+guide.name+"在"+route.name+"救援受挫" + traitNote + "，消耗了额外药品，疲劳+" + fatigueGain + "。";
+              game.log.unshift(logMsg);
+              recordReplayLog(logMsg);
+              dayResult.failure = true;
+            } else {
+              game.wood += 1;
+              recordResourceChange("wood", 1, guide.name + "巡查【" + route.name + "】带回柴火");
+              if (cx) cx.rewards.wood += 1;
+              const logMsg = "第"+game.day+"天，"+guide.name+"巡查"+route.name+"，带回少量柴火，疲劳+" + fatigueGain + "。";
+              game.log.unshift(logMsg);
+              recordReplayLog(logMsg);
+              dayResult.success = true;
+            }
+          }
+        }
+        const newTraits = updateCareerAfterDay(guide.name, dayResult);
+        if (newTraits && newTraits.length > 0) {
+          dayNewTraits[guide.name] = newTraits;
+          newTraits.forEach(trait => {
+            const logMsg = "🌟 " + guide.name + "解锁了新特质：" + trait.icon + "「" + trait.name + "」——" + trait.desc;
+            game.log.unshift(logMsg);
+            recordReplayLog(logMsg);
+          });
         }
       }
       game.food -= 2;
@@ -4409,11 +4834,23 @@
       detectTurningPoints(win);
       const sc = game.scenarioConfig;
       const d = DIFF[game.diff];
+      for (const guide of game.guides) {
+        updateCareerAfterGame(guide.name, { win: win, days: game.day });
+      }
       saveGameArchive(win);
       const unlockedIds = checkScenarioAchievements(sc.id, game, null);
       const newlyUnlocked = unlockAchievements(sc.id, unlockedIds);
       const displayNewlyUnlocked = gameSettings.hideAchvHint ? [] : newlyUnlocked;
       const allAchv = ACHIEVEMENTS[sc.id] || [];
+      const newlyUnlockedTraits = {};
+      if (careerData) {
+        for (const guideName of ["阿措", "洛桑"]) {
+          const guideStats = careerData.guides[guideName];
+          if (guideStats && guideStats.traits.length > 0) {
+            newlyUnlockedTraits[guideName] = guideStats.traits.slice();
+          }
+        }
+      }
       let achvHtml = '<div class="result-achievements"><h3>🏆 剧本成就</h3>';
       if (allAchv.length > 0) {
         achvHtml += allAchv.map(achv => {
@@ -4432,6 +4869,31 @@
         achvHtml += '<div style="font-size:12px;color:#5a6e78">此剧本暂无成就</div>';
       }
       achvHtml += '</div>';
+      let traitHtml = '';
+      if (!gameSettings.disableCareerBonus && careerData) {
+        traitHtml = '<div class="result-achievements"><h3>🌟 向导生涯特质</h3>';
+        for (const guideName of ["阿措", "洛桑"]) {
+          const guideStats = careerData.guides[guideName];
+          const traits = guideStats ? guideStats.traits : [];
+          traitHtml += '<div style="margin-bottom:10px">';
+          traitHtml += '<div style="font-weight:700;margin-bottom:4px">' + guideName + '</div>';
+          if (traits.length > 0) {
+            traitHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+            traits.forEach(tid => {
+              const trait = TRAITS[tid];
+              if (trait) {
+                const traitCls = trait.isNegative ? 'trait-negative' : 'trait-positive';
+                traitHtml += '<div class="trait-badge ' + traitCls + '" title="' + trait.desc + '">' + trait.icon + ' ' + trait.name + '</div>';
+              }
+            });
+            traitHtml += '</div>';
+          } else {
+            traitHtml += '<div style="font-size:12px;color:#5a6e78">尚未解锁任何特质，继续冒险吧！</div>';
+          }
+          traitHtml += '</div>';
+        }
+        traitHtml += '</div>';
+      }
       const winTitles = {
         standard: "驿站守住了雪线",
         medshortage: "疫情终于缓解",
@@ -4448,7 +4910,7 @@
       const defaultWinTitle = isCustom ? (sc.winTitle || "胜利！") : "胜利";
       const defaultLoseTitle = isCustom ? (sc.loseTitle || "失败...") : "失败";
       els.resultTitle.textContent = win ? (winTitles[sc.id] || defaultWinTitle) : (loseTitles[sc.id] || defaultLoseTitle);
-      els.resultText.innerHTML = (win ? sc.resultWin(game) : sc.resultLose(game)) + " 难度：" + d.label + achvHtml;
+      els.resultText.innerHTML = (win ? sc.resultWin(game) : sc.resultLose(game)) + " 难度：" + d.label + achvHtml + traitHtml;
       els.overlay.classList.remove("hidden");
       if (gameSettings.autoReplay && game.replayHistory && game.replayHistory.length > 0) {
         setTimeout(() => {
@@ -4547,6 +5009,55 @@
           choicesHtml +
         '</div>';
       }).join("");
+      if (careerData && !gameSettings.disableCareerBonus) {
+        html += '<h3 style="margin:12px 0 8px;color:#4a7c5e">🌟 向导生涯统计</h3>';
+        for (const guideName of ["阿措", "洛桑"]) {
+          const stats = careerData.guides[guideName];
+          if (stats) {
+            const traits = stats.traits || [];
+            html += '<div class="codex-card">';
+            html += '<h4 style="margin:0 0 8px;color:#315c72">' + guideName + '</h4>';
+            html += '<div class="stats-grid">';
+            html += '<div class="stat-item"><span>累计天数</span><span>' + (stats.totalDays || 0) + ' 天</span></div>';
+            html += '<div class="stat-item"><span>累计局数</span><span>' + (stats.totalGames || 0) + ' 局</span></div>';
+            html += '<div class="stat-item"><span>执行任务</span><span>' + (stats.totalRoutes || 0) + ' 次</span></div>';
+            html += '<div class="stat-item"><span>任务成功</span><span>' + (stats.totalSuccesses || 0) + ' 次</span></div>';
+            html += '<div class="stat-item"><span>留守休整</span><span>' + (stats.restDays || 0) + ' 天</span></div>';
+            html += '<div class="stat-item"><span>暴雪经历</span><span>' + (stats.stormDays || 0) + ' 天</span></div>';
+            html += '</div>';
+            if (traits.length > 0) {
+              html += '<div style="margin-top:8px"><b>已解锁特质：</b></div>';
+              html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">';
+              traits.forEach(tid => {
+                const trait = TRAITS[tid];
+                if (trait) {
+                  const traitCls = trait.isNegative ? 'trait-negative' : 'trait-positive';
+                  html += '<span class="trait-badge ' + traitCls + '" title="' + trait.desc + '">' + trait.icon + ' ' + trait.name + '</span>';
+                }
+              });
+              html += '</div>';
+            } else {
+              html += '<div style="margin-top:8px;font-size:12px;color:#5a6e78">尚未解锁任何特质，继续冒险吧！</div>';
+            }
+            html += '</div>';
+          }
+        }
+        html += '<h3 style="margin:12px 0 8px;color:#4a7c5e">📚 所有特质一览</h3>';
+        html += '<div class="codex-card">';
+        html += '<div style="font-size:12px;color:#5a6e78;margin-bottom:8px">完成对应条件即可解锁特质，获得永久加成或触发特殊效果。</div>';
+        for (const tid in TRAITS) {
+          const trait = TRAITS[tid];
+          const isUnlocked = careerData.guides["阿措"].traits.includes(tid) || careerData.guides["洛桑"].traits.includes(tid);
+          const traitCls = trait.isNegative ? 'trait-negative' : 'trait-positive';
+          const lockedStyle = isUnlocked ? '' : 'opacity:0.5;filter:grayscale(0.8)';
+          html += '<div style="padding:6px 0;border-bottom:1px dashed #dde5e6;display:flex;align-items:center;gap:8px">';
+          html += '<span class="trait-badge ' + traitCls + '" style="' + lockedStyle + '">' + trait.icon + ' ' + trait.name + '</span>';
+          html += '<div style="flex:1;font-size:12px;color:#5a6e78">' + trait.desc + '</div>';
+          html += '<span style="font-size:11px;padding:2px 6px;border-radius:3px;background:' + (isUnlocked ? '#d4ede0;color:#2e7d32' : '#e0e0e0;color:#757575') + '">' + (isUnlocked ? '已解锁' : '未解锁') + '</span>';
+          html += '</div>';
+        }
+        html += '</div>';
+      }
       if (game) {
         const d = DIFF[game.diff];
         html += '<h3 style="margin:12px 0 8px;color:' + sc.color + '">本局统计</h3>';
@@ -5764,7 +6275,23 @@
         const taskText = g.task ? '派遣至【' + getRouteName(g.task) + '】' : '留守休整';
         const diff = after - before;
         const diffStr = diff > 0 ? '<span class="res-change down">+' + diff + '</span>' : (diff < 0 ? '<span class="res-change up">' + diff + '</span>' : '<span class="res-change-flat">±0</span>');
-        return '<div class="replay-guide-card"><div class="replay-guide-name">' + g.name + '</div><div class="replay-guide-meta">疲劳：' + before + ' → ' + after + ' ' + diffStr + '｜' + taskText + '</div></div>';
+        let traitHtml = '';
+        if (careerData && !gameSettings.disableCareerBonus) {
+          const stats = careerData.guides[g.name];
+          const traits = stats ? stats.traits : [];
+          if (traits && traits.length > 0) {
+            traitHtml = '<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">';
+            traits.forEach(tid => {
+              const trait = TRAITS[tid];
+              if (trait) {
+                const traitCls = trait.isNegative ? 'trait-negative' : 'trait-positive';
+                traitHtml += '<span class="trait-badge ' + traitCls + '" style="font-size:10px;padding:2px 6px" title="' + trait.desc + '">' + trait.icon + ' ' + trait.name + '</span>';
+              }
+            });
+            traitHtml += '</div>';
+          }
+        }
+        return '<div class="replay-guide-card"><div class="replay-guide-name">' + g.name + '</div><div class="replay-guide-meta">疲劳：' + before + ' → ' + after + ' ' + diffStr + '｜' + taskText + '</div>' + traitHtml + '</div>';
       }).join("");
     }
     function renderReplayEvent(day) {
@@ -5936,10 +6463,12 @@
     };
     gameSettings = loadSettings();
     applySettings();
+    initCareerSystem();
     bindSettingToggle(els.settingCompactLog, "compactLog");
     bindSettingToggle(els.settingAutoReplay, "autoReplay");
     bindSettingToggle(els.settingHideAchvHint, "hideAchvHint");
     bindSettingToggle(els.settingLowAnim, "lowAnim");
+    bindSettingToggle(els.settingDisableCareer, "disableCareerBonus");
     els.settingsBtn.onclick = openSettings;
     els.settingsCloseBtn.onclick = closeSettings;
     els.settingsResetBtn.onclick = () => {
