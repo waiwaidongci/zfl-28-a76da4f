@@ -181,7 +181,7 @@ export function updateCareerAfterDay(guideName, dayResult) {
   saveCareerData();
   return newTraits;
 }
-export function updateCareerAfterGame(guideName, gameResult) {
+export function updateCareerAfterGame(guideName, _gameResult) {
   if (!careerState.data || !careerState.data.guides[guideName]) return;
   const stats = careerState.data.guides[guideName];
   stats.totalGames++;

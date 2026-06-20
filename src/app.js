@@ -6,27 +6,22 @@ import { SCENARIOS, CUSTOM_SCENARIO_PREFIX } from './data/scenarios.js';
 import { ACHIEVEMENTS } from './data/achievements.js';
 import { TRAITS } from './data/traits.js';
 import { mulberry32, hashStringToSeed, generateRandomSeed } from './logic/rng.js';
-import { StorageUtil } from './logic/storage.js';
-import { CHALLENGE_VERSION, CHALLENGE_ALPHABET, getEventChoiceKey, encodeChallengeCode, decodeChallengeCode, formatChallengeInfo } from './logic/challenge.js';
+import { CHALLENGE_VERSION, getEventChoiceKey, encodeChallengeCode, decodeChallengeCode } from './logic/challenge.js';
 import { formatSign, validateScenarioConfig } from './logic/validate.js';
-import { CUSTOM_SCENARIOS_KEY, loadCustomScenarios, saveCustomScenarios, mergeCustomScenarios, getAllScenarios, getScenarioById, getScenarioRoutes } from './logic/custom-scenarios.js';
-import { CAREER_STORAGE_KEY, careerState, loadCareerData, migrateCareerData, saveCareerData, resetCareerData, getGuideTraits, checkTraitUnlocks, isCareerBonusEnabled, applyMedCostModifier, getGuideTraitEffects, updateCareerAfterDay, updateCareerAfterGame, initCareerSystem } from './logic/career.js';
-import { ACHIEVEMENT_STORAGE_KEY, loadAchievements, saveAchievements, checkScenarioAchievements, unlockAchievements, isAchievementUnlocked, getScenarioAchievementProgress } from './logic/achievements.js';
-import { SETTINGS_STORAGE_KEY, DEFAULT_SETTINGS, settingsState, loadSettings, saveSettings, applySettings, resetSettings, bindSettingToggle } from './logic/settings.js';
+import { loadCustomScenarios, saveCustomScenarios, getAllScenarios, getScenarioRoutes } from './logic/custom-scenarios.js';
+import { careerState, isCareerBonusEnabled, applyMedCostModifier, getGuideTraitEffects, updateCareerAfterDay, updateCareerAfterGame, initCareerSystem } from './logic/career.js';
+import { checkScenarioAchievements, unlockAchievements, isAchievementUnlocked, getScenarioAchievementProgress } from './logic/achievements.js';
+import { settingsState, loadSettings, applySettings, resetSettings, bindSettingToggle } from './logic/settings.js';
 import { migrateArchive, loadGameArchives, saveGameArchives, getKeyLogs, saveGameArchive } from './storage/archive.js';
 import { loadTutorialCompleted, saveTutorialCompleted } from './storage/tutorial.js';
 
 
 let challengeMode = false;
 let currentChallengeCode = null;
-let currentChallengeSeed = null;
 let rng = null;
 function rand() {
   if (rng) return rng();
   return Math.random();
-}
-function randInt(min, max) {
-  return Math.floor(rand() * (max - min + 1)) + min;
 }
 function randChoice(arr) {
   return arr[Math.floor(rand() * arr.length)];
@@ -35,11 +30,9 @@ function setupChallengeRNG(seedNum, scenarioId, difficulty) {
   const salt = scenarioId + "|" + difficulty + "|" + CHALLENGE_VERSION;
   const combinedSeed = (hashStringToSeed(salt) ^ seedNum) >>> 0;
   rng = mulberry32(combinedSeed);
-  currentChallengeSeed = combinedSeed;
 }
 function clearChallengeRNG() {
   rng = null;
-  currentChallengeSeed = null;
 }
 let game;
 let chosenDiff = "normal";
@@ -1277,9 +1270,9 @@ function resolveEvent(choiceIndex) {
   render();
 }
 function registerConsequence(consequenceData) {
-  var effect = consequenceData.effect || {}
+  let effect = consequenceData.effect || {}
   if (consequenceData.type === "routeBlock" && effect.routeId === "random") {
-    var available = game.routes.filter(function(r) { return !r.blocked })
+    let available = game.routes.filter(function(r) { return !r.blocked })
     if (available.length > 0) {
       effect.routeId = randChoice(available).id
     } else {
@@ -1287,22 +1280,22 @@ function registerConsequence(consequenceData) {
     }
   }
   if (consequenceData.type === "routeStatus" && effect.routeId === "random") {
-    var available2 = game.routes.filter(function(r) { return !r.blocked })
+    let available2 = game.routes.filter(function(r) { return !r.blocked })
     if (available2.length > 0) {
       effect.routeId = randChoice(available2).id
     } else {
       effect.routeId = randChoice(game.routes).id
     }
   }
-  var id = "cons_" + consequenceData.sourceEventId + "_" + game.day
-  var existing = game.activeConsequences.find(function(c) { return c.id === id })
+  let id = "cons_" + consequenceData.sourceEventId + "_" + game.day
+  let existing = game.activeConsequences.find(function(c) { return c.id === id })
   if (existing) id = id + "_" + Date.now()
-  var routeName = ""
+  let routeName = ""
   if (effect.routeId && effect.routeId !== "random") {
-    var r = ALL_ROUTES_MAP[effect.routeId]
+    let r = ALL_ROUTES_MAP[effect.routeId]
     routeName = r ? r.name : ""
   }
-  var newCons = {
+  let newCons = {
     id: id,
     sourceEventId: consequenceData.sourceEventId || "",
     sourceEventName: consequenceData.sourceEventName || "",
@@ -1318,7 +1311,7 @@ function registerConsequence(consequenceData) {
     effectSummary: buildConsequenceEffectSummary(consequenceData.type, effect, routeName)
   }
   game.activeConsequences.push(newCons)
-  var triggerMsg = "触发持续效果：「" + newCons.description + "」（来自【" + newCons.sourceEventName + "】的选择「" + newCons.sourceChoice + "」，持续" + newCons.totalDays + "天）"
+  let triggerMsg = "触发持续效果：「" + newCons.description + "」（来自【" + newCons.sourceEventName + "】的选择「" + newCons.sourceChoice + "」，持续" + newCons.totalDays + "天）"
   game.log.unshift("第" + game.day + "天" + triggerMsg)
   recordReplayLog(triggerMsg)
   if (!game.consequenceHistory) game.consequenceHistory = []
@@ -1333,36 +1326,36 @@ function registerConsequence(consequenceData) {
   }
 }
 function buildConsequenceEffectSummary(type, effect, routeName) {
-  var parts = []
+  let parts = []
   switch (type) {
     case "weather":
       if (effect.stormProb !== undefined) {
-        var v = Math.round(effect.stormProb * 100)
+        let v = Math.round(effect.stormProb * 100)
         parts.push((v > 0 ? "暴雪概率+" : "暴雪概率") + v + "%")
       }
       if (effect.clearProb !== undefined) {
-        var v2 = Math.round(effect.clearProb * 100)
+        let v2 = Math.round(effect.clearProb * 100)
         parts.push("天晴概率+" + v2 + "%")
       }
       break
     case "routeBlock":
       if (effect.blockChanceMod !== undefined) {
-        var v3 = Math.round(effect.blockChanceMod * 100)
-        var rn = routeName || "路线"
+        let v3 = Math.round(effect.blockChanceMod * 100)
+        let rn = routeName || "路线"
         parts.push(rn + "封路概率" + (v3 > 0 ? "+" : "") + v3 + "%")
       }
       break
     case "routeStatus":
       if (effect.rewardBonus !== undefined) {
-        var rn2 = routeName || "路线"
+        let rn2 = routeName || "路线"
         parts.push(rn2 + "奖励声望+" + effect.rewardBonus)
       }
       if (effect.riskMod !== undefined) {
-        var rn3 = routeName || "路线"
+        let rn3 = routeName || "路线"
         parts.push(rn3 + "风险" + (effect.riskMod > 0 ? "+" : "") + effect.riskMod)
       }
       if (effect.alwaysOpen === true) {
-        var rn4 = routeName || "路线"
+        let rn4 = routeName || "路线"
         parts.push(rn4 + "强制畅通")
       }
       break
@@ -1371,7 +1364,7 @@ function buildConsequenceEffectSummary(type, effect, routeName) {
         parts.push("全员疲劳恢复+" + effect.fatigueRecoveryBonus + "/天")
       }
       if (effect.fatigueGainMod !== undefined) {
-        var v4 = Math.round(effect.fatigueGainMod * 100)
+        let v4 = Math.round(effect.fatigueGainMod * 100)
         parts.push("任务疲劳增长" + (v4 > 0 ? "+" : "") + v4 + "%")
       }
       if (effect.maxFatigueMod !== undefined) {
@@ -1380,7 +1373,7 @@ function buildConsequenceEffectSummary(type, effect, routeName) {
       break
     case "caravanChance":
       if (effect.caravanChanceMod !== undefined) {
-        var v5 = Math.round(effect.caravanChanceMod * 100)
+        let v5 = Math.round(effect.caravanChanceMod * 100)
         parts.push("商队出现概率" + (v5 > 0 ? "+" : "") + v5 + "%")
       }
       break
@@ -1394,9 +1387,9 @@ function buildConsequenceEffectSummary(type, effect, routeName) {
 }
 function applyDailyConsequenceEffects() {
   if (!game.activeConsequences || game.activeConsequences.length === 0) return
-  var resourceCons = getConsequenceEffectsByType("resource")
+  let resourceCons = getConsequenceEffectsByType("resource")
   resourceCons.forEach(function(c) {
-    var e = c.effect || {}
+    let e = c.effect || {}
     if (e.dailyWood) {
       game.wood += e.dailyWood
       recordResourceChange("wood", e.dailyWood, "【持续效果】" + c.sourceEventName + "：" + c.description)
@@ -1410,10 +1403,10 @@ function applyDailyConsequenceEffects() {
       recordResourceChange("med", e.dailyMed, "【持续效果】" + c.sourceEventName + "：" + c.description)
     }
   })
-  var routeStatusCons = getConsequenceEffectsByType("routeStatus")
+  let routeStatusCons = getConsequenceEffectsByType("routeStatus")
   routeStatusCons.forEach(function(c) {
-    var e = c.effect || {}
-    var route = game.routes.find(function(r) { return r.id === e.routeId })
+    let e = c.effect || {}
+    let route = game.routes.find(function(r) { return r.id === e.routeId })
     if (!route) return
     if (e.alwaysOpen === true) {
       if (route.blocked) {
@@ -1433,21 +1426,21 @@ function applyDailyConsequenceEffects() {
 }
 function cleanupDailyConsequenceEffects() {
   if (!game.activeConsequences || game.activeConsequences.length === 0) return
-  var routeStatusCons = getConsequenceEffectsByType("routeStatus")
-  var stillActiveRouteIds = new Set(routeStatusCons.map(function(c) { return c.effect && c.effect.routeId }).filter(Boolean))
+  let routeStatusCons = getConsequenceEffectsByType("routeStatus")
+  let stillActiveRouteIds = new Set(routeStatusCons.map(function(c) { return c.effect && c.effect.routeId }).filter(Boolean))
   game.routes.forEach(function(route) {
     if (!stillActiveRouteIds.has(route.id)) {
       if (route._consequenceRewardApplied) {
-        var consForRoute = routeStatusCons.filter(function(c) { return c.effect.routeId === route.id })
-        var totalRewardBonus = consForRoute.reduce(function(sum, c) { return sum + (c.effect.rewardBonus || 0) }, 0)
+        let consForRoute = routeStatusCons.filter(function(c) { return c.effect.routeId === route.id })
+        let totalRewardBonus = consForRoute.reduce(function(sum, c) { return sum + (c.effect.rewardBonus || 0) }, 0)
         if (totalRewardBonus !== 0) {
           route.reward -= totalRewardBonus
         }
         route._consequenceRewardApplied = false
       }
       if (route._consequenceRiskApplied) {
-        var consForRoute2 = routeStatusCons.filter(function(c) { return c.effect.routeId === route.id })
-        var totalRiskMod = consForRoute2.reduce(function(sum, c) { return sum + (c.effect.riskMod || 0) }, 0)
+        let consForRoute2 = routeStatusCons.filter(function(c) { return c.effect.routeId === route.id })
+        let totalRiskMod = consForRoute2.reduce(function(sum, c) { return sum + (c.effect.riskMod || 0) }, 0)
         if (totalRiskMod !== 0) {
           route.risk -= totalRiskMod
         }
@@ -1458,8 +1451,8 @@ function cleanupDailyConsequenceEffects() {
 }
 function tickConsequences() {
   if (!game.activeConsequences || game.activeConsequences.length === 0) return []
-  var expired = []
-  var expiredWithInfo = []
+  let expired = []
+  let expiredWithInfo = []
   cleanupDailyConsequenceEffects()
   game.activeConsequences = game.activeConsequences.filter(function(c) {
     c.remainingDays--
@@ -1479,7 +1472,7 @@ function tickConsequences() {
     return true
   })
   expiredWithInfo.forEach(function(c) {
-    var expireMsg = "持续效果「" + c.description + "」已到期（来自【" + c.sourceEventName + "】，第" + c.triggerDay + "天触发，持续了" + (game.day - c.triggerDay) + "天）"
+    let expireMsg = "持续效果「" + c.description + "」已到期（来自【" + c.sourceEventName + "】，第" + c.triggerDay + "天触发，持续了" + (game.day - c.triggerDay) + "天）"
     game.log.unshift("第" + game.day + "天" + expireMsg)
     recordReplayLog(expireMsg)
   })
@@ -1774,7 +1767,7 @@ function detectTurningPoints(win) {
     if (day.consequencesTriggered && day.consequencesTriggered.length >= 2) {
       reasons.push("同日触发" + day.consequencesTriggered.length + "项持续效果");
     } else if (day.consequencesTriggered && day.consequencesTriggered.length === 1) {
-      var c = day.consequencesTriggered[0];
+      let c = day.consequencesTriggered[0];
       if (c.totalDays >= 3) reasons.push("触发长周期持续效果：" + c.description + "（" + c.totalDays + "天）");
     }
     if (day.consequencesExpired && day.consequencesExpired.length >= 2) {
@@ -1804,7 +1797,7 @@ function generateBriefingData() {
   const activeEffects = [];
   if (game.activeConsequences && game.activeConsequences.length > 0) {
     game.activeConsequences.forEach(function(c) {
-      var typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫" }
+      let typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫" }
       activeEffects.push({
         type: c.type,
         text: (typeIcons[c.type] || "") + " " + c.sourceEventName + "：" + c.description + "（剩余" + c.remainingDays + "天）",
@@ -2037,19 +2030,19 @@ function rollDay() {
   const d = DIFF[game.diff];
   const rm = sc.routeMod;
   const sr = getScenarioRoutes(game.scenario);
-  var tickExpiredConsequences = tickConsequences()
+  let tickExpiredConsequences = tickConsequences()
   game.weather = rollWeather(sc, d);
   const isStorm = game.weather === "暴雪";
-  var routeBlockConsequences = getConsequenceEffectsByType("routeBlock")
-  var caravanConsequences = getConsequenceEffectsByType("caravanChance")
-  var caravanMod = 0
+  let routeBlockConsequences = getConsequenceEffectsByType("routeBlock")
+  let caravanConsequences = getConsequenceEffectsByType("caravanChance")
+  let caravanMod = 0
   caravanConsequences.forEach(function(c) { caravanMod += c.effect.caravanChanceMod || 0 })
-  var baseRoutes = sr.map(function(route) { return { ...route } })
+  let baseRoutes = sr.map(function(route) { return { ...route } })
   game.routes = baseRoutes.map(route => {
     const immune = rm.stormRouteImmune && rm.stormRouteImmune.includes(route.id);
-    var blockChance = rm.stormBlockChance
+    let blockChance = rm.stormBlockChance
     routeBlockConsequences.forEach(function(c) {
-      var cRouteId = c.effect.routeId
+      let cRouteId = c.effect.routeId
       if (cRouteId === "random" || cRouteId === route.id) blockChance += c.effect.blockChanceMod || 0
     })
     blockChance = Math.max(0, Math.min(1, blockChance))
@@ -2057,10 +2050,10 @@ function rollDay() {
     if (isStorm && !immune) {
       blocked = rand() < blockChance;
     }
-    var effectiveCaravanChance = Math.max(0, Math.min(1, rm.caravanChance + caravanMod))
+    let effectiveCaravanChance = Math.max(0, Math.min(1, rm.caravanChance + caravanMod))
     return { ...route, caravan: rand() < effectiveCaravanChance, blocked: blocked };
   });
-  var dayStartResources = { wood: game.wood, med: game.med, food: game.food, rep: game.rep }
+  let dayStartResources = { wood: game.wood, med: game.med, food: game.food, rep: game.rep }
   startReplayDay(tickExpiredConsequences, dayStartResources);
   applyDailyConsequenceEffects()
   if (game.currentDayData) {
@@ -2085,7 +2078,6 @@ function rollDay() {
 }
 function render() {
   const sc = game.scenarioConfig;
-  const d = DIFF[game.diff];
   els.day.textContent = game.day + " / " + game.targetDays;
   els.weather.textContent = game.weather;
   els.wood.textContent = game.wood;
@@ -2111,18 +2103,18 @@ function render() {
   renderEstimate();
 }
 function renderConsequencesPanel() {
-  var panel = document.querySelector("#consequencesPanel")
+  let panel = document.querySelector("#consequencesPanel")
   if (!panel) return
   if (!game.activeConsequences || game.activeConsequences.length === 0) {
     panel.innerHTML = '<div class="consequence-panel-title">⚡ 持续效果</div><div class="consequence-empty">暂无持续效果</div>'
     return
   }
-  var typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫", routeStatus: "🚀", resource: "📦" }
-  var typeLabels = { weather: "天气", routeBlock: "路线封路", guideFatigue: "向导疲劳", caravanChance: "商队出现", routeStatus: "路线状态", resource: "每日资源" }
-  var html = '<div class="consequence-panel-title">⚡ 持续效果（共 ' + game.activeConsequences.length + ' 项）</div>'
+  let typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫", routeStatus: "🚀", resource: "📦" }
+  let typeLabels = { weather: "天气", routeBlock: "路线封路", guideFatigue: "向导疲劳", caravanChance: "商队出现", routeStatus: "路线状态", resource: "每日资源" }
+  let html = '<div class="consequence-panel-title">⚡ 持续效果（共 ' + game.activeConsequences.length + ' 项）</div>'
   game.activeConsequences.forEach(function(c) {
-    var pct = Math.round((c.remainingDays / c.totalDays) * 100)
-    var effectDetail = c.effectSummary || ""
+    let pct = Math.round((c.remainingDays / c.totalDays) * 100)
+    let effectDetail = c.effectSummary || ""
     html += '<div class="consequence-item">'
     html += '<div class="consequence-source">'
     html += '<span class="consequence-type-icon" title="' + (typeLabels[c.type] || c.type) + '">' + (typeIcons[c.type] || "✨") + '</span>'
@@ -2317,10 +2309,10 @@ function endDay() {
     game.currentDayData.dispatchStartGuides = game.guides.map(g => ({ name: g.name, fatigue: g.fatigue, task: g.task }));
     game.currentDayData.estimate = calculateEstimate();
   }
-  var guideFatigueConsequences = getConsequenceEffectsByType("guideFatigue")
-  var guideFatigueBonus = 0
-  var guideFatigueGainMod = 0
-  var guideMaxFatigueMod = 0
+  let guideFatigueConsequences = getConsequenceEffectsByType("guideFatigue")
+  let guideFatigueBonus = 0
+  let guideFatigueGainMod = 0
+  let guideMaxFatigueMod = 0
   guideFatigueConsequences.forEach(function(c) {
     guideFatigueBonus += c.effect.fatigueRecoveryBonus || 0
     guideFatigueGainMod += c.effect.fatigueGainMod || 0
@@ -2332,7 +2324,7 @@ function endDay() {
     const rescueFailStreak = careerStats ? careerStats.rescueFailStreak : 0;
     const dayResult = { rested: false, routeId: null, success: false, failure: false, isStormDay: game.weather === "暴雪" };
     if (!guide.task) {
-      var restAmount = 2 + guideFatigueBonus
+      let restAmount = 2 + guideFatigueBonus
       let traitRestBonus = 0;
       if (isCareerBonusEnabled() && careerStats) {
         const context = { consecutiveRestDays: consecutiveRestDays + 1 };
@@ -2387,7 +2379,7 @@ function endDay() {
         }
         const adjustedRisk = Math.max(0, route.risk + traitEffects.riskMod);
         const rawFatigue = adjustedRisk + fatigueBonus + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
-        var fatigueGainMul = d.fatigueMul * (1 + guideFatigueGainMod);
+        let fatigueGainMul = d.fatigueMul * (1 + guideFatigueGainMod);
         let fatigueGain = Math.max(1, Math.round(rawFatigue * fatigueGainMul));
         if (traitEffects.fatigueMod !== 0) {
           fatigueGain = Math.max(1, Math.round(fatigueGain * (1 + traitEffects.fatigueMod)));
@@ -2455,7 +2447,7 @@ function endDay() {
     if (game.wood < 0) { game.failureReason = "柴火耗尽"; return finish(false); }
     if (game.med < 0) { game.failureReason = "药品耗尽"; return finish(false); }
   }
-  var maxFatigueThreshold = 12 + guideMaxFatigueMod
+  let maxFatigueThreshold = 12 + guideMaxFatigueMod
   if (lc.fatigue && game.guides.some(g => g.fatigue >= maxFatigueThreshold)) { game.failureReason = "向导疲劳过度"; return finish(false); }
   if (lc.medCritical) {
     if (game.med <= lc.medCritical.value) game.medCriticalStreak = (game.medCriticalStreak || 0) + 1;
@@ -2800,7 +2792,6 @@ function buildTempArchiveFromGame() {
 }
 let currentReportText = "";
 function generateBattleReport(archive) {
-  const d = DIFF[archive.difficulty];
   const scName = archive.scenarioLabel;
   const diffName = archive.difficultyLabel;
   const winText = archive.win ? "✅ 胜利" : "❌ 失败";
@@ -3065,7 +3056,7 @@ function renderArchiveCard(archive) {
   const winText = archive.win ? "胜利" : "失败";
   const scColor = archive.scenarioColor || "#315c72";
   let prefHtml = "";
-  const routes = Object.entries(archive.routePreference).filter(([_, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+  const routes = Object.entries(archive.routePreference).filter(entry => entry[1] > 0).sort((a, b) => b[1] - a[1]);
   if (routes.length > 0) {
     prefHtml = '<div class="route-preference">' + routes.map(([id, count]) =>
       '<span class="route-tag">' + getRouteName(id) + ' × ' + count + '</span>'
@@ -3103,11 +3094,11 @@ function renderArchiveCard(archive) {
     });
     archiveAchvHtml += '</div></div>';
   }
-  var consequenceHtml = ""
-  var typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫", routeStatus: "🚀", resource: "📦" }
-  var typeLabels = { weather: "天气", routeBlock: "路线封路", guideFatigue: "向导疲劳", caravanChance: "商队出现", routeStatus: "路线状态", resource: "每日资源" }
-  var consTimeline = archive.consequencesTimeline || []
-  var consCount = consTimeline.length
+  let consequenceHtml = ""
+  let typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫", routeStatus: "🚀", resource: "📦" }
+  let typeLabels = { weather: "天气", routeBlock: "路线封路", guideFatigue: "向导疲劳", caravanChance: "商队出现", routeStatus: "路线状态", resource: "每日资源" }
+  let consTimeline = archive.consequencesTimeline || []
+  let consCount = consTimeline.length
   if (consCount === 0 && archive.replayHistory && archive.replayHistory.length > 0) {
     archive.replayHistory.forEach(function(day) {
       if (day.consequencesTriggered && day.consequencesTriggered.length > 0) {
@@ -3130,20 +3121,20 @@ function renderArchiveCard(archive) {
     })
   }
   if (consCount > 0) {
-    var totalDurationDays = 0
+    let totalDurationDays = 0
     consTimeline.forEach(function(c) {
-      var end = c.expiredDay || (c.triggerDay ? (c.triggerDay + (c.totalDays || 0) - 1) : archive.day)
-      var start = c.triggerDay || c.day || 1
+      let end = c.expiredDay || (c.triggerDay ? (c.triggerDay + (c.totalDays || 0) - 1) : archive.day)
+      let start = c.triggerDay || c.day || 1
       totalDurationDays += Math.max(0, Math.min(end, archive.day) - start + 1)
     })
     consequenceHtml = '<div class="archive-detail-row" style="margin-top:8px"><span>⚡ 持续效果时间线</span><span>' + consCount + '项，累计影响' + totalDurationDays + '天</span></div>'
     consequenceHtml += '<div style="font-size:12px;margin-top:4px;background:#f5f8f8;padding:8px;border-radius:6px;border:1px solid #dde5e6">'
     consTimeline.slice(0, 8).forEach(function(c) {
-      var start = c.triggerDay || c.day || 1
-      var end = c.expiredDay || (start + (c.totalDays || 0) - 1)
-      var actualEnd = Math.min(end, archive.day)
-      var status = c.expiredDay ? ("已结束（共" + (actualEnd - start + 1) + "天）") : (end > archive.day ? "进行中（剩余" + (end - archive.day) + "天）" : "已结束")
-      var statusCls = c.expiredDay ? "color:#a33d31" : (end > archive.day ? "color:#3f7a54" : "color:#5a6e78")
+      let start = c.triggerDay || c.day || 1
+      let end = c.expiredDay || (start + (c.totalDays || 0) - 1)
+      let actualEnd = Math.min(end, archive.day)
+      let status = c.expiredDay ? ("已结束（共" + (actualEnd - start + 1) + "天）") : (end > archive.day ? "进行中（剩余" + (end - archive.day) + "天）" : "已结束")
+      let statusCls = c.expiredDay ? "color:#a33d31" : (end > archive.day ? "color:#3f7a54" : "color:#5a6e78")
       consequenceHtml += '<div style="padding:4px 0;border-bottom:1px dashed #dde5e6">'
       consequenceHtml += '<div style="display:flex;align-items:center;gap:4px">'
       consequenceHtml += '<span title="' + (typeLabels[c.type] || c.type) + '">' + (typeIcons[c.type] || "✨") + '</span>'
@@ -3588,7 +3579,6 @@ function renderReplaySummary() {
 }
 function renderReplayTimeline() {
   const history = currentReplayData.replayHistory;
-  const turningSet = new Set((currentReplayData.turningPoints || []).map(tp => tp.day));
   let html = "";
   history.forEach((day, idx) => {
     const isTurning = day.isTurningPoint;
@@ -3740,7 +3730,7 @@ function renderReplayEvent(day) {
     html += '<div style="font-size:12px;color:#5a6e78">（未做出选择）</div>';
   }
   if (day.consequencesTriggered && day.consequencesTriggered.length > 0) {
-    var typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫" }
+    let typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫" }
     html += '<div style="margin-top:8px;font-size:12px"><b>触发持续效果：</b></div>'
     day.consequencesTriggered.forEach(function(c) {
       html += '<div class="replay-consequence-item" style="border-left-color:#3f7a54">' + (typeIcons[c.type] || "") + ' ' + c.description + '（持续' + c.totalDays + '天）</div>'
@@ -3771,12 +3761,12 @@ function renderReplayLogs(day) {
   return '<div class="replay-log-list">' + day.logs.map(log => '<div class="replay-log-entry">' + log + '</div>').reverse().join("") + '</div>';
 }
 function renderReplayConsequences(day) {
-  var html = '<div class="replay-section"><h3>⚡ 持续效果（完整生命周期）</h3>'
-  var typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫", routeStatus: "🚀", resource: "📦" }
-  var typeLabels = { weather: "天气", routeBlock: "路线封路", guideFatigue: "向导疲劳", caravanChance: "商队出现", routeStatus: "路线状态", resource: "每日资源" }
-  var hasAny = false
+  let html = '<div class="replay-section"><h3>⚡ 持续效果（完整生命周期）</h3>'
+  let typeIcons = { weather: "🌤", routeBlock: "🛤", guideFatigue: "🥾", caravanChance: "🐫", routeStatus: "🚀", resource: "📦" }
+  let typeLabels = { weather: "天气", routeBlock: "路线封路", guideFatigue: "向导疲劳", caravanChance: "商队出现", routeStatus: "路线状态", resource: "每日资源" }
+  let hasAny = false
   function buildConsequenceDetail(c, expired) {
-    var item = '<div class="replay-consequence-item" style="border-left-color:' + (expired ? '#a33d31' : (expired === false ? '#3f7a54' : '#b08a28')) + '">'
+    let item = '<div class="replay-consequence-item" style="border-left-color:' + (expired ? '#a33d31' : (expired === false ? '#3f7a54' : '#b08a28')) + '">'
     item += '<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">'
     item += '<span title="' + (typeLabels[c.type] || c.type) + '">' + (typeIcons[c.type] || "✨") + '</span>'
     item += '<b>' + c.sourceEventName + '</b>'
@@ -3792,9 +3782,9 @@ function renderReplayConsequences(day) {
     if (c.sourceChoice) {
       item += '<div style="font-size:11px;color:#8a5a9e;margin-top:2px">💡 选择：' + c.sourceChoice + '</div>'
     }
-    var daysInfo = ''
+    let daysInfo = ''
     if (expired === true) {
-      var lasted = (c.expiredDay || day.day) - c.triggerDay
+      let lasted = (c.expiredDay || day.day) - c.triggerDay
       daysInfo = '已到期（持续' + lasted + '天）'
     } else if (expired === false) {
       daysInfo = '本日新触发（持续' + c.totalDays + '天，至第' + (c.triggerDay + c.totalDays - 1) + '天）'
@@ -3804,12 +3794,12 @@ function renderReplayConsequences(day) {
     item += '<div style="font-size:11px;color:#5a6e78;margin-top:3px;display:flex;justify-content:space-between;align-items:center">'
     item += '<span>⏱ ' + daysInfo + '</span>'
     if (!expired) {
-      var pct = Math.round((c.remainingDays / c.totalDays) * 100)
+      let pct = Math.round((c.remainingDays / c.totalDays) * 100)
       item += '<span style="font-weight:700;color:#315c72">' + pct + '%</span>'
     }
     item += '</div>'
     if (!expired) {
-      var pct2 = Math.round((c.remainingDays / c.totalDays) * 100)
+      let pct2 = Math.round((c.remainingDays / c.totalDays) * 100)
       item += '<div style="height:3px;background:#dde5e6;border-radius:2px;margin-top:3px;overflow:hidden"><div style="height:100%;width:' + pct2 + '%;background:#b08a28;border-radius:2px"></div></div>'
     }
     item += '</div>'
@@ -3853,7 +3843,7 @@ function renderReplayDay() {
   els.replayNextBtn.disabled = isLast;
   els.replayNextBtn.classList.toggle("secondary", isLast);
   const hasBriefing = day.briefing !== undefined;
-  var consequenceSection = renderReplayConsequences(day)
+  let consequenceSection = renderReplayConsequences(day)
   els.replayGrid.innerHTML =
     '<div class="replay-section"><h3 style="display:flex;justify-content:space-between;align-items:center;">天气 · 资源变化' + (hasBriefing ? '<button class="replay-briefing-btn" id="replayBriefingBtn">查看简报</button>' : '') + '</h3>' +
     '<div class="replay-row"><span>天气</span><span><b>' + day.weather + '</b></span></div>' +

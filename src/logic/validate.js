@@ -1,7 +1,6 @@
 'use strict';
-import { SCENARIOS, CUSTOM_SCENARIO_PREFIX } from '../data/scenarios.js';
 import { EVENTS_POOL } from '../data/events.js';
-import { routesBase, ALL_ROUTES_MAP } from '../data/routes.js';
+import { ALL_ROUTES_MAP } from '../data/routes.js';
 import { DIFF } from '../data/difficulty.js';
 export function formatSign(num) {
   return num >= 0 ? "+" + num : String(num);

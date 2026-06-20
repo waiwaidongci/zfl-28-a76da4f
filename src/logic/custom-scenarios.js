@@ -1,6 +1,6 @@
 'use strict';
 import { StorageUtil } from '../logic/storage.js';
-import { SCENARIOS, CUSTOM_SCENARIO_PREFIX } from '../data/scenarios.js';
+import { SCENARIOS } from '../data/scenarios.js';
 import { ALL_ROUTES_MAP } from '../data/routes.js';
 export const CUSTOM_SCENARIOS_KEY = "mountain_post_custom_scenarios";
 export function loadCustomScenarios() {

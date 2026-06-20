@@ -1,6 +1,5 @@
 'use strict';
-import { mulberry32, hashStringToSeed } from './rng.js';
-import { SCENARIOS, CUSTOM_SCENARIO_PREFIX } from '../data/scenarios.js';
+import { SCENARIOS } from '../data/scenarios.js';
 import { DIFF } from '../data/difficulty.js';
 import { loadCustomScenarios, getAllScenarios } from './custom-scenarios.js';
 export const CHALLENGE_VERSION = 1;
@@ -9,7 +8,6 @@ export function getEventChoiceKey(eventId, choiceIndex) {
   return eventId + "__" + choiceIndex;
 }
 export function encodeChallengeCode(scenarioId, difficulty, seedNum) {
-  const scenarioIndex = Object.keys(SCENARIOS).indexOf(scenarioId);
   const customScenarios = loadCustomScenarios();
   const allScenarioIds = Object.keys(SCENARIOS).concat(Object.keys(customScenarios));
   let scIndex = allScenarioIds.indexOf(scenarioId);

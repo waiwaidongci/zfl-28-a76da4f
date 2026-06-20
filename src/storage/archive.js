@@ -155,11 +155,11 @@ export function saveGameArchive(win, game) {
   const d = DIFF[game.diff];
   const now = new Date();
   const unlockedIds = checkScenarioAchievements(sc.id, game, null);
-  var consequencesTimeline = []
+  let consequencesTimeline = []
   if (game.consequenceHistory && game.consequenceHistory.length > 0) {
-    var consMap = {}
+    let consMap = {}
     game.consequenceHistory.forEach(function(entry) {
-      var id = entry.id
+      let id = entry.id
       if (!consMap[id]) {
         consMap[id] = {
           id: id,
