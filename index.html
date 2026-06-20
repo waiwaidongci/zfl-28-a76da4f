@@ -1872,7 +1872,8 @@
         const scenarioId = allScenarioIds[scIndex] || "standard";
         const diffMapInv = { 0: "safe", 1: "normal", 2: "hard" };
         const difficulty = diffMapInv[diffIndex] || "normal";
-        return { scenarioId, difficulty, seed, valid: true };
+        const formatted = clean.substring(0, 3) + "-" + clean.substring(3, 5) + "-" + clean.substring(5, 7);
+        return { scenarioId, difficulty, seed, valid: true, formatted };
       } catch (e) {
         return null;
       }
