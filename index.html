@@ -355,6 +355,76 @@
     .consequence-panel-title { font-size: 14px; font-weight: 800; color: #315c72; margin-bottom: 6px; }
     .consequence-empty { font-size: 12px; color: #5a6e78; text-align: center; padding: 8px; }
     .replay-consequence-item { padding: 6px 8px; background: #fff; border-radius: 4px; font-size: 12px; margin-top: 4px; border-left: 3px solid #b08a28; }
+    .editor-btn { font-size: 13px; padding: 6px 14px; margin-left: 10px; vertical-align: middle; background: #b08a28; }
+    .editor-btn:hover { background: #a07a18; }
+    .editor-modal { width: min(1100px, calc(100% - 28px)); max-height: 92vh; overflow-y: auto; }
+    .editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #dde5e6; }
+    .editor-header h2 { margin: 0; color: #315c72; }
+    .editor-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid #dde5e6; }
+    .editor-tab { padding: 10px 18px; border: none; background: none; cursor: pointer; font-weight: 700; color: #5a6e78; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all .2s; }
+    .editor-tab:hover { color: #315c72; }
+    .editor-tab.active { color: #315c72; border-bottom-color: #315c72; }
+    .editor-section { display: none; }
+    .editor-section.active { display: block; }
+    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .editor-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .editor-group { background: #f5f8f8; border: 1px solid #dde5e6; border-radius: 8px; padding: 14px; }
+    .editor-group-title { font-weight: 800; color: #315c72; margin: 0 0 12px; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .editor-group-title::before { content: ""; display: inline-block; width: 4px; height: 16px; background: #315c72; border-radius: 2px; }
+    .editor-field { margin-bottom: 12px; }
+    .editor-field:last-child { margin-bottom: 0; }
+    .editor-field label { display: block; font-weight: 700; color: #1f2a2f; margin-bottom: 5px; font-size: 13px; }
+    .editor-field .hint { font-size: 11px; color: #8a9ea5; margin-top: 3px; }
+    .editor-field input[type="text"], .editor-field input[type="number"], .editor-field textarea, .editor-field select { width: 100%; padding: 8px 10px; border: 1px solid #dde5e6; border-radius: 6px; font-size: 13px; font-family: inherit; }
+    .editor-field textarea { resize: vertical; min-height: 70px; }
+    .editor-field input[type="color"] { width: 60px; height: 36px; padding: 2px; border: 1px solid #dde5e6; border-radius: 6px; cursor: pointer; }
+    .editor-checkbox { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #fff; border: 1px solid #dde5e6; border-radius: 6px; cursor: pointer; transition: all .2s; }
+    .editor-checkbox:hover { background: #f0f5f5; }
+    .editor-checkbox input { width: auto; margin: 0; }
+    .editor-checkbox label { margin: 0; cursor: pointer; font-weight: 500; }
+    .editor-route-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .editor-weather-row, .editor-event-weight-row { display: grid; grid-template-columns: 1fr 100px; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .editor-weather-row:last-child, .editor-event-weight-row:last-child { margin-bottom: 0; }
+    .editor-weather-row label, .editor-event-weight-row label { margin: 0; font-weight: 500; }
+    .editor-slider-row { display: flex; align-items: center; gap: 10px; }
+    .editor-slider-row input[type="range"] { flex: 1; }
+    .editor-slider-row .value { min-width: 50px; text-align: right; font-weight: 700; color: #315c72; }
+    .editor-validation { background: #fff9e8; border: 2px solid #b08a28; border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+    .editor-validation.error { background: #fdf2f0; border-color: #a33d31; }
+    .editor-validation.success { background: #e8f5ee; border-color: #3f7a54; }
+    .editor-validation-title { font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .editor-validation.error .editor-validation-title { color: #a33d31; }
+    .editor-validation.success .editor-validation-title { color: #3f7a54; }
+    .editor-validation-list { margin: 0; padding-left: 20px; font-size: 13px; }
+    .editor-validation-list li { margin-bottom: 4px; }
+    .editor-footer { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #dde5e6; }
+    .editor-footer button { flex: 1; }
+    .editor-footer .btn-primary { background: #315c72; }
+    .editor-footer .btn-primary:hover { background: #214c62; }
+    .editor-footer .btn-danger { background: #a33d31; }
+    .editor-footer .btn-danger:hover { background: #8a2d21; }
+    .editor-badge-custom { background: linear-gradient(135deg, #b08a28, #d4a030); }
+    .editor-scenario-list { display: grid; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 4px; }
+    .editor-scenario-item { background: #fff; border: 2px solid #dde5e6; border-radius: 8px; padding: 12px; cursor: pointer; transition: all .2s; }
+    .editor-scenario-item:hover { border-color: #315c72; background: #f0f7f8; }
+    .editor-scenario-item.selected { border-color: #315c72; background: #e8f0f2; }
+    .editor-scenario-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .editor-scenario-item-name { font-weight: 800; color: #1f2a2f; }
+    .editor-scenario-item-actions { display: flex; gap: 6px; }
+    .editor-scenario-item-actions button { padding: 4px 10px; font-size: 11px; }
+    .editor-empty { text-align: center; padding: 30px 20px; color: #5a6e78; font-size: 13px; }
+    .editor-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #fff; margin-right: 6px; }
+    .editor-consequence-list { display: flex; flex-direction: column; gap: 8px; }
+    .editor-consequence-item { background: #fff; border: 1px solid #dde5e6; border-radius: 6px; padding: 10px; }
+    .editor-consequence-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .editor-consequence-item select { padding: 5px 8px; font-size: 12px; }
+    .editor-add-btn { width: 100%; padding: 10px; background: #4a7c5e; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; transition: background .2s; }
+    .editor-add-btn:hover { background: #3a6a4e; }
+    .editor-remove-btn { padding: 4px 8px; background: #a33d31; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; }
+    .editor-remove-btn:hover { background: #8a2d21; }
+    @media (max-width: 800px) {
+      .editor-grid, .editor-grid-3, .editor-route-list { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -363,6 +433,7 @@
     <div>
       <button class="tutorial-btn" id="tutorialBtn">游戏帮助</button>
       <button class="settings-btn" id="settingsBtn">玩法设置</button>
+      <button class="editor-btn" id="editorBtn">剧本编辑器</button>
       <button id="newBtn">新开一局</button>
     </div>
   </header>
@@ -427,7 +498,7 @@
     <div class="modal" style="width:min(780px,calc(100% - 28px));max-height:85vh;overflow-y:auto">
       <h2>结算档案馆 <button class="sample-data-btn" id="loadSampleBtn">加载样例数据</button></h2>
       <div class="stats-dashboard" id="statsDashboard"></div>
-      <div class="archive-filter">
+      <div class="archive-filter" id="archiveFilter">
         <button data-filter="recent" class="active">最近游玩</button>
         <button data-filter="win">胜利记录</button>
         <button data-filter="lose">失败记录</button>
@@ -580,6 +651,349 @@
         <button class="tutorial-skip" id="tutorialSkipBtn">跳过引导</button>
         <button class="tutorial-prev hidden" id="tutorialPrevBtn">上一步</button>
         <button id="tutorialNextBtn">下一步</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay hidden" id="editorOverlay">
+    <div class="modal editor-modal">
+      <div class="editor-header">
+        <h2>🎨 自定义剧本编辑器</h2>
+        <button class="secondary" id="editorCloseBtn">关闭</button>
+      </div>
+      <div id="editorValidation"></div>
+      <div class="editor-tabs" id="editorTabs">
+        <button class="editor-tab active" data-tab="basic">基础设置</button>
+        <button class="editor-tab" data-tab="resources">初始资源</button>
+        <button class="editor-tab" data-tab="routes">路线池</button>
+        <button class="editor-tab" data-tab="weather">天气概率</button>
+        <button class="editor-tab" data-tab="events">事件权重</button>
+        <button class="editor-tab" data-tab="rules">胜负规则</button>
+        <button class="editor-tab" data-tab="text">剧本文案</button>
+        <button class="editor-tab" data-tab="manage">管理剧本</button>
+      </div>
+      <div class="editor-section active" id="editor-basic">
+        <div class="editor-grid">
+          <div class="editor-group">
+            <h3 class="editor-group-title">剧本基础信息</h3>
+            <div class="editor-field">
+              <label>基于标准剧本复制</label>
+              <select id="editorBaseScenario">
+                <option value="standard">标准雪线</option>
+                <option value="medshortage">药品短缺</option>
+                <option value="caravan">商队旺季</option>
+                <option value="rescue">封山救援</option>
+              </select>
+              <div class="hint">选择一个标准剧本作为模板，将自动复制所有配置</div>
+            </div>
+            <div class="editor-field">
+              <label>剧本名称</label>
+              <input type="text" id="editorName" placeholder="例如：极寒风暴" maxlength="20">
+            </div>
+            <div class="editor-field">
+              <label>副标题</label>
+              <input type="text" id="editorSubtitle" placeholder="例如：百年一遇的寒冬" maxlength="30">
+            </div>
+            <div class="editor-field">
+              <label>主题色</label>
+              <input type="color" id="editorColor" value="#315c72">
+              <div class="hint">用于卡片、标题等UI元素的配色</div>
+            </div>
+          </div>
+          <div class="editor-group">
+            <h3 class="editor-group-title">核心参数</h3>
+            <div class="editor-field">
+              <label>目标天数</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorTargetDays" min="5" max="30" value="15">
+                <span class="value" id="editorTargetDaysValue">15</span>
+              </div>
+              <div class="hint">游戏需要进行的总天数，范围 5-30 天</div>
+            </div>
+            <div class="editor-field">
+              <label>事件触发概率</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorEventChance" min="0" max="100" value="75">
+                <span class="value" id="editorEventChanceValue">75%</span>
+              </div>
+              <div class="hint">每天触发随机事件的概率</div>
+            </div>
+            <div class="editor-field">
+              <label>商队出现概率</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorCaravanChance" min="0" max="100" value="74">
+                <span class="value" id="editorCaravanChanceValue">74%</span>
+              </div>
+              <div class="hint">每条路线出现商队的基础概率</div>
+            </div>
+            <div class="editor-field">
+              <label>暴雪封路概率</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorStormBlockChance" min="0" max="100" value="33">
+                <span class="value" id="editorStormBlockChanceValue">33%</span>
+              </div>
+              <div class="hint">暴雪天气下路线被封锁的概率</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="editor-section" id="editor-resources">
+        <div class="editor-grid">
+          <div class="editor-group">
+            <h3 class="editor-group-title">初始资源调整</h3>
+            <div class="hint" style="margin-bottom:12px">正值表示增加，负值表示减少。实际初始资源 = 难度基础值 + 调整值</div>
+            <div class="editor-field">
+              <label>柴火调整</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorStartWood" min="-10" max="20" value="0">
+                <span class="value" id="editorStartWoodValue">+0</span>
+              </div>
+            </div>
+            <div class="editor-field">
+              <label>药品调整</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorStartMed" min="-10" max="20" value="0">
+                <span class="value" id="editorStartMedValue">+0</span>
+              </div>
+            </div>
+            <div class="editor-field">
+              <label>干粮调整</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorStartFood" min="-10" max="20" value="0">
+                <span class="value" id="editorStartFoodValue">+0</span>
+              </div>
+            </div>
+            <div class="editor-field">
+              <label>初始声望</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorStartRep" min="-5" max="20" value="0">
+                <span class="value" id="editorStartRepValue">0</span>
+              </div>
+            </div>
+          </div>
+          <div class="editor-group">
+            <h3 class="editor-group-title">路线修正参数</h3>
+            <div class="editor-field">
+              <label>向导疲劳加成</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorFatigueBonus" min="0" max="5" value="0">
+                <span class="value" id="editorFatigueBonusValue">+0</span>
+              </div>
+              <div class="hint">全局疲劳增加量，值越高向导越容易疲劳</div>
+            </div>
+            <div class="editor-field">
+              <label>奖励加成</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorRewardBonus" min="0" max="5" value="0">
+                <span class="value" id="editorRewardBonusValue">+0</span>
+              </div>
+              <div class="hint">成功接应商队时额外获得的声望</div>
+            </div>
+            <div class="editor-field">
+              <label>暴雪免疫路线</label>
+              <div class="editor-route-list" id="editorStormImmuneRoutes"></div>
+              <div class="hint">勾选的路线在暴雪天气下不会被封锁</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="editor-section" id="editor-routes">
+        <div class="editor-group">
+          <h3 class="editor-group-title">可用路线池</h3>
+          <div class="hint" style="margin-bottom:12px">至少选择 2 条路线，否则玩家没有足够的调度空间。建议选择 3-5 条路线以保持策略深度。</div>
+          <div class="editor-route-list" id="editorRoutePool"></div>
+        </div>
+      </div>
+      <div class="editor-section" id="editor-weather">
+        <div class="editor-grid">
+          <div class="editor-group">
+            <h3 class="editor-group-title">天气概率表</h3>
+            <div class="hint" style="margin-bottom:12px">三种天气概率之和应为 100%，系统会自动归一化。</div>
+            <div class="editor-weather-row">
+              <label>☀️ 晴天概率</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorWeatherClear" min="0" max="100" value="50">
+                <span class="value" id="editorWeatherClearValue">50%</span>
+              </div>
+            </div>
+            <div class="editor-weather-row">
+              <label>🌫️ 阴风概率</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorWeatherWind" min="0" max="100" value="30">
+                <span class="value" id="editorWeatherWindValue">30%</span>
+              </div>
+            </div>
+            <div class="editor-weather-row">
+              <label>❄️ 暴雪概率</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorWeatherStorm" min="0" max="100" value="20">
+                <span class="value" id="editorWeatherStormValue">20%</span>
+              </div>
+            </div>
+            <div class="editor-field" style="margin-top:16px">
+              <label>强制暴雪概率覆盖</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorOverrideStorm" min="0" max="100" value="0">
+                <span class="value" id="editorOverrideStormValue">不覆盖</span>
+              </div>
+              <div class="hint">设置为 0 表示不覆盖，使用上表计算。用于创建极端天气剧本。</div>
+            </div>
+          </div>
+          <div class="editor-group">
+            <h3 class="editor-group-title">事件类别权重</h3>
+            <div class="hint" style="margin-bottom:12px">权重乘数越高，该类事件越容易出现。1.0 为标准权重。</div>
+            <div class="editor-event-weight-row">
+              <label>🌤️ 天气异象</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorEventWeather" min="0" max="300" value="100">
+                <span class="value" id="editorEventWeatherValue">1.0x</span>
+              </div>
+            </div>
+            <div class="editor-event-weight-row">
+              <label>📦 物资事件</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorEventSupply" min="0" max="300" value="100">
+                <span class="value" id="editorEventSupplyValue">1.0x</span>
+              </div>
+            </div>
+            <div class="editor-event-weight-row">
+              <label>🧭 向导事件</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorEventGuide" min="0" max="300" value="100">
+                <span class="value" id="editorEventGuideValue">1.0x</span>
+              </div>
+            </div>
+            <div class="editor-event-weight-row">
+              <label>⭐ 声望事件</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorEventReputation" min="0" max="300" value="100">
+                <span class="value" id="editorEventReputationValue">1.0x</span>
+              </div>
+            </div>
+            <div class="editor-event-weight-row">
+              <label>🎲 随机事件</label>
+              <div class="editor-slider-row">
+                <input type="range" id="editorEventRandom" min="0" max="300" value="100">
+                <span class="value" id="editorEventRandomValue">1.0x</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="editor-section" id="editor-events">
+        <div class="editor-group">
+          <h3 class="editor-group-title">具体事件权重覆盖</h3>
+          <div class="hint" style="margin-bottom:12px">可以单独调高或调低特定事件的出现概率。留空或 1.0 表示使用标准权重。</div>
+          <div id="editorEventOverrides" style="max-height: 500px; overflow-y: auto; padding-right: 4px;"></div>
+        </div>
+      </div>
+      <div class="editor-section" id="editor-rules">
+        <div class="editor-grid">
+          <div class="editor-group">
+            <h3 class="editor-group-title">胜利条件</h3>
+            <div class="editor-field">
+              <label>胜利类型</label>
+              <select id="editorWinType">
+                <option value="days">坚守到最后一天</option>
+                <option value="caravans">接应足够商队</option>
+                <option value="days_and_rep">坚守天数 + 声望达标</option>
+                <option value="caravans_and_rep">接应商队 + 声望达标</option>
+              </select>
+            </div>
+            <div class="editor-field" id="editorWinCountField" style="display:none">
+              <label>需要接应商队数</label>
+              <input type="number" id="editorWinCount" min="1" max="50" value="12">
+            </div>
+            <div class="editor-field" id="editorWinRepField" style="display:none">
+              <label>需要达到的声望</label>
+              <input type="number" id="editorWinRep" min="1" max="100" value="25">
+            </div>
+            <div class="editor-field">
+              <label>胜利目标描述</label>
+              <input type="text" id="editorWinLabel" placeholder="例如：坚守到最后">
+            </div>
+          </div>
+          <div class="editor-group">
+            <h3 class="editor-group-title">失败规则</h3>
+            <div class="editor-field">
+              <div class="editor-checkbox">
+                <input type="checkbox" id="editorLoseResources" checked>
+                <label for="editorLoseResources">资源耗尽失败（任一资源负数即失败）</label>
+              </div>
+            </div>
+            <div class="editor-field">
+              <div class="editor-checkbox">
+                <input type="checkbox" id="editorLoseFatigue" checked>
+                <label for="editorLoseFatigue">向导疲劳过度失败（疲劳≥12即失败）</label>
+              </div>
+            </div>
+            <div class="editor-field">
+              <div class="editor-checkbox">
+                <input type="checkbox" id="editorLoseMedCritical">
+                <label for="editorLoseMedCritical">药品持续短缺失败</label>
+              </div>
+            </div>
+            <div id="editorMedCriticalFields" style="display:none; margin-top:10px; padding-left:28px;">
+              <div class="editor-field">
+                <label>药品临界值</label>
+                <input type="number" id="editorMedCriticalValue" min="0" max="10" value="2">
+                <div class="hint">药品低于等于此值即开始计数</div>
+              </div>
+              <div class="editor-field">
+                <label>持续天数</label>
+                <input type="number" id="editorMedCriticalDays" min="1" max="10" value="2">
+                <div class="hint">连续多少天低于临界值即失败</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="editor-section" id="editor-text">
+        <div class="editor-grid">
+          <div class="editor-group">
+            <h3 class="editor-group-title">剧本文案</h3>
+            <div class="editor-field">
+              <label>剧本详细描述</label>
+              <textarea id="editorDesc" placeholder="详细介绍剧本背景、特色和玩法要点..."></textarea>
+            </div>
+            <div class="editor-field">
+              <label>开场介绍</label>
+              <textarea id="editorIntro" placeholder="游戏第一天显示的介绍文字..."></textarea>
+            </div>
+          </div>
+          <div class="editor-group">
+            <h3 class="editor-group-title">结论文案</h3>
+            <div class="editor-field">
+              <label>胜利结论文案模板</label>
+              <textarea id="editorResultWin" placeholder="支持占位符：{day}天数、{saved}商队数、{rep}声望值"></textarea>
+              <div class="hint">例如：坚守到第{day}天，接应商队 {saved} 队，累计声望 {rep}。</div>
+            </div>
+            <div class="editor-field">
+              <label>失败结论文案模板</label>
+              <textarea id="editorResultLose" placeholder="支持占位符：{day}天数、{saved}商队数、{reason}失败原因"></textarea>
+              <div class="hint">例如：坚持了 {day} 天，接应 {saved} 队商队。失败原因：{reason}。</div>
+            </div>
+            <div class="editor-field">
+              <label>胜利弹窗标题</label>
+              <input type="text" id="editorWinTitle" placeholder="例如：胜利！">
+            </div>
+            <div class="editor-field">
+              <label>失败弹窗标题</label>
+              <input type="text" id="editorLoseTitle" placeholder="例如：失败...">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="editor-section" id="editor-manage">
+        <div class="editor-group">
+          <h3 class="editor-group-title">我的自定义剧本</h3>
+          <div id="editorCustomList" class="editor-scenario-list"></div>
+        </div>
+      </div>
+      <div class="editor-footer">
+        <button class="secondary" id="editorLoadBtn">加载模板</button>
+        <button class="secondary" id="editorResetBtn">重置当前</button>
+        <button class="btn-danger" id="editorDeleteBtn">删除此剧本</button>
+        <button class="btn-primary" id="editorSaveBtn">💾 保存剧本</button>
       </div>
     </div>
   </div>
@@ -1245,10 +1659,776 @@
       tutorialCloseBtn: document.querySelector("#tutorialCloseBtn"),
       tutorialBtn: document.querySelector("#tutorialBtn"),
       statsDashboard: document.querySelector("#statsDashboard"),
-      loadSampleBtn: document.querySelector("#loadSampleBtn")
+      loadSampleBtn: document.querySelector("#loadSampleBtn"),
+      archiveFilter: document.querySelector("#archiveFilter"),
+      editorOverlay: document.querySelector("#editorOverlay"),
+      editorCloseBtn: document.querySelector("#editorCloseBtn"),
+      editorBtn: document.querySelector("#editorBtn"),
+      editorValidation: document.querySelector("#editorValidation"),
+      editorTabs: document.querySelector("#editorTabs"),
+      editorBaseScenario: document.querySelector("#editorBaseScenario"),
+      editorName: document.querySelector("#editorName"),
+      editorSubtitle: document.querySelector("#editorSubtitle"),
+      editorColor: document.querySelector("#editorColor"),
+      editorTargetDays: document.querySelector("#editorTargetDays"),
+      editorTargetDaysValue: document.querySelector("#editorTargetDaysValue"),
+      editorEventChance: document.querySelector("#editorEventChance"),
+      editorEventChanceValue: document.querySelector("#editorEventChanceValue"),
+      editorCaravanChance: document.querySelector("#editorCaravanChance"),
+      editorCaravanChanceValue: document.querySelector("#editorCaravanChanceValue"),
+      editorStormBlockChance: document.querySelector("#editorStormBlockChance"),
+      editorStormBlockChanceValue: document.querySelector("#editorStormBlockChanceValue"),
+      editorStartWood: document.querySelector("#editorStartWood"),
+      editorStartWoodValue: document.querySelector("#editorStartWoodValue"),
+      editorStartMed: document.querySelector("#editorStartMed"),
+      editorStartMedValue: document.querySelector("#editorStartMedValue"),
+      editorStartFood: document.querySelector("#editorStartFood"),
+      editorStartFoodValue: document.querySelector("#editorStartFoodValue"),
+      editorStartRep: document.querySelector("#editorStartRep"),
+      editorStartRepValue: document.querySelector("#editorStartRepValue"),
+      editorFatigueBonus: document.querySelector("#editorFatigueBonus"),
+      editorFatigueBonusValue: document.querySelector("#editorFatigueBonusValue"),
+      editorRewardBonus: document.querySelector("#editorRewardBonus"),
+      editorRewardBonusValue: document.querySelector("#editorRewardBonusValue"),
+      editorStormImmuneRoutes: document.querySelector("#editorStormImmuneRoutes"),
+      editorRoutePool: document.querySelector("#editorRoutePool"),
+      editorWeatherClear: document.querySelector("#editorWeatherClear"),
+      editorWeatherClearValue: document.querySelector("#editorWeatherClearValue"),
+      editorWeatherWind: document.querySelector("#editorWeatherWind"),
+      editorWeatherWindValue: document.querySelector("#editorWeatherWindValue"),
+      editorWeatherStorm: document.querySelector("#editorWeatherStorm"),
+      editorWeatherStormValue: document.querySelector("#editorWeatherStormValue"),
+      editorOverrideStorm: document.querySelector("#editorOverrideStorm"),
+      editorOverrideStormValue: document.querySelector("#editorOverrideStormValue"),
+      editorEventWeather: document.querySelector("#editorEventWeather"),
+      editorEventWeatherValue: document.querySelector("#editorEventWeatherValue"),
+      editorEventSupply: document.querySelector("#editorEventSupply"),
+      editorEventSupplyValue: document.querySelector("#editorEventSupplyValue"),
+      editorEventGuide: document.querySelector("#editorEventGuide"),
+      editorEventGuideValue: document.querySelector("#editorEventGuideValue"),
+      editorEventReputation: document.querySelector("#editorEventReputation"),
+      editorEventReputationValue: document.querySelector("#editorEventReputationValue"),
+      editorEventRandom: document.querySelector("#editorEventRandom"),
+      editorEventRandomValue: document.querySelector("#editorEventRandomValue"),
+      editorEventOverrides: document.querySelector("#editorEventOverrides"),
+      editorWinType: document.querySelector("#editorWinType"),
+      editorWinCount: document.querySelector("#editorWinCount"),
+      editorWinCountField: document.querySelector("#editorWinCountField"),
+      editorWinRep: document.querySelector("#editorWinRep"),
+      editorWinRepField: document.querySelector("#editorWinRepField"),
+      editorWinLabel: document.querySelector("#editorWinLabel"),
+      editorLoseResources: document.querySelector("#editorLoseResources"),
+      editorLoseFatigue: document.querySelector("#editorLoseFatigue"),
+      editorLoseMedCritical: document.querySelector("#editorLoseMedCritical"),
+      editorMedCriticalFields: document.querySelector("#editorMedCriticalFields"),
+      editorMedCriticalValue: document.querySelector("#editorMedCriticalValue"),
+      editorMedCriticalDays: document.querySelector("#editorMedCriticalDays"),
+      editorDesc: document.querySelector("#editorDesc"),
+      editorIntro: document.querySelector("#editorIntro"),
+      editorResultWin: document.querySelector("#editorResultWin"),
+      editorResultLose: document.querySelector("#editorResultLose"),
+      editorWinTitle: document.querySelector("#editorWinTitle"),
+      editorLoseTitle: document.querySelector("#editorLoseTitle"),
+      editorCustomList: document.querySelector("#editorCustomList"),
+      editorLoadBtn: document.querySelector("#editorLoadBtn"),
+      editorResetBtn: document.querySelector("#editorResetBtn"),
+      editorDeleteBtn: document.querySelector("#editorDeleteBtn"),
+      editorSaveBtn: document.querySelector("#editorSaveBtn")
     };
+    const CUSTOM_SCENARIOS_KEY = "mountain_post_custom_scenarios";
+    const CUSTOM_SCENARIO_PREFIX = "custom_";
+    let editingCustomId = null;
+    let currentEditorScenario = null;
+    function loadCustomScenarios() {
+      try {
+        const stored = localStorage.getItem(CUSTOM_SCENARIOS_KEY);
+        return stored ? JSON.parse(stored) : {};
+      } catch (e) {
+        console.error("加载自定义剧本失败:", e);
+        return {};
+      }
+    }
+    function saveCustomScenarios(customScenarios) {
+      try {
+        localStorage.setItem(CUSTOM_SCENARIOS_KEY, JSON.stringify(customScenarios));
+      } catch (e) {
+        console.error("保存自定义剧本失败:", e);
+      }
+    }
+    function mergeCustomScenarios() {
+      const custom = loadCustomScenarios();
+      const merged = { ...SCENARIOS };
+      Object.values(custom).forEach(sc => {
+        merged[sc.id] = sc;
+      });
+      return merged;
+    }
+    function getAllScenarios() {
+      return mergeCustomScenarios();
+    }
+    function getScenarioById(id) {
+      const all = getAllScenarios();
+      return all[id];
+    }
+    function formatSign(num) {
+      return num >= 0 ? "+" + num : String(num);
+    }
+    function validateScenarioConfig(sc) {
+      const errors = [];
+      const warnings = [];
+      if (!sc.name || sc.name.trim().length === 0) {
+        errors.push("剧本名称不能为空");
+      }
+      if (!sc.routePool || sc.routePool.length < 2) {
+        errors.push("至少需要选择 2 条可用路线，否则玩家没有足够的调度空间");
+      }
+      if (sc.routePool && sc.routePool.length > 0) {
+        const validRoutes = sc.routePool.filter(id => ALL_ROUTES_MAP[id]);
+        if (validRoutes.length !== sc.routePool.length) {
+          errors.push("存在无效的路线ID，请检查路线池配置");
+        }
+        const hasNormalRoute = sc.routePool.some(id => {
+          const r = ALL_ROUTES_MAP[id];
+          return r && r.risk <= 2;
+        });
+        if (!hasNormalRoute) {
+          warnings.push("所有路线风险都很高（≥3），新手玩家可能难以上手");
+        }
+      }
+      const weatherTotal = (sc.weatherTable.clear || 0) + (sc.weatherTable.wind || 0) + (sc.weatherTable.storm || 0);
+      if (weatherTotal <= 0) {
+        errors.push("天气概率之和必须大于 0");
+      }
+      if ((sc.weatherTable.storm || 0) >= 0.8 && !sc.routeMod.stormRouteImmune) {
+        warnings.push("暴雪概率超过 80% 且没有暴雪免疫路线，游戏可能过于困难");
+      }
+      const startWood = DIFF.normal.wood + (sc.startResources.wood || 0);
+      const startMed = DIFF.normal.med + (sc.startResources.med || 0);
+      const startFood = DIFF.normal.food + (sc.startResources.food || 0);
+      const startRep = sc.startResources.rep || 0;
+      if (startWood <= 0 || startMed <= 0 || startFood <= 0) {
+        errors.push("标准难度下初始资源（柴火、药品、干粮）必须大于 0，否则第一天就会失败");
+      }
+      if (sc.startResources.wood <= -DIFF.safe.wood ||
+          sc.startResources.med <= -DIFF.safe.med ||
+          sc.startResources.food <= -DIFF.safe.food) {
+        errors.push("初始资源调整过低，即使在稳妥难度下也会出现负数，属于必败配置");
+      }
+      const dailyFoodConsume = 2;
+      const dailyWoodStorm = 3;
+      const minDays = sc.targetDays;
+      const worstCaseFood = dailyFoodConsume * minDays;
+      const worstCaseWood = dailyWoodStorm * minDays;
+      if (startFood < worstCaseFood * 0.3) {
+        warnings.push("初始干粮可能不足以支撑到最后，建议增加初始干粮或减少目标天数");
+      }
+      if (startWood < worstCaseWood * 0.2 && sc.weatherTable.storm > 0.3) {
+        warnings.push("暴雪概率较高且初始柴火偏低，可能需要频繁外出采集柴火");
+      }
+      if (sc.win) {
+        if (sc.win.type === "caravans" && sc.win.count) {
+          const maxPossible = Math.floor(sc.targetDays * sc.routePool.length * (sc.routeMod.caravanChance || 0.5));
+          if (sc.win.count > maxPossible * 1.5) {
+            errors.push(`接应商队目标（${sc.win.count}队）过高，理论最大值约为 ${maxPossible} 队，几乎不可能完成`);
+          }
+          if (sc.win.count > maxPossible) {
+            warnings.push(`接应商队目标（${sc.win.count}队）偏高，理论最大值约为 ${maxPossible} 队，需要非常好的运气才能完成`);
+          }
+        }
+        if (sc.win.type === "days_and_rep" && sc.win.rep) {
+          if (sc.win.rep > sc.targetDays * 5) {
+            warnings.push(`声望目标（${sc.win.rep}）偏高，平均每天需要获得 ${Math.ceil(sc.win.rep / sc.targetDays)} 点声望`);
+          }
+        }
+        if (sc.win.type === "caravans_and_rep") {
+          const maxPossible = Math.floor(sc.targetDays * sc.routePool.length * (sc.routeMod.caravanChance || 0.5));
+          if (sc.win.count > maxPossible) {
+            warnings.push(`接应商队目标（${sc.win.count}队）偏高，理论最大值约为 ${maxPossible} 队`);
+          }
+          if (sc.win.rep > sc.targetDays * 5) {
+            warnings.push(`声望目标（${sc.win.rep}）偏高`);
+          }
+        }
+      }
+      const triggeredEvents = EVENTS_POOL.filter(e => {
+        const c = e.conditions || {};
+        if (c.minDay && c.minDay > sc.targetDays) return false;
+        if (c.maxDay && c.maxDay < 1) return false;
+        return true;
+      });
+      if (triggeredEvents.length === 0) {
+        warnings.push("没有任何事件能够在该剧本配置下触发，游戏会变得非常单调");
+      }
+      const neverTriggerEvents = EVENTS_POOL.filter(e => {
+        const c = e.conditions || {};
+        if (c.minDay && c.minDay > sc.targetDays) return true;
+        if (c.minMed && startMed < c.minMed) {
+          const maxMedGain = sc.targetDays * 3;
+          if (startMed + maxMedGain < c.minMed) return true;
+        }
+        if (c.minRep && startRep < c.minRep) {
+          const maxRepGain = sc.targetDays * 5;
+          if (startRep + maxRepGain < c.minRep) return true;
+        }
+        return false;
+      });
+      if (neverTriggerEvents.length > 0) {
+        const eventNames = neverTriggerEvents.slice(0, 5).map(e => e.name).join("、");
+        const more = neverTriggerEvents.length > 5 ? ` 等 ${neverTriggerEvents.length} 个事件` : "";
+        warnings.push(`「${eventNames}」${more}在当前配置下永远无法触发，请检查事件条件与剧本参数是否匹配`);
+      }
+      const totalWeight = Object.values(sc.eventWeightMul || {}).reduce((a, b) => a + b, 0);
+      if (totalWeight <= 0) {
+        warnings.push("所有事件类别权重都为 0，将不会触发任何随机事件");
+      }
+      if ((!sc.lose.resources && !sc.lose.fatigue && !sc.lose.medCritical) ||
+          (sc.lose.resources === false && sc.lose.fatigue === false && !sc.lose.medCritical)) {
+        warnings.push("没有启用任何失败规则，玩家几乎不可能失败，游戏会缺乏挑战性");
+      }
+      if (sc.targetDays < 5) {
+        warnings.push("目标天数少于 5 天，游戏体验可能不完整");
+      }
+      if (sc.targetDays > 25) {
+        warnings.push("目标天数超过 25 天，游戏可能过于冗长");
+      }
+      const stormImmuneInPool = (sc.routeMod.stormRouteImmune || []).filter(id => sc.routePool.includes(id));
+      if (sc.routeMod.stormRouteImmune && sc.routeMod.stormRouteImmune.length > 0 && stormImmuneInPool.length === 0) {
+        warnings.push("设置的暴雪免疫路线不在可用路线池中，该配置不会生效");
+      }
+      return { errors, warnings, isValid: errors.length === 0 };
+    }
+    function renderValidation(sc) {
+      const result = validateScenarioConfig(sc);
+      const container = els.editorValidation;
+      if (result.errors.length === 0 && result.warnings.length === 0) {
+        container.innerHTML = `
+          <div class="editor-validation success">
+            <div class="editor-validation-title">✅ 配置检查通过</div>
+            <ul class="editor-validation-list">
+              <li>所有配置项正常，可以保存剧本</li>
+            </ul>
+          </div>
+        `;
+      } else if (result.errors.length > 0) {
+        container.innerHTML = `
+          <div class="editor-validation error">
+            <div class="editor-validation-title">❌ 存在严重配置问题（${result.errors.length}项）</div>
+            <ul class="editor-validation-list">
+              ${result.errors.map(e => `<li>${e}</li>`).join("")}
+            </ul>
+            ${result.warnings.length > 0 ? `
+              <div style="margin-top:10px;font-weight:700;color:#b08a28">⚠️ 警告（${result.warnings.length}项）：</div>
+              <ul class="editor-validation-list">
+                ${result.warnings.map(w => `<li>${w}</li>`).join("")}
+              </ul>
+            ` : ""}
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="editor-validation">
+            <div class="editor-validation-title">⚠️ 存在配置警告（${result.warnings.length}项）</div>
+            <ul class="editor-validation-list">
+              ${result.warnings.map(w => `<li>${w}</li>`).join("")}
+            </ul>
+            <div style="margin-top:8px;font-size:12px;color:#5a6e78">警告不影响保存，但可能影响游戏体验</div>
+          </div>
+        `;
+      }
+      return result;
+    }
+    function buildRouteCheckboxHTML(routeId, isChecked, containerId) {
+      const r = ALL_ROUTES_MAP[routeId];
+      if (!r) return "";
+      return `
+        <div class="editor-checkbox">
+          <input type="checkbox" id="${containerId}_${routeId}" value="${routeId}" ${isChecked ? "checked" : ""}>
+          <label for="${containerId}_${routeId}">${r.name} <span style="font-size:11px;color:#8a9ea5;font-weight:400">（风险${r.risk}，奖励${r.reward}）</span></label>
+        </div>
+      `;
+    }
+    function renderRoutePool() {
+      const html = routesBase.map(r => {
+        const isChecked = currentEditorScenario && currentEditorScenario.routePool.includes(r.id);
+        return buildRouteCheckboxHTML(r.id, isChecked, "routePool");
+      }).join("");
+      els.editorRoutePool.innerHTML = html;
+    }
+    function renderStormImmuneRoutes() {
+      const html = routesBase.map(r => {
+        const isChecked = currentEditorScenario && currentEditorScenario.routeMod.stormRouteImmune && currentEditorScenario.routeMod.stormRouteImmune.includes(r.id);
+        return buildRouteCheckboxHTML(r.id, isChecked, "stormImmune");
+      }).join("");
+      els.editorStormImmuneRoutes.innerHTML = html;
+    }
+    function renderEventOverrides() {
+      const overrides = currentEditorScenario ? (currentEditorScenario.eventWeightOverrides || {}) : {};
+      const html = EVENTS_POOL.map(e => {
+        const currentVal = overrides[e.id] !== undefined ? overrides[e.id] : 1.0;
+        const catLabel = EVENT_CATEGORY_LABELS[e.category] || e.category;
+        return `
+          <div class="editor-event-weight-row" style="grid-template-columns: 1fr 120px;">
+            <label title="${e.desc}">
+              <span class="editor-tag" style="background:${e.category === 'weather' ? '#5a7fa8' : e.category === 'supply' ? '#b08a28' : e.category === 'guide' ? '#4a7c5e' : e.category === 'reputation' ? '#8a5a9e' : '#a33d31'}">${catLabel}</span>
+              ${e.name}
+            </label>
+            <div class="editor-slider-row">
+              <input type="range" id="eventOverride_${e.id}" min="0" max="300" value="${Math.round(currentVal * 100)}">
+              <span class="value" id="eventOverride_${e.id}_value">${currentVal.toFixed(1)}x</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+      els.editorEventOverrides.innerHTML = html;
+      EVENTS_POOL.forEach(e => {
+        const slider = document.querySelector(`#eventOverride_${e.id}`);
+        const valueEl = document.querySelector(`#eventOverride_${e.id}_value`);
+        if (slider && valueEl) {
+          slider.oninput = () => {
+            const val = slider.value / 100;
+            valueEl.textContent = val.toFixed(1) + "x";
+            if (!currentEditorScenario.eventWeightOverrides) currentEditorScenario.eventWeightOverrides = {};
+            if (Math.abs(val - 1.0) < 0.01) {
+              delete currentEditorScenario.eventWeightOverrides[e.id];
+            } else {
+              currentEditorScenario.eventWeightOverrides[e.id] = val;
+            }
+            renderValidation(currentEditorScenario);
+          };
+        }
+      });
+    }
+    function renderCustomScenarioList() {
+      const custom = loadCustomScenarios();
+      const customList = Object.values(custom);
+      if (customList.length === 0) {
+        els.editorCustomList.innerHTML = '<div class="editor-empty">暂无自定义剧本，在左侧配置后点击「保存剧本」创建第一个吧！</div>';
+        return;
+      }
+      els.editorCustomList.innerHTML = customList.map(sc => `
+        <div class="editor-scenario-item ${editingCustomId === sc.id ? 'selected' : ''}" data-id="${sc.id}">
+          <div class="editor-scenario-item-header">
+            <span class="editor-scenario-item-name">
+              <span class="editor-tag editor-badge-custom">自定义</span>
+              <span style="color:${sc.color}">${sc.name}</span>
+            </span>
+            <div class="editor-scenario-item-actions">
+              <button class="secondary" data-action="edit" data-id="${sc.id}">编辑</button>
+              <button class="btn-danger" data-action="delete" data-id="${sc.id}">删除</button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#5a6e78;margin-bottom:4px">${sc.subtitle}</div>
+          <div style="font-size:11px;color:#8a9ea5">
+            目标：${sc.targetDays}天 · 路线：${sc.routePool.length}条 · 
+            ${sc.win.type === 'days' ? '坚守到最后' : sc.win.type === 'caravans' ? `接应≥${sc.win.count}队` : sc.win.type === 'days_and_rep' ? `坚守+声望≥${sc.win.rep}` : `接应≥${sc.win.count}队+声望≥${sc.win.rep}`}
+          </div>
+        </div>
+      `).join("");
+      els.editorCustomList.querySelectorAll("[data-action]").forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const action = btn.dataset.action;
+          const id = btn.dataset.id;
+          if (action === "edit") {
+            loadCustomScenarioToEditor(id);
+          } else if (action === "delete") {
+            if (confirm(`确定要删除自定义剧本「${custom[id].name}」吗？此操作无法撤销。`)) {
+              deleteCustomScenario(id);
+            }
+          }
+        };
+      });
+      els.editorCustomList.querySelectorAll(".editor-scenario-item").forEach(item => {
+        item.onclick = () => {
+          loadCustomScenarioToEditor(item.dataset.id);
+        };
+      });
+    }
+    function loadScenarioToEditor(baseScenarioId) {
+      const base = SCENARIOS[baseScenarioId];
+      if (!base) return;
+      currentEditorScenario = JSON.parse(JSON.stringify(base));
+      editingCustomId = baseScenarioId.startsWith(CUSTOM_SCENARIO_PREFIX) ? baseScenarioId : null;
+      currentEditorScenario.id = editingCustomId || (CUSTOM_SCENARIO_PREFIX + Date.now());
+      currentEditorScenario.isCustom = true;
+      renderEditorFormFromScenario();
+      renderValidation(currentEditorScenario);
+    }
+    function loadCustomScenarioToEditor(customId) {
+      const custom = loadCustomScenarios();
+      if (!custom[customId]) return;
+      currentEditorScenario = JSON.parse(JSON.stringify(custom[customId]));
+      editingCustomId = customId;
+      renderEditorFormFromScenario();
+      renderValidation(currentEditorScenario);
+      switchEditorTab("basic");
+    }
+    function renderEditorFormFromScenario() {
+      const sc = currentEditorScenario;
+      if (!sc) return;
+      els.editorName.value = sc.name || "";
+      els.editorSubtitle.value = sc.subtitle || "";
+      els.editorColor.value = sc.color || "#315c72";
+      els.editorTargetDays.value = sc.targetDays || 15;
+      els.editorTargetDaysValue.textContent = sc.targetDays || 15;
+      els.editorEventChance.value = Math.round((sc.eventTriggerChance || 0.75) * 100);
+      els.editorEventChanceValue.textContent = Math.round((sc.eventTriggerChance || 0.75) * 100) + "%";
+      els.editorCaravanChance.value = Math.round((sc.routeMod.caravanChance || 0.74) * 100);
+      els.editorCaravanChanceValue.textContent = Math.round((sc.routeMod.caravanChance || 0.74) * 100) + "%";
+      els.editorStormBlockChance.value = Math.round((sc.routeMod.stormBlockChance || 0.33) * 100);
+      els.editorStormBlockChanceValue.textContent = Math.round((sc.routeMod.stormBlockChance || 0.33) * 100) + "%";
+      els.editorStartWood.value = sc.startResources.wood || 0;
+      els.editorStartWoodValue.textContent = formatSign(sc.startResources.wood || 0);
+      els.editorStartMed.value = sc.startResources.med || 0;
+      els.editorStartMedValue.textContent = formatSign(sc.startResources.med || 0);
+      els.editorStartFood.value = sc.startResources.food || 0;
+      els.editorStartFoodValue.textContent = formatSign(sc.startResources.food || 0);
+      els.editorStartRep.value = sc.startResources.rep || 0;
+      els.editorStartRepValue.textContent = sc.startResources.rep || 0;
+      els.editorFatigueBonus.value = sc.routeMod.fatigueBonus || 0;
+      els.editorFatigueBonusValue.textContent = "+" + (sc.routeMod.fatigueBonus || 0);
+      els.editorRewardBonus.value = sc.routeMod.rewardBonus || 0;
+      els.editorRewardBonusValue.textContent = "+" + (sc.routeMod.rewardBonus || 0);
+      els.editorWeatherClear.value = Math.round((sc.weatherTable.clear || 0) * 100);
+      els.editorWeatherClearValue.textContent = Math.round((sc.weatherTable.clear || 0) * 100) + "%";
+      els.editorWeatherWind.value = Math.round((sc.weatherTable.wind || 0) * 100);
+      els.editorWeatherWindValue.textContent = Math.round((sc.weatherTable.wind || 0) * 100) + "%";
+      els.editorWeatherStorm.value = Math.round((sc.weatherTable.storm || 0) * 100);
+      els.editorWeatherStormValue.textContent = Math.round((sc.weatherTable.storm || 0) * 100) + "%";
+      const overrideStorm = sc.weatherTable.overrideStormProb !== null ? Math.round(sc.weatherTable.overrideStormProb * 100) : 0;
+      els.editorOverrideStorm.value = overrideStorm;
+      els.editorOverrideStormValue.textContent = overrideStorm === 0 ? "不覆盖" : overrideStorm + "%";
+      els.editorEventWeather.value = Math.round((sc.eventWeightMul.weather || 1) * 100);
+      els.editorEventWeatherValue.textContent = (sc.eventWeightMul.weather || 1).toFixed(1) + "x";
+      els.editorEventSupply.value = Math.round((sc.eventWeightMul.supply || 1) * 100);
+      els.editorEventSupplyValue.textContent = (sc.eventWeightMul.supply || 1).toFixed(1) + "x";
+      els.editorEventGuide.value = Math.round((sc.eventWeightMul.guide || 1) * 100);
+      els.editorEventGuideValue.textContent = (sc.eventWeightMul.guide || 1).toFixed(1) + "x";
+      els.editorEventReputation.value = Math.round((sc.eventWeightMul.reputation || 1) * 100);
+      els.editorEventReputationValue.textContent = (sc.eventWeightMul.reputation || 1).toFixed(1) + "x";
+      els.editorEventRandom.value = Math.round((sc.eventWeightMul.random || 1) * 100);
+      els.editorEventRandomValue.textContent = (sc.eventWeightMul.random || 1).toFixed(1) + "x";
+      els.editorWinType.value = sc.win.type || "days";
+      els.editorWinCount.value = sc.win.count || 12;
+      els.editorWinRep.value = sc.win.rep || 25;
+      els.editorWinLabel.value = sc.win.label || "";
+      toggleWinFields();
+      els.editorLoseResources.checked = sc.lose.resources !== false;
+      els.editorLoseFatigue.checked = sc.lose.fatigue !== false;
+      els.editorLoseMedCritical.checked = !!sc.lose.medCritical;
+      if (sc.lose.medCritical) {
+        els.editorMedCriticalValue.value = sc.lose.medCritical.value || 2;
+        els.editorMedCriticalDays.value = sc.lose.medCritical.days || 2;
+        els.editorMedCriticalFields.style.display = "block";
+      } else {
+        els.editorMedCriticalFields.style.display = "none";
+      }
+      els.editorDesc.value = sc.desc || "";
+      els.editorIntro.value = sc.intro || "";
+      els.editorResultWin.value = typeof sc.resultWin === "function" ? "坚守到第{day}天，接应商队 {saved} 队，累计声望 {rep}。" : (sc.resultWinText || "");
+      els.editorResultLose.value = typeof sc.resultLose === "function" ? "坚持了 {day} 天，接应 {saved} 队商队。失败原因：{reason}。" : (sc.resultLoseText || "");
+      els.editorWinTitle.value = sc.winTitle || "胜利！";
+      els.editorLoseTitle.value = sc.loseTitle || "失败...";
+      renderRoutePool();
+      renderStormImmuneRoutes();
+      renderEventOverrides();
+    }
+    function collectScenarioFromEditor() {
+      if (!currentEditorScenario) return null;
+      const sc = JSON.parse(JSON.stringify(currentEditorScenario));
+      sc.name = els.editorName.value.trim();
+      sc.subtitle = els.editorSubtitle.value.trim();
+      sc.color = els.editorColor.value;
+      sc.targetDays = parseInt(els.editorTargetDays.value) || 15;
+      sc.eventTriggerChance = parseInt(els.editorEventChance.value) / 100;
+      sc.routeMod.caravanChance = parseInt(els.editorCaravanChance.value) / 100;
+      sc.routeMod.stormBlockChance = parseInt(els.editorStormBlockChance.value) / 100;
+      sc.startResources.wood = parseInt(els.editorStartWood.value) || 0;
+      sc.startResources.med = parseInt(els.editorStartMed.value) || 0;
+      sc.startResources.food = parseInt(els.editorStartFood.value) || 0;
+      sc.startResources.rep = parseInt(els.editorStartRep.value) || 0;
+      sc.routeMod.fatigueBonus = parseInt(els.editorFatigueBonus.value) || 0;
+      sc.routeMod.rewardBonus = parseInt(els.editorRewardBonus.value) || 0;
+      const routePool = [];
+      routesBase.forEach(r => {
+        const cb = document.querySelector(`#routePool_${r.id}`);
+        if (cb && cb.checked) routePool.push(r.id);
+      });
+      sc.routePool = routePool;
+      const stormImmune = [];
+      routesBase.forEach(r => {
+        const cb = document.querySelector(`#stormImmune_${r.id}`);
+        if (cb && cb.checked) stormImmune.push(r.id);
+      });
+      sc.routeMod.stormRouteImmune = stormImmune.length > 0 ? stormImmune : null;
+      const clear = parseInt(els.editorWeatherClear.value) / 100;
+      const wind = parseInt(els.editorWeatherWind.value) / 100;
+      const storm = parseInt(els.editorWeatherStorm.value) / 100;
+      const total = clear + wind + storm;
+      if (total > 0) {
+        sc.weatherTable.clear = clear / total;
+        sc.weatherTable.wind = wind / total;
+        sc.weatherTable.storm = storm / total;
+      }
+      const overrideVal = parseInt(els.editorOverrideStorm.value);
+      sc.weatherTable.overrideStormProb = overrideVal > 0 ? (overrideVal / 100) : null;
+      sc.eventWeightMul.weather = parseInt(els.editorEventWeather.value) / 100;
+      sc.eventWeightMul.supply = parseInt(els.editorEventSupply.value) / 100;
+      sc.eventWeightMul.guide = parseInt(els.editorEventGuide.value) / 100;
+      sc.eventWeightMul.reputation = parseInt(els.editorEventReputation.value) / 100;
+      sc.eventWeightMul.random = parseInt(els.editorEventRandom.value) / 100;
+      sc.win.type = els.editorWinType.value;
+      if (sc.win.type === "caravans" || sc.win.type === "caravans_and_rep") {
+        sc.win.count = parseInt(els.editorWinCount.value) || 10;
+      } else {
+        delete sc.win.count;
+      }
+      if (sc.win.type === "days_and_rep" || sc.win.type === "caravans_and_rep") {
+        sc.win.rep = parseInt(els.editorWinRep.value) || 20;
+      } else {
+        delete sc.win.rep;
+      }
+      sc.win.label = els.editorWinLabel.value.trim() || getDefaultWinLabel(sc.win);
+      sc.lose.resources = els.editorLoseResources.checked;
+      sc.lose.fatigue = els.editorLoseFatigue.checked;
+      if (els.editorLoseMedCritical.checked) {
+        sc.lose.medCritical = {
+          value: parseInt(els.editorMedCriticalValue.value) || 2,
+          days: parseInt(els.editorMedCriticalDays.value) || 2
+        };
+      } else {
+        delete sc.lose.medCritical;
+      }
+      sc.desc = els.editorDesc.value.trim();
+      sc.intro = els.editorIntro.value.trim();
+      sc.resultWinText = els.editorResultWin.value.trim();
+      sc.resultLoseText = els.editorResultLose.value.trim();
+      sc.resultWin = function(game) {
+        return (sc.resultWinText || "坚守到第{day}天，接应商队 {saved} 队，累计声望 {rep}。")
+          .replace(/{day}/g, game.day)
+          .replace(/{saved}/g, game.saved)
+          .replace(/{rep}/g, game.rep);
+      };
+      sc.resultLose = function(game) {
+        return (sc.resultLoseText || "坚持了 {day} 天，接应 {saved} 队商队。失败原因：{reason}。")
+          .replace(/{day}/g, game.day)
+          .replace(/{saved}/g, game.saved)
+          .replace(/{reason}/g, game.failureReason || "未知");
+      };
+      sc.winTitle = els.editorWinTitle.value.trim() || "胜利！";
+      sc.loseTitle = els.editorLoseTitle.value.trim() || "失败...";
+      return sc;
+    }
+    function getDefaultWinLabel(win) {
+      switch (win.type) {
+        case "days": return "坚守到最后";
+        case "caravans": return "接应足够商队";
+        case "days_and_rep": return "熬到目标达成";
+        case "caravans_and_rep": return "救出足够商队";
+        default: return "达成目标";
+      }
+    }
+    function toggleWinFields() {
+      const type = els.editorWinType.value;
+      els.editorWinCountField.style.display = (type === "caravans" || type === "caravans_and_rep") ? "block" : "none";
+      els.editorWinRepField.style.display = (type === "days_and_rep" || type === "caravans_and_rep") ? "block" : "none";
+    }
+    function switchEditorTab(tabId) {
+      document.querySelectorAll(".editor-tab").forEach(t => {
+        t.classList.toggle("active", t.dataset.tab === tabId);
+      });
+      document.querySelectorAll(".editor-section").forEach(s => {
+        s.classList.toggle("active", s.id === "editor-" + tabId);
+      });
+      if (tabId === "manage") {
+        renderCustomScenarioList();
+      }
+    }
+    function openEditor() {
+      loadScenarioToEditor("standard");
+      renderCustomScenarioList();
+      els.editorOverlay.classList.remove("hidden");
+    }
+    function closeEditor() {
+      els.editorOverlay.classList.add("hidden");
+      editingCustomId = null;
+      currentEditorScenario = null;
+      renderScenarioOptions();
+    }
+    function deleteCustomScenario(id) {
+      const custom = loadCustomScenarios();
+      if (custom[id]) {
+        delete custom[id];
+        saveCustomScenarios(custom);
+        if (editingCustomId === id) {
+          editingCustomId = null;
+          loadScenarioToEditor("standard");
+        }
+        renderCustomScenarioList();
+        renderScenarioOptions();
+      }
+    }
+    function saveCurrentScenario() {
+      const sc = collectScenarioFromEditor();
+      if (!sc) return;
+      const validation = renderValidation(sc);
+      if (!validation.isValid) {
+        alert("存在严重配置问题，请先修复后再保存：\n\n" + validation.errors.map((e, i) => `${i + 1}. ${e}`).join("\n"));
+        return;
+      }
+      if (!sc.name || sc.name.trim().length === 0) {
+        alert("请输入剧本名称");
+        return;
+      }
+      if (!editingCustomId) {
+        editingCustomId = CUSTOM_SCENARIO_PREFIX + Date.now();
+        sc.id = editingCustomId;
+      }
+      const custom = loadCustomScenarios();
+      const savedSc = { ...sc };
+      savedSc.resultWinText = els.editorResultWin.value.trim() || "坚守到第{day}天，接应商队 {saved} 队，累计声望 {rep}。";
+      savedSc.resultLoseText = els.editorResultLose.value.trim() || "坚持了 {day} 天，接应 {saved} 队商队。失败原因：{reason}。";
+      savedSc.resultWin = undefined;
+      savedSc.resultLose = undefined;
+      custom[editingCustomId] = savedSc;
+      saveCustomScenarios(custom);
+      currentEditorScenario = sc;
+      currentEditorScenario.resultWin = function(game) {
+        return (savedSc.resultWinText || "坚守到第{day}天，接应商队 {saved} 队，累计声望 {rep}。")
+          .replace(/{day}/g, game.day)
+          .replace(/{saved}/g, game.saved)
+          .replace(/{rep}/g, game.rep);
+      };
+      currentEditorScenario.resultLose = function(game) {
+        return (savedSc.resultLoseText || "坚持了 {day} 天，接应 {saved} 队商队。失败原因：{reason}。")
+          .replace(/{day}/g, game.day)
+          .replace(/{saved}/g, game.saved)
+          .replace(/{reason}/g, game.failureReason || "未知");
+      };
+      alert(`剧本「${sc.name}」已保存！`);
+      renderCustomScenarioList();
+      renderScenarioOptions();
+    }
+    function setupEditorEventListeners() {
+      els.editorBtn.onclick = openEditor;
+      els.editorCloseBtn.onclick = closeEditor;
+      els.editorTabs.querySelectorAll(".editor-tab").forEach(tab => {
+        tab.onclick = () => switchEditorTab(tab.dataset.tab);
+      });
+      els.editorBaseScenario.onchange = () => {
+        loadScenarioToEditor(els.editorBaseScenario.value);
+      };
+      els.editorLoadBtn.onclick = () => {
+        loadScenarioToEditor(els.editorBaseScenario.value);
+      };
+      els.editorResetBtn.onclick = () => {
+        if (confirm("确定要重置当前所有编辑吗？")) {
+          loadScenarioToEditor(els.editorBaseScenario.value);
+        }
+      };
+      els.editorDeleteBtn.onclick = () => {
+        if (!editingCustomId) {
+          alert("当前没有在编辑已保存的自定义剧本");
+          return;
+        }
+        const custom = loadCustomScenarios();
+        const sc = custom[editingCustomId];
+        if (!sc) return;
+        if (confirm(`确定要删除自定义剧本「${sc.name}」吗？此操作无法撤销。`)) {
+          deleteCustomScenario(editingCustomId);
+        }
+      };
+      els.editorSaveBtn.onclick = saveCurrentScenario;
+      const bindSlider = (sliderEl, valueEl, formatFn) => {
+        sliderEl.oninput = () => {
+          valueEl.textContent = formatFn(sliderEl.value);
+          if (currentEditorScenario) {
+            currentEditorScenario = collectScenarioFromEditor();
+            renderValidation(currentEditorScenario);
+          }
+        };
+      };
+      bindSlider(els.editorTargetDays, els.editorTargetDaysValue, v => v);
+      bindSlider(els.editorEventChance, els.editorEventChanceValue, v => v + "%");
+      bindSlider(els.editorCaravanChance, els.editorCaravanChanceValue, v => v + "%");
+      bindSlider(els.editorStormBlockChance, els.editorStormBlockChanceValue, v => v + "%");
+      bindSlider(els.editorStartWood, els.editorStartWoodValue, v => formatSign(parseInt(v)));
+      bindSlider(els.editorStartMed, els.editorStartMedValue, v => formatSign(parseInt(v)));
+      bindSlider(els.editorStartFood, els.editorStartFoodValue, v => formatSign(parseInt(v)));
+      bindSlider(els.editorStartRep, els.editorStartRepValue, v => v);
+      bindSlider(els.editorFatigueBonus, els.editorFatigueBonusValue, v => "+" + v);
+      bindSlider(els.editorRewardBonus, els.editorRewardBonusValue, v => "+" + v);
+      bindSlider(els.editorWeatherClear, els.editorWeatherClearValue, v => v + "%");
+      bindSlider(els.editorWeatherWind, els.editorWeatherWindValue, v => v + "%");
+      bindSlider(els.editorWeatherStorm, els.editorWeatherStormValue, v => v + "%");
+      bindSlider(els.editorOverrideStorm, els.editorOverrideStormValue, v => parseInt(v) === 0 ? "不覆盖" : v + "%");
+      bindSlider(els.editorEventWeather, els.editorEventWeatherValue, v => (parseInt(v) / 100).toFixed(1) + "x");
+      bindSlider(els.editorEventSupply, els.editorEventSupplyValue, v => (parseInt(v) / 100).toFixed(1) + "x");
+      bindSlider(els.editorEventGuide, els.editorEventGuideValue, v => (parseInt(v) / 100).toFixed(1) + "x");
+      bindSlider(els.editorEventReputation, els.editorEventReputationValue, v => (parseInt(v) / 100).toFixed(1) + "x");
+      bindSlider(els.editorEventRandom, els.editorEventRandomValue, v => (parseInt(v) / 100).toFixed(1) + "x");
+      ["editorName", "editorSubtitle", "editorDesc", "editorIntro", "editorResultWin", "editorResultLose", "editorWinLabel", "editorWinTitle", "editorLoseTitle"].forEach(id => {
+        els[id].oninput = () => {
+          if (currentEditorScenario) {
+            currentEditorScenario = collectScenarioFromEditor();
+            renderValidation(currentEditorScenario);
+          }
+        };
+      });
+      ["editorWinType", "editorWinCount", "editorWinRep", "editorMedCriticalValue", "editorMedCriticalDays"].forEach(id => {
+        els[id].onchange = () => {
+          if (currentEditorScenario) {
+            currentEditorScenario = collectScenarioFromEditor();
+            renderValidation(currentEditorScenario);
+          }
+        };
+      });
+      els.editorWinType.onchange = () => {
+        toggleWinFields();
+        if (currentEditorScenario) {
+          currentEditorScenario = collectScenarioFromEditor();
+          renderValidation(currentEditorScenario);
+        }
+      };
+      els.editorLoseMedCritical.onchange = () => {
+        els.editorMedCriticalFields.style.display = els.editorLoseMedCritical.checked ? "block" : "none";
+        if (currentEditorScenario) {
+          currentEditorScenario = collectScenarioFromEditor();
+          renderValidation(currentEditorScenario);
+        }
+      };
+      ["editorLoseResources", "editorLoseFatigue", "editorLoseMedCritical"].forEach(id => {
+        els[id].onchange = () => {
+          if (currentEditorScenario) {
+            currentEditorScenario = collectScenarioFromEditor();
+            renderValidation(currentEditorScenario);
+          }
+        };
+      });
+      els.editorColor.onchange = () => {
+        if (currentEditorScenario) {
+          currentEditorScenario.color = els.editorColor.value;
+          renderValidation(currentEditorScenario);
+        }
+      };
+      const bindRouteCheckboxes = (containerId) => {
+        const container = containerId === "routePool" ? els.editorRoutePool : els.editorStormImmuneRoutes;
+        container.addEventListener("change", (e) => {
+          if (e.target && e.target.type === "checkbox") {
+            if (currentEditorScenario) {
+              currentEditorScenario = collectScenarioFromEditor();
+              renderValidation(currentEditorScenario);
+            }
+          }
+        });
+      };
+      bindRouteCheckboxes("routePool");
+      bindRouteCheckboxes("stormImmune");
+    }
     function getScenarioRoutes(scenarioId) {
-      const sc = SCENARIOS[scenarioId];
+      const all = getAllScenarios();
+      const sc = all[scenarioId];
+      if (!sc) return [];
       return sc.routePool.map(id => ALL_ROUTES_MAP[id]).filter(Boolean);
     }
     function buildScenarioCardHTML(sc, isSelected) {
@@ -1261,6 +2441,7 @@
         case "days_and_rep": winDesc = "坚守 " + sc.targetDays + " 天 且 声望 ≥" + sc.win.rep; break;
         case "caravans_and_rep": winDesc = sc.targetDays + " 天内接应 ≥" + sc.win.count + " 队 且 声望 ≥" + sc.win.rep; break;
       }
+      const isCustom = sc.id && sc.id.startsWith(CUSTOM_SCENARIO_PREFIX);
       const progress = getScenarioAchievementProgress(sc.id);
       const achvList = ACHIEVEMENTS[sc.id] || [];
       let achvIconsHtml = '<div class="scenario-achievements">';
@@ -1271,7 +2452,9 @@
         achvIconsHtml += '<div class="scenario-achv-icon ' + (unlocked ? 'unlocked' : 'locked') + '" title="' + achv.name + '：' + achv.desc + '">' + achv.icon + '</div>';
       });
       achvIconsHtml += '</div></div>';
+      const customBadge = isCustom ? '<span class="editor-tag editor-badge-custom" style="margin-bottom:6px">自定义</span>' : '';
       return '<div class="scenario-card ' + (isSelected ? 'selected' : '') + '" data-scenario="' + sc.id + '" style="border-color:' + (isSelected ? sc.color : '') + '">' +
+        customBadge +
         '<span class="scenario-subtitle" style="background:' + sc.color + '">' + sc.subtitle + '</span>' +
         '<h3 class="scenario-title" style="color:' + sc.color + '">' + sc.name + '</h3>' +
         '<p class="scenario-desc">' + sc.desc + '</p>' +
@@ -1284,7 +2467,8 @@
     }
     function renderScenarioOptions() {
       if (!els.scenarioOptions) return;
-      const html = Object.values(SCENARIOS).map(sc => buildScenarioCardHTML(sc, sc.id === chosenScenario)).join("");
+      const allScenarios = getAllScenarios();
+      const html = Object.values(allScenarios).map(sc => buildScenarioCardHTML(sc, sc.id === chosenScenario)).join("");
       els.scenarioOptions.innerHTML = html;
       document.querySelectorAll(".scenario-card").forEach(card => {
         card.onclick = () => {
@@ -1757,7 +2941,22 @@
       return obj;
     }
     function fresh(diff) {
-      const sc = SCENARIOS[chosenScenario];
+      const allScenarios = getAllScenarios();
+      let sc = allScenarios[chosenScenario];
+      if (!sc) {
+        chosenScenario = "standard";
+        sc = allScenarios.standard;
+      }
+      if (sc.id && sc.id.startsWith(CUSTOM_SCENARIO_PREFIX) && typeof sc.resultWin !== "function") {
+        const winText = sc.resultWinText || "坚守到第{day}天，接应商队 {saved} 队，累计声望 {rep}。";
+        const loseText = sc.resultLoseText || "坚持了 {day} 天，接应 {saved} 队商队。失败原因：{reason}。";
+        sc.resultWin = function(game) {
+          return winText.replace(/{day}/g, game.day).replace(/{saved}/g, game.saved).replace(/{rep}/g, game.rep);
+        };
+        sc.resultLose = function(game) {
+          return loseText.replace(/{day}/g, game.day).replace(/{saved}/g, game.saved).replace(/{reason}/g, game.failureReason || "未知");
+        };
+      }
       const d = DIFF[diff];
       const sr = getScenarioRoutes(chosenScenario);
       const startWood = Math.max(0, d.wood + (sc.startResources.wood || 0));
@@ -2544,7 +3743,10 @@
         caravan: "旺季业绩惨淡",
         rescue: "救援未能完成"
       };
-      els.resultTitle.textContent = win ? (winTitles[sc.id] || "胜利") : (loseTitles[sc.id] || "失败");
+      const isCustom = sc.id && sc.id.startsWith(CUSTOM_SCENARIO_PREFIX);
+      const defaultWinTitle = isCustom ? (sc.winTitle || "胜利！") : "胜利";
+      const defaultLoseTitle = isCustom ? (sc.loseTitle || "失败...") : "失败";
+      els.resultTitle.textContent = win ? (winTitles[sc.id] || defaultWinTitle) : (loseTitles[sc.id] || defaultLoseTitle);
       els.resultText.innerHTML = (win ? sc.resultWin(game) : sc.resultLose(game)) + " 难度：" + d.label + achvHtml;
       els.overlay.classList.remove("hidden");
       if (gameSettings.autoReplay && game.replayHistory && game.replayHistory.length > 0) {
@@ -2569,7 +3771,8 @@
     }
     function renderCodex() {
       const scenarioId = game ? game.scenario : chosenScenario;
-      const sc = SCENARIOS[scenarioId];
+      const all = getAllScenarios();
+      const sc = all[scenarioId];
       const sr = getScenarioRoutes(scenarioId);
       const rewardBonus = sc.routeMod.rewardBonus || 0;
       let html = '<h3 style="margin:0 0 8px;color:' + sc.color + '">剧本概览 · ' + sc.name + '</h3>';
@@ -2734,16 +3937,17 @@
         migrated.targetDays = 15;
         migrated.winTarget = { type: "days", label: "坚守到最后" };
       }
-      if (!migrated.scenarioLabel && SCENARIOS[migrated.scenario]) {
-        migrated.scenarioLabel = SCENARIOS[migrated.scenario].name;
-        migrated.scenarioColor = SCENARIOS[migrated.scenario].color;
-        migrated.scenarioSubtitle = SCENARIOS[migrated.scenario].subtitle;
+      const all = getAllScenarios();
+      if (!migrated.scenarioLabel && all[migrated.scenario]) {
+        migrated.scenarioLabel = all[migrated.scenario].name;
+        migrated.scenarioColor = all[migrated.scenario].color;
+        migrated.scenarioSubtitle = all[migrated.scenario].subtitle;
       }
-      if (!migrated.targetDays && SCENARIOS[migrated.scenario]) {
-        migrated.targetDays = SCENARIOS[migrated.scenario].targetDays;
+      if (!migrated.targetDays && all[migrated.scenario]) {
+        migrated.targetDays = all[migrated.scenario].targetDays;
       }
-      if (!migrated.winTarget && SCENARIOS[migrated.scenario]) {
-        migrated.winTarget = { ...SCENARIOS[migrated.scenario].win };
+      if (!migrated.winTarget && all[migrated.scenario]) {
+        migrated.winTarget = { ...all[migrated.scenario].win };
       }
       if (!migrated.difficultyLabel && DIFF[migrated.difficulty]) {
         migrated.difficultyLabel = DIFF[migrated.difficulty].label;
@@ -2889,7 +4093,8 @@
     let currentArchiveFilter = "recent";
     function sortArchives(archives, filter) {
       const sorted = [...archives];
-      if (SCENARIOS[filter]) {
+      const all = getAllScenarios();
+      if (all[filter]) {
         return sorted.filter(a => a.scenario === filter).sort((a, b) => b.timestamp - a.timestamp);
       }
       switch (filter) {
@@ -3046,6 +4251,33 @@
         (hasReplay ? '<button class="archive-replay-btn" data-archive-id="' + archive.id + '">★ 查看调度复盘</button>' : '') +
       '</div>';
     }
+    function renderArchiveFilterButtons() {
+      if (!els.archiveFilter) return;
+      const customScenarios = loadCustomScenarios();
+      const customList = Object.values(customScenarios);
+      let html = `
+        <button data-filter="recent" class="active">最近游玩</button>
+        <button data-filter="win">胜利记录</button>
+        <button data-filter="lose">失败记录</button>
+        <button data-filter="rep">最高声望</button>
+        <button data-filter="standard" style="background:#315c72">标准雪线</button>
+        <button data-filter="medshortage" style="background:#a33d31">药品短缺</button>
+        <button data-filter="caravan" style="background:#b08a28">商队旺季</button>
+        <button data-filter="rescue" style="background:#5a7fa8">封山救援</button>
+      `;
+      customList.forEach(sc => {
+        html += `<button data-filter="${sc.id}" style="background:${sc.color}"><span class="editor-tag editor-badge-custom" style="margin-right:4px">自定义</span>${sc.name}</button>`;
+      });
+      els.archiveFilter.innerHTML = html;
+      document.querySelectorAll(".archive-filter button").forEach(btn => {
+        btn.onclick = () => {
+          currentArchiveFilter = btn.dataset.filter;
+          document.querySelectorAll(".archive-filter button").forEach(b => b.classList.toggle("active", b === btn));
+          renderArchiveList();
+          renderStatsDashboard();
+        };
+      });
+    }
     function renderArchiveList() {
       const archives = loadGameArchives();
       const filtered = sortArchives(archives, currentArchiveFilter);
@@ -3067,9 +4299,7 @@
     }
     function openArchive() {
       currentArchiveFilter = "recent";
-      document.querySelectorAll(".archive-filter button").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.filter === "recent");
-      });
+      renderArchiveFilterButtons();
       renderArchiveList();
       renderStatsDashboard();
       els.archiveOverlay.classList.remove("hidden");
@@ -3150,10 +4380,11 @@
         addArchiveToStatsBucket(diffMap[diffKey], a);
       });
       const overall = finalizeStatsBucket(overallBucket);
+      const allScenarios = getAllScenarios();
       const scenarioStats = Object.entries(scenarioMap).map(([id, bucket]) => finalizeStatsBucket(bucket, {
         id,
-        name: (SCENARIOS[id] && SCENARIOS[id].name) || id,
-        color: (SCENARIOS[id] && SCENARIOS[id].color) || "#315c72"
+        name: (allScenarios[id] && allScenarios[id].name) || id,
+        color: (allScenarios[id] && allScenarios[id].color) || "#315c72"
       })).sort((a, b) => b.total - a.total);
       const diffStats = Object.entries(diffMap).map(([id, bucket]) => {
         const d = DIFF[id];
@@ -3191,11 +4422,16 @@
         container.innerHTML = '<div class="stats-empty">暂无统计数据 · 完成游戏后自动生成</div>';
         return;
       }
+      const all = getAllScenarios();
       const filterLabels = {
         recent: "所有档案", win: "胜利记录", lose: "失败记录", rep: "按声望排序",
         standard: "标准雪线", medshortage: "药品短缺", caravan: "商队旺季", rescue: "封山救援"
       };
-      const filterLabel = filterLabels[currentArchiveFilter] || "当前筛选";
+      let filterLabel = filterLabels[currentArchiveFilter];
+      if (!filterLabel && all[currentArchiveFilter]) {
+        filterLabel = all[currentArchiveFilter].name;
+      }
+      filterLabel = filterLabel || "当前筛选";
       let html = '<div class="stats-dashboard-title">跨局统计看板</div>';
       html += '<div class="stats-filter-info">当前筛选：' + filterLabel + ' · 共 ' + stats.total + ' 条档案</div>';
       html += '<div class="stats-grid-main">';
@@ -3286,14 +4522,7 @@
     document.querySelector("#archiveCloseBtn").onclick = closeArchive;
     document.querySelector("#clearArchiveBtn").onclick = clearAllArchives;
     if (els.loadSampleBtn) els.loadSampleBtn.onclick = loadSampleData;
-    document.querySelectorAll(".archive-filter button").forEach(btn => {
-      btn.onclick = () => {
-        currentArchiveFilter = btn.dataset.filter;
-        document.querySelectorAll(".archive-filter button").forEach(b => b.classList.toggle("active", b === btn));
-        renderArchiveList();
-        renderStatsDashboard();
-      };
-    });
+    setupEditorEventListeners();
     let currentReplayData = null;
     let currentReplayDayIndex = 0;
     const RESOURCE_LABELS = { wood: "柴火", med: "药品", food: "干粮", rep: "声望" };
