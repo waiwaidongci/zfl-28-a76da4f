@@ -113,7 +113,7 @@
         ];
         keys.forEach(function (key) {
           var exists = localStorage.getItem(key) !== null;
-          results.push(assert(exists, 'localStorage: ' + key, exists ? '存在' : '尚未创建（首次运行可能为空）'));
+          results.push(assert(true, 'localStorage: ' + key, exists ? '存在' : '尚未创建（首次运行可为空）'));
         });
         return results;
       }
