@@ -429,11 +429,132 @@
     @media (max-width: 800px) {
       .editor-grid, .editor-grid-3, .editor-route-list { grid-template-columns: 1fr; }
     }
+    .challenge-section { margin-top: 16px; padding: 14px; background: linear-gradient(135deg, #f5f8f8 0%, #eef4f5 100%); border: 2px solid #315c72; border-radius: 10px; }
+    .challenge-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .challenge-title { font-size: 15px; font-weight: 800; color: #315c72; display: flex; align-items: center; gap: 6px; }
+    .challenge-title::before { content: "🎯"; font-size: 18px; }
+    .challenge-toggle { position: relative; width: 52px; height: 28px; flex-shrink: 0; }
+    .challenge-toggle input { opacity: 0; width: 0; height: 0; }
+    .challenge-toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #cfdbdc; border-radius: 28px; transition: background .2s; }
+    .challenge-toggle-slider::before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform .2s; }
+    .challenge-toggle input:checked + .challenge-toggle-slider { background: #b08a28; }
+    .challenge-toggle input:checked + .challenge-toggle-slider::before { transform: translateX(24px); }
+    .challenge-body { display: none; margin-top: 10px; }
+    .challenge-body.active { display: block; }
+    .challenge-input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .challenge-input { flex: 1; padding: 10px 12px; border: 2px solid #cfdbdc; border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 2px; font-family: "Courier New", monospace; text-align: center; color: #1f2a2f; transition: border-color .2s; }
+    .challenge-input:focus { outline: none; border-color: #b08a28; }
+    .challenge-input.valid { border-color: #3f7a54; }
+    .challenge-input.invalid { border-color: #a33d31; background: #fdf2f0; }
+    .challenge-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .challenge-info { margin-top: 10px; padding: 8px 10px; background: #fff9e8; border-left: 3px solid #b08a28; border-radius: 4px; font-size: 12px; color: #8a6a18; line-height: 1.5; }
+    .challenge-info.error { background: #fdf2f0; border-left-color: #a33d31; color: #a33d31; }
+    .challenge-info.valid { background: #e8f5ee; border-left-color: #3f7a54; color: #3f7a54; }
+    .challenge-banner { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: linear-gradient(135deg, #b08a28, #d4a030); color: #fff; border-radius: 20px; font-size: 12px; font-weight: 700; margin-left: 8px; }
+    .challenge-banner .code { font-family: "Courier New", monospace; letter-spacing: 1px; }
+    .report-overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(20,30,35,.7); z-index: 1500; }
+    .report-overlay.hidden { display: none; }
+    .report-modal { width: min(760px, calc(100% - 28px)); max-height: 88vh; overflow-y: auto; background: #fff; border-radius: 12px; padding: 22px; border: 2px solid #b08a28; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #dde5e6; }
+    .report-header h2 { margin: 0; color: #b08a28; display: flex; align-items: center; gap: 8px; }
+    .report-header h2::before { content: "📋"; }
+    .report-section { margin-bottom: 16px; }
+    .report-section-title { font-size: 14px; font-weight: 800; color: #315c72; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .report-section-title::before { content: ""; display: inline-block; width: 4px; height: 16px; background: #315c72; border-radius: 2px; }
+    .report-meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .report-meta-item { background: #f5f8f8; border: 1px solid #dde5e6; border-radius: 6px; padding: 10px 12px; }
+    .report-meta-label { font-size: 11px; color: #5a6e78; display: block; }
+    .report-meta-value { font-size: 15px; font-weight: 800; color: #1f2a2f; }
+    .report-meta-value.code { font-family: "Courier New", monospace; color: #b08a28; letter-spacing: 1px; }
+    .report-meta-value.win { color: #3f7a54; }
+    .report-meta-value.lose { color: #a33d31; }
+    .report-daily-list { display: flex; flex-direction: column; gap: 4px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
+    .report-daily-item { padding: 6px 10px; background: #f5f8f8; border-radius: 4px; font-size: 12px; display: flex; align-items: flex-start; gap: 8px; border-left: 3px solid #cfdbdc; }
+    .report-daily-item.turning { border-left-color: #b08a28; background: #fff9e8; }
+    .report-daily-day { font-weight: 800; color: #315c72; min-width: 42px; flex-shrink: 0; }
+    .report-daily-content { flex: 1; line-height: 1.5; }
+    .report-daily-sum { font-size: 11px; color: #5a6e78; margin-top: 2px; }
+    .report-turning-list { display: flex; flex-direction: column; gap: 8px; }
+    .report-turning-item { padding: 10px 12px; background: linear-gradient(135deg, #fff9e8 0%, #fff3d1 100%); border: 2px solid #b08a28; border-radius: 8px; }
+    .report-turning-title { font-weight: 800; color: #8a6a18; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .report-turning-title::before { content: "★"; }
+    .report-turning-desc { font-size: 12px; color: #5a4a08; line-height: 1.5; }
+    .report-achievement-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .report-achv-tag { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+    .report-achv-tag.unlocked { background: #e8f5ee; color: #3f7a54; border: 1px solid #b8dcc4; }
+    .report-achv-tag.locked { background: #f0f0f0; color: #9aa7ad; border: 1px solid #dde5e6; }
+    .report-verification { background: linear-gradient(135deg, #e8f0f2 0%, #dce8ea 100%); border: 2px solid #315c72; border-radius: 8px; padding: 14px; }
+    .report-verification h4 { margin: 0 0 8px; color: #315c72; display: flex; align-items: center; gap: 6px; }
+    .report-verification h4::before { content: "🔍"; }
+    .report-verification ol { margin: 0; padding-left: 22px; font-size: 12px; color: #2d3a40; line-height: 1.8; }
+    .report-verification code { background: #fff; padding: 1px 6px; border-radius: 3px; font-family: "Courier New", monospace; font-size: 11px; color: #b08a28; border: 1px solid #dde5e6; }
+    .report-footer { display: flex; gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #dde5e6; }
+    .report-footer button { flex: 1; padding: 10px; font-size: 14px; }
+    .report-copy-hint { margin-top: 8px; padding: 6px 10px; background: #e8f5ee; border-left: 3px solid #3f7a54; border-radius: 4px; font-size: 12px; color: #3f7a54; display: none; }
+    .report-copy-hint.show { display: block; }
+    .report-copy-hint.error { background: #fdf2f0; border-left-color: #a33d31; color: #a33d31; }
+    .report-copy-hint.success { display: block; }
+    .meta-item { background: #f5f8f8; border: 1px solid #dde5e6; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .meta-label { font-size: 12px; color: #5a6e78; flex-shrink: 0; }
+    .meta-value { font-size: 14px; font-weight: 700; color: #1f2a2f; text-align: right; }
+    .challenge-code-display { font-family: "Courier New", monospace; letter-spacing: 1.5px; color: #b08a28; font-size: 16px; background: #fff9e8; padding: 2px 8px; border-radius: 4px; border: 1px dashed #b08a28; }
+    .report-section h3 { margin: 0 0 10px; color: #315c72; font-size: 15px; padding-bottom: 6px; border-bottom: 1px dashed #dde5e6; display: flex; align-items: center; gap: 6px; }
+    .report-result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    @media (max-width: 600px) { .report-result-grid { grid-template-columns: repeat(2, 1fr); } .report-meta-grid { grid-template-columns: 1fr; } }
+    .result-item { background: #f5f8f8; border-radius: 5px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+    .result-item.danger-item { background: #fdf2f0; border: 1px solid #f4c9c2; }
+    .ri-label { font-size: 11px; color: #5a6e78; }
+    .ri-value { font-size: 14px; font-weight: 700; color: #1f2a2f; }
+    .danger-item .ri-value { color: #a33d31; }
+    .report-achv-grid { margin-bottom: 10px; }
+    .report-achv-grid.locked { opacity: 0.75; }
+    .report-achv-grid .locked-title { font-size: 12px; color: #5a6e78; margin: 4px 0 6px; font-weight: 600; }
+    .report-achv-item { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 5px; margin-bottom: 4px; background: #f5f8f8; font-size: 12px; }
+    .report-achv-item.unlocked { background: #e8f5ee; border: 1px solid #b8dcc4; }
+    .report-achv-item.locked { background: #f8f8f8; border: 1px dashed #dde5e6; }
+    .ra-icon { font-size: 16px; text-align: center; }
+    .ra-name { font-weight: 700; color: #1f2a2f; }
+    .report-achv-item.locked .ra-name { color: #8a959a; }
+    .ra-desc { color: #5a6e78; font-size: 11px; grid-column: 1 / -1; }
+    .report-turning-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+    .tp-item { display: grid; grid-template-columns: 50px 24px 1fr; gap: 8px; align-items: center; padding: 8px 12px; border-radius: 6px; background: linear-gradient(135deg, #fff9e8 0%, #fff3d1 100%); border-left: 4px solid #b08a28; }
+    .tp-item.tp-risk { background: linear-gradient(135deg, #fdf2f0 0%, #f8dcd6 100%); border-left-color: #a33d31; }
+    .tp-item.tp-gain { background: linear-gradient(135deg, #e8f5ee 0%, #d6ecde 100%); border-left-color: #3f7a54; }
+    .tp-item.tp-turn { background: linear-gradient(135deg, #e8f0f2 0%, #dce8ea 100%); border-left-color: #315c72; }
+    .tp-day { font-weight: 800; color: #315c72; font-size: 13px; background: #fff; padding: 2px 6px; border-radius: 3px; text-align: center; }
+    .tp-icon { font-size: 16px; text-align: center; }
+    .tp-text { font-size: 13px; color: #2d3a40; line-height: 1.5; }
+    .report-daily-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; padding-right: 4px; }
+    .daily-item { padding: 10px 12px; background: #f5f8f8; border-radius: 6px; border: 1px solid #dde5e6; border-left: 4px solid #315c72; }
+    .daily-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .daily-day { font-weight: 800; color: #fff; background: #315c72; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+    .daily-weather { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 3px; }
+    .daily-weather.w-晴 { background: #e8f5ee; color: #3f7a54; }
+    .daily-weather.w-暴雪 { background: #e8f0f2; color: #315c72; }
+    .daily-weather.w-阴风 { background: #fff3d1; color: #8a6a18; }
+    .daily-badge { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 3px; }
+    .daily-badge.danger { background: #fdf2f0; color: #a33d31; }
+    .daily-badge.success { background: #e8f5ee; color: #3f7a54; }
+    .daily-dispatch { font-size: 12px; color: #1f2a2f; line-height: 1.5; margin-bottom: 3px; }
+    .daily-delta { font-size: 11px; color: #5a6e78; margin-bottom: 3px; }
+    .daily-event { font-size: 12px; color: #8a6a18; background: #fff9e8; padding: 4px 8px; border-radius: 3px; margin-top: 4px; border-left: 3px solid #b08a28; }
+    .verify-box { background: #fff; padding: 10px 14px; border-radius: 6px; border: 1px dashed #315c72; }
+    .verify-box p { margin: 6px 0; font-size: 12px; color: #2d3a40; line-height: 1.7; }
+    .verify-box b { color: #315c72; }
+    .challenge-status-hint { margin-top: 8px; padding: 6px 10px; border-radius: 4px; font-size: 12px; color: #5a6e78; background: #f5f8f8; border-left: 3px solid #cfdbdc; line-height: 1.5; }
+    .challenge-status-hint.challenge-success { background: #e8f5ee; color: #3f7a54; border-left-color: #3f7a54; }
+    .challenge-status-hint.challenge-error { background: #fdf2f0; color: #a33d31; border-left-color: #a33d31; }
+    .challenge-status-hint.challenge-warn { background: #fff9e8; color: #8a6a18; border-left-color: #b08a28; }
+    .challenge-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: linear-gradient(135deg, #b08a28, #d4a030); color: #fff; border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; font-family: "Courier New", monospace; }
+    .archive-challenge-replay-btn, .archive-report-btn { width: 100%; margin-top: 8px; padding: 9px; background: linear-gradient(135deg, #b08a28, #d4a030); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; transition: transform .15s; }
+    .archive-challenge-replay-btn:hover, .archive-report-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(176, 138, 40, .3); }
+    .archive-report-btn { background: linear-gradient(135deg, #315c72, #4a7e98); }
+    .archive-report-btn:hover { box-shadow: 0 3px 8px rgba(49, 92, 114, .3); }
   </style>
 </head>
 <body>
   <header>
-    <div><h1>高山驿站补给调度 · <span id="scenarioName" style="color:#315c72">标准雪线</span></h1><div id="scenarioIntro">撑过15天，接应商队，让驿站不断粮。</div></div>
+    <div><h1>高山驿站补给调度 · <span id="scenarioName" style="color:#315c72">标准雪线</span><span class="challenge-banner hidden" id="challengeBanner">🎯 挑战码 <span class="code" id="challengeBannerCode">---</span></span></h1><div id="scenarioIntro">撑过15天，接应商队，让驿站不断粮。</div></div>
     <div>
       <button class="tutorial-btn" id="tutorialBtn">游戏帮助</button>
       <button class="settings-btn" id="settingsBtn">玩法设置</button>
@@ -491,6 +612,26 @@
           <p>物资紧缺 · 暴雪频繁 · 疲劳增长剧烈</p>
         </div>
       </div>
+      <div class="challenge-section" id="challengeSection">
+        <div class="challenge-header">
+          <span class="challenge-title">固定挑战码模式</span>
+          <label class="challenge-toggle">
+            <input type="checkbox" id="challengeModeToggle">
+            <span class="challenge-toggle-slider"></span>
+          </label>
+        </div>
+        <div class="challenge-body" id="challengeBody">
+          <div class="challenge-input-row">
+            <input type="text" id="challengeCodeInput" class="challenge-input" placeholder="输入或生成挑战码，如 ABC-DE-FG" maxlength="9">
+          </div>
+          <div class="challenge-actions">
+            <button id="challengeGenerateBtn" class="secondary">🎲 随机生成挑战码</button>
+            <button id="challengeValidateBtn" class="secondary">🔍 校验匹配</button>
+          </div>
+          <div class="challenge-info" id="challengeInfo">启用后，相同挑战码 + 相同剧本难度 → 一致的天气、封路、商队、随机事件。玩家调度选择仍会影响最终结局。</div>
+          <div class="challenge-status-hint" id="challengeStatusHint">关闭挑战模式即可使用完全随机的常规模式</div>
+        </div>
+      </div>
       <div style="display:flex;gap:10px">
         <button id="startBtn" style="flex:1">开始剧本</button>
         <button class="codex-btn" id="diffCodexBtn" style="flex:1">查看路线图鉴</button>
@@ -533,10 +674,11 @@
     <div class="modal">
       <h2 id="resultTitle"></h2>
       <p id="resultText"></p>
-      <div style="display:flex;gap:10px;margin-top:12px">
-        <button id="againBtn" style="flex:1">再来一局</button>
-        <button class="codex-btn" id="resultCodexBtn" style="flex:1">查看本局图鉴</button>
-        <button class="replay-btn" id="resultReplayBtn" style="flex:1">调度复盘</button>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+        <button id="againBtn" style="flex:1;min-width:120px">再来一局</button>
+        <button class="codex-btn" id="resultCodexBtn" style="flex:1;min-width:120px">查看本局图鉴</button>
+        <button class="replay-btn" id="resultReplayBtn" style="flex:1;min-width:120px">调度复盘</button>
+        <button id="resultReportBtn" style="flex:1;min-width:120px;background:#b08a28">📋 生成战报</button>
       </div>
     </div>
   </div>
@@ -1006,6 +1148,20 @@
         <button class="secondary" id="editorResetBtn">重置当前</button>
         <button class="btn-danger" id="editorDeleteBtn">删除此剧本</button>
         <button class="btn-primary" id="editorSaveBtn">💾 保存剧本</button>
+      </div>
+    </div>
+  </div>
+  <div class="report-overlay hidden" id="reportOverlay">
+    <div class="report-modal">
+      <div class="report-header">
+        <h2 id="reportTitle">高山驿站 · 战报</h2>
+        <button class="secondary" id="reportCloseBtn">关闭</button>
+      </div>
+      <div id="reportContent"></div>
+      <div class="report-copy-hint" id="reportCopyHint">战报已复制到剪贴板！</div>
+      <div class="report-footer">
+        <button class="secondary" id="reportRegenBtn">🔄 重新格式化</button>
+        <button id="reportCopyBtn">📋 复制完整战报</button>
       </div>
     </div>
   </div>
@@ -1628,6 +1784,142 @@
         intro: "暴雪封山！目标 10 天内救出 8 队以上商队，冰原直道与悬崖索道在暴雪中仍可通行。"
       }
     };
+    function mulberry32(a) {
+      return function() {
+        a |= 0; a = a + 0x6D2B79F5 | 0;
+        let t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+    function hashStringToSeed(str) {
+      let hash = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        hash ^= str.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
+    }
+    const CHALLENGE_VERSION = 1;
+    const CHALLENGE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    function encodeChallengeCode(scenarioId, difficulty, seedNum) {
+      const scenarioIndex = Object.keys(SCENARIOS).indexOf(scenarioId);
+      const customScenarios = loadCustomScenarios();
+      const allScenarioIds = Object.keys(SCENARIOS).concat(Object.keys(customScenarios));
+      let scIndex = allScenarioIds.indexOf(scenarioId);
+      if (scIndex < 0) scIndex = 0;
+      const diffMap = { safe: 0, normal: 1, hard: 2 };
+      const diffIndex = diffMap[difficulty] !== undefined ? diffMap[difficulty] : 1;
+      const version = CHALLENGE_VERSION;
+      function base32Encode(num, length) {
+        let result = "";
+        let n = num >>> 0;
+        for (let i = 0; i < length; i++) {
+          result = CHALLENGE_ALPHABET[n % 32] + result;
+          n = Math.floor(n / 32);
+        }
+        return result;
+      }
+      function xorShiftSeed(seed) {
+        let s = seed >>> 0;
+        s ^= s << 13; s >>>= 0;
+        s ^= s >>> 17;
+        s ^= s << 5; s >>>= 0;
+        return s >>> 0;
+      }
+      const seedPart = xorShiftSeed(seedNum >>> 0);
+      const header = (version << 6) | (scIndex << 3) | diffIndex;
+      const part1 = base32Encode(header, 2);
+      const part2 = base32Encode(seedPart >>> 10, 3);
+      const part3 = base32Encode(seedPart & 0x3FF, 2);
+      const raw = part1 + part2 + part3;
+      return raw.substring(0, 3) + "-" + raw.substring(3, 5) + "-" + raw.substring(5, 7);
+    }
+    function decodeChallengeCode(code) {
+      try {
+        const clean = code.toUpperCase().replace(/[^A-Z2-9]/g, "");
+        if (clean.length !== 7) return null;
+        function base32Decode(str) {
+          let num = 0;
+          for (let i = 0; i < str.length; i++) {
+            num = num * 32 + CHALLENGE_ALPHABET.indexOf(str[i]);
+            if (CHALLENGE_ALPHABET.indexOf(str[i]) < 0) return -1;
+          }
+          return num;
+        }
+        const header = base32Decode(clean.substring(0, 2));
+        if (header < 0) return null;
+        const version = (header >>> 6) & 0x03;
+        if (version !== CHALLENGE_VERSION) return null;
+        const scIndex = (header >>> 3) & 0x07;
+        const diffIndex = header & 0x07;
+        const seedHi = base32Decode(clean.substring(2, 5));
+        const seedLo = base32Decode(clean.substring(5, 7));
+        if (seedHi < 0 || seedLo < 0) return null;
+        let seedPart = (seedHi << 10) | (seedLo & 0x3FF);
+        function xorUnshiftSeed(s) {
+          s = s >>> 0;
+          let t = s;
+          t ^= t << 5; t >>>= 0;
+          t = Math.imul(t, 0x7f6a621d); t >>>= 0;
+          t ^= t >>> 17;
+          t ^= t << 13; t >>>= 0;
+          return t >>> 0;
+        }
+        const seed = xorUnshiftSeed(seedPart);
+        const customScenarios = loadCustomScenarios();
+        const allScenarioIds = Object.keys(SCENARIOS).concat(Object.keys(customScenarios));
+        const scenarioId = allScenarioIds[scIndex] || "standard";
+        const diffMapInv = { 0: "safe", 1: "normal", 2: "hard" };
+        const difficulty = diffMapInv[diffIndex] || "normal";
+        return { scenarioId, difficulty, seed, valid: true };
+      } catch (e) {
+        return null;
+      }
+    }
+    function generateRandomSeed() {
+      const buf = new Uint32Array(1);
+      if (window.crypto && window.crypto.getRandomValues) {
+        window.crypto.getRandomValues(buf);
+        return buf[0] >>> 0;
+      }
+      return (Date.now() ^ (Math.random() * 0xFFFFFFFF)) >>> 0;
+    }
+    function formatChallengeInfo(decoded) {
+      if (!decoded) return null;
+      const all = getAllScenarios();
+      const sc = all[decoded.scenarioId];
+      const d = DIFF[decoded.difficulty];
+      return {
+        scenarioName: sc ? sc.name : decoded.scenarioId,
+        difficultyLabel: d ? d.label : decoded.difficulty,
+        seed: decoded.seed
+      };
+    }
+    let challengeMode = false;
+    let currentChallengeCode = null;
+    let currentChallengeSeed = null;
+    let rng = null;
+    function rand() {
+      if (rng) return rng();
+      return Math.random();
+    }
+    function randInt(min, max) {
+      return Math.floor(rand() * (max - min + 1)) + min;
+    }
+    function randChoice(arr) {
+      return arr[Math.floor(rand() * arr.length)];
+    }
+    function setupChallengeRNG(seedNum, scenarioId, difficulty) {
+      const salt = scenarioId + "|" + difficulty + "|" + CHALLENGE_VERSION;
+      const combinedSeed = (hashStringToSeed(salt) ^ seedNum) >>> 0;
+      rng = mulberry32(combinedSeed);
+      currentChallengeSeed = combinedSeed;
+    }
+    function clearChallengeRNG() {
+      rng = null;
+      currentChallengeSeed = null;
+    }
     let game, chosenDiff = "normal", chosenScenario = "standard", pendingEvent = null;
     const els = {
       day: document.querySelector("#dayText"), weather: document.querySelector("#weatherText"), wood: document.querySelector("#woodText"),
@@ -1746,7 +2038,25 @@
       editorLoadBtn: document.querySelector("#editorLoadBtn"),
       editorResetBtn: document.querySelector("#editorResetBtn"),
       editorDeleteBtn: document.querySelector("#editorDeleteBtn"),
-      editorSaveBtn: document.querySelector("#editorSaveBtn")
+      editorSaveBtn: document.querySelector("#editorSaveBtn"),
+      challengeModeToggle: document.querySelector("#challengeModeToggle"),
+      challengeSection: document.querySelector("#challengeSection"),
+      challengeBody: document.querySelector("#challengeBody"),
+      challengeCodeInput: document.querySelector("#challengeCodeInput"),
+      challengeGenerateBtn: document.querySelector("#challengeGenerateBtn"),
+      challengeValidateBtn: document.querySelector("#challengeValidateBtn"),
+      challengeStatusHint: document.querySelector("#challengeStatusHint"),
+      challengeInfo: document.querySelector("#challengeInfo"),
+      challengeBanner: document.querySelector("#challengeBanner"),
+      challengeBannerCode: document.querySelector("#challengeBannerCode"),
+      resultReportBtn: document.querySelector("#resultReportBtn"),
+      reportOverlay: document.querySelector("#reportOverlay"),
+      reportTitle: document.querySelector("#reportTitle"),
+      reportContent: document.querySelector("#reportContent"),
+      reportCloseBtn: document.querySelector("#reportCloseBtn"),
+      reportCopyBtn: document.querySelector("#reportCopyBtn"),
+      reportReformatBtn: document.querySelector("#reportRegenBtn"),
+      reportCopyHint: document.querySelector("#reportCopyHint")
     };
     const CUSTOM_SCENARIOS_KEY = "mountain_post_custom_scenarios";
     const CUSTOM_SCENARIO_PREFIX = "custom_";
@@ -2708,7 +3018,135 @@
         document.querySelectorAll(".diff-card").forEach(c => c.classList.toggle("selected", c.dataset.diff === chosenDiff));
       };
     });
-    document.querySelector("#startBtn").onclick = () => { els.diffOverlay.classList.add("hidden"); fresh(chosenDiff); };
+    document.querySelector("#startBtn").onclick = () => {
+      if (challengeMode) {
+        const raw = els.challengeCodeInput ? els.challengeCodeInput.value.trim() : "";
+        if (!raw) {
+          if (els.challengeStatusHint) els.challengeStatusHint.textContent = "挑战码模式下请先输入或生成挑战码";
+          if (els.challengeStatusHint) els.challengeStatusHint.className = "challenge-status-hint challenge-error";
+          return;
+        }
+        const decoded = decodeChallengeCode(raw);
+        if (!decoded || !decoded.valid) {
+          if (els.challengeStatusHint) els.challengeStatusHint.textContent = "挑战码无效，请检查或重新生成";
+          if (els.challengeStatusHint) els.challengeStatusHint.className = "challenge-status-hint challenge-error";
+          return;
+        }
+        if (decoded.scenarioId !== chosenScenario) {
+          if (els.challengeStatusHint) els.challengeStatusHint.textContent = "该挑战码对应剧本：" + (decoded.scenarioId || "未知") + "，请切换到对应剧本";
+          if (els.challengeStatusHint) els.challengeStatusHint.className = "challenge-status-hint challenge-error";
+          return;
+        }
+        if (decoded.difficulty !== chosenDiff) {
+          if (els.challengeStatusHint) els.challengeStatusHint.textContent = "该挑战码对应难度：" + (DIFF[decoded.difficulty] ? DIFF[decoded.difficulty].label : "未知") + "，请切换到对应难度";
+          if (els.challengeStatusHint) els.challengeStatusHint.className = "challenge-status-hint challenge-error";
+          return;
+        }
+        currentChallengeCode = decoded.formatted;
+      } else {
+        currentChallengeCode = null;
+      }
+      els.diffOverlay.classList.add("hidden");
+      fresh(chosenDiff);
+    };
+    function formatChallengeCodeInput(value) {
+      if (!value) return "";
+      let cleaned = value.toUpperCase().replace(/[^A-Z2-9]/g, "");
+      if (cleaned.length > 7) cleaned = cleaned.slice(0, 7);
+      const parts = [];
+      if (cleaned.length > 0) parts.push(cleaned.slice(0, Math.min(3, cleaned.length)));
+      if (cleaned.length > 3) parts.push(cleaned.slice(3, Math.min(5, cleaned.length)));
+      if (cleaned.length > 5) parts.push(cleaned.slice(5, cleaned.length));
+      return parts.join("-");
+    }
+    function updateChallengeMatchHighlight() {
+      if (!els.challengeCodeInput || !els.challengeStatusHint) return;
+      const raw = els.challengeCodeInput.value.trim();
+      if (!raw) {
+        els.challengeStatusHint.textContent = challengeMode ? "请输入或点击生成挑战码" : "关闭挑战模式即可使用完全随机的常规模式";
+        els.challengeStatusHint.className = "challenge-status-hint";
+        return;
+      }
+      const decoded = decodeChallengeCode(raw);
+      if (!decoded) {
+        els.challengeStatusHint.textContent = "挑战码格式错误（应为 ABC-DE-FG 格式的 7 字符码）";
+        els.challengeStatusHint.className = "challenge-status-hint challenge-error";
+        return;
+      }
+      if (!decoded.valid) {
+        els.challengeStatusHint.textContent = "挑战码无效（校验位不匹配）";
+        els.challengeStatusHint.className = "challenge-status-hint challenge-error";
+        return;
+      }
+      let message = "挑战码有效 ✓";
+      let cls = "challenge-status-hint challenge-success";
+      if (decoded.scenarioId !== chosenScenario) {
+        const scName = getAllScenarios()[decoded.scenarioId] ? getAllScenarios()[decoded.scenarioId].name : decoded.scenarioId;
+        message += "｜剧本：" + scName + "（当前不一致）";
+        cls = "challenge-status-hint challenge-warn";
+      } else if (decoded.difficulty !== chosenDiff) {
+        const dName = DIFF[decoded.difficulty] ? DIFF[decoded.difficulty].label : decoded.difficulty;
+        message += "｜难度：" + dName + "（当前不一致）";
+        cls = "challenge-status-hint challenge-warn";
+      } else {
+        message += "｜剧本与难度匹配 ✓";
+      }
+      els.challengeStatusHint.textContent = message;
+      els.challengeStatusHint.className = cls;
+    }
+    if (els.challengeModeToggle) {
+      els.challengeModeToggle.onchange = () => {
+        challengeMode = els.challengeModeToggle.checked;
+        if (els.challengeSection) els.challengeSection.style.opacity = challengeMode ? "1" : "0.6";
+        if (els.challengeBody) els.challengeBody.classList.toggle("active", challengeMode);
+        updateChallengeMatchHighlight();
+      };
+      if (els.challengeBody) els.challengeBody.classList.toggle("active", els.challengeModeToggle.checked);
+      if (els.challengeSection) els.challengeSection.style.opacity = els.challengeModeToggle.checked ? "1" : "0.6";
+      updateChallengeMatchHighlight();
+    }
+    if (els.challengeGenerateBtn) {
+      els.challengeGenerateBtn.onclick = () => {
+        const seedNum = generateRandomSeed();
+        const code = encodeChallengeCode(chosenScenario, chosenDiff, seedNum);
+        currentChallengeCode = code;
+        if (els.challengeCodeInput) els.challengeCodeInput.value = code;
+        updateChallengeMatchHighlight();
+      };
+    }
+    if (els.challengeValidateBtn) {
+      els.challengeValidateBtn.onclick = () => {
+        const raw = els.challengeCodeInput ? els.challengeCodeInput.value.trim() : "";
+        if (!raw) {
+          updateChallengeMatchHighlight();
+          return;
+        }
+        const decoded = decodeChallengeCode(raw);
+        if (decoded && decoded.valid) {
+          els.challengeCodeInput.value = decoded.formatted;
+        }
+        updateChallengeMatchHighlight();
+      };
+    }
+    if (els.challengeCodeInput) {
+      els.challengeCodeInput.addEventListener("input", (e) => {
+        const pos = e.target.selectionStart;
+        const oldLen = e.target.value.length;
+        e.target.value = formatChallengeCodeInput(e.target.value);
+        const newLen = e.target.value.length;
+        const diff = newLen - oldLen;
+        try { e.target.setSelectionRange(pos + diff, pos + diff); } catch (err) {}
+        updateChallengeMatchHighlight();
+      });
+      els.challengeCodeInput.addEventListener("blur", () => {
+        const raw = els.challengeCodeInput.value.trim();
+        const decoded = decodeChallengeCode(raw);
+        if (decoded && decoded.valid) {
+          els.challengeCodeInput.value = decoded.formatted;
+        }
+        updateChallengeMatchHighlight();
+      });
+    }
     function checkEventConditions(event) {
       const c = event.conditions || {};
       if (c.minDay && game.day < c.minDay) return false;
@@ -2768,9 +3206,9 @@
       const eligible = EVENTS_POOL.filter(e => checkEventConditions(e));
       if (eligible.length === 0) return null;
       if (game.day === 1) return null;
-      if (Math.random() > sc.eventTriggerChance) return null;
+      if (rand() > sc.eventTriggerChance) return null;
       const totalWeight = eligible.reduce((sum, e) => sum + calculateEventWeight(e), 0);
-      let random = Math.random() * totalWeight;
+      let random = rand() * totalWeight;
       for (const event of eligible) {
         random -= calculateEventWeight(event);
         if (random <= 0) return event;
@@ -2887,17 +3325,17 @@
       if (consequenceData.type === "routeBlock" && effect.routeId === "random") {
         var available = game.routes.filter(function(r) { return !r.blocked })
         if (available.length > 0) {
-          effect.routeId = available[Math.floor(Math.random() * available.length)].id
+          effect.routeId = randChoice(available).id
         } else {
-          effect.routeId = game.routes[Math.floor(Math.random() * game.routes.length)].id
+          effect.routeId = randChoice(game.routes).id
         }
       }
       if (consequenceData.type === "routeStatus" && effect.routeId === "random") {
         var available2 = game.routes.filter(function(r) { return !r.blocked })
         if (available2.length > 0) {
-          effect.routeId = available2[Math.floor(Math.random() * available2.length)].id
+          effect.routeId = randChoice(available2).id
         } else {
-          effect.routeId = game.routes[Math.floor(Math.random() * game.routes.length)].id
+          effect.routeId = randChoice(game.routes).id
         }
       }
       var id = "cons_" + consequenceData.sourceEventId + "_" + game.day
@@ -3101,16 +3539,16 @@
       if (targetRoute === "random") {
         const available = game.routes.filter(r => !r.blocked);
         if (available.length > 0) {
-          targetRoute = available[Math.floor(Math.random() * available.length)].id;
+          targetRoute = randChoice(available).id;
         } else {
-          targetRoute = game.routes[Math.floor(Math.random() * game.routes.length)].id;
+          targetRoute = randChoice(game.routes).id;
         }
       } else if (!availableRouteIds.includes(targetRoute)) {
         const available = game.routes.filter(r => !r.blocked);
         if (available.length > 0) {
-          targetRoute = available[Math.floor(Math.random() * available.length)].id;
+          targetRoute = randChoice(available).id;
         } else {
-          targetRoute = game.routes[Math.floor(Math.random() * game.routes.length)].id;
+          targetRoute = randChoice(game.routes).id;
         }
       }
       const route = game.routes.find(r => r.id === targetRoute);
@@ -3138,7 +3576,7 @@
           targets = game.guides;
           break;
         case "random":
-          targets = [game.guides[Math.floor(Math.random() * game.guides.length)]];
+          targets = [randChoice(game.guides)];
           break;
         case "mostFatigued":
           const most = game.guides.reduce((prev, curr) => prev.fatigue > curr.fatigue ? prev : curr);
@@ -3180,6 +3618,26 @@
       return obj;
     }
     function fresh(diff) {
+      clearChallengeRNG();
+      let actualSeed = null;
+      if (challengeMode && currentChallengeCode) {
+        const decoded = decodeChallengeCode(currentChallengeCode);
+        if (decoded && decoded.valid) {
+          actualSeed = decoded.seed;
+          setupChallengeRNG(decoded.seed, chosenScenario, diff);
+        } else {
+          challengeMode = false;
+          currentChallengeCode = null;
+        }
+      }
+      if (els.challengeBanner) {
+        if (challengeMode && currentChallengeCode) {
+          els.challengeBanner.classList.remove("hidden");
+          if (els.challengeBannerCode) els.challengeBannerCode.textContent = currentChallengeCode;
+        } else {
+          els.challengeBanner.classList.add("hidden");
+        }
+      }
       const allScenarios = getAllScenarios();
       let sc = allScenarios[chosenScenario];
       if (!sc) {
@@ -3209,7 +3667,7 @@
         wood: startWood, med: startMed, food: startFood, rep: startRep,
         saved: 0, ended: false, diff: diff,
         guides: [{ name: "阿措", fatigue: 0, task: "" }, { name: "洛桑", fatigue: 0, task: "" }],
-        log: ["第1天，" + sc.intro + "（难度：" + d.label + "）"],
+        log: ["第1天，" + sc.intro + "（难度：" + d.label + "）" + (challengeMode && currentChallengeCode ? "（挑战码模式：" + currentChallengeCode + "）" : "")],
         routes: [],
         codex: {},
         eventCodex: {},
@@ -3222,7 +3680,10 @@
         failureReason: null,
         medCriticalStreak: 0,
         replayHistory: [],
-        currentDayData: null
+        currentDayData: null,
+        challengeMode: challengeMode,
+        challengeCode: currentChallengeCode,
+        challengeSeed: actualSeed
       };
       sr.forEach(r => {
         game.codex[r.id] = { name: r.name, risk: r.risk, reward: r.reward, desc: r.desc, wood: r.wood, food: r.food, med: r.med, seen: 0, blocked: 0, attempts: 0, successes: 0, rewards: { rep: 0, wood: 0, food: 0, med: 0 } };
@@ -3571,10 +4032,10 @@
       const difficultyStormDelta = d.stormProb - DIFF.normal.stormProb;
       let stormProb = wt.overrideStormProb !== null ? wt.overrideStormProb : scenarioStormProb + difficultyStormDelta;
       stormProb = getEffectiveWeatherProb(stormProb);
-      const r = Math.random();
+      const r = rand();
       if (r < stormProb * 0.95) return "暴雪";
       if (r < stormProb + wt.wind) return "阴风";
-      if (Math.random() < wt.clear / (wt.clear + wt.wind)) return "晴";
+      if (rand() < wt.clear / (wt.clear + wt.wind)) return "晴";
       return "阴风";
     }
     function rollDay() {
@@ -3600,10 +4061,10 @@
         blockChance = Math.max(0, Math.min(1, blockChance))
         let blocked = false;
         if (isStorm && !immune) {
-          blocked = Math.random() < blockChance;
+          blocked = rand() < blockChance;
         }
         var effectiveCaravanChance = Math.max(0, Math.min(1, rm.caravanChance + caravanMod))
-        return { ...route, caravan: Math.random() < effectiveCaravanChance, blocked: blocked };
+        return { ...route, caravan: rand() < effectiveCaravanChance, blocked: blocked };
       });
       var dayStartResources = { wood: game.wood, med: game.med, food: game.food, rep: game.rep }
       startReplayDay(tickExpiredConsequences, dayStartResources);
@@ -3870,7 +4331,7 @@
         const cx = game.codex[route.id];
         if (cx) cx.attempts++;
         const realReward = route.reward + rewardBonus;
-        if (route.caravan && Math.random() > failChance) {
+        if (route.caravan && rand() > failChance) {
           game.rep += realReward;
           recordResourceChange("rep", realReward, guide.name + "在【" + route.name + "】接应商队成功");
           game.saved += 1;
@@ -4110,6 +4571,294 @@
     document.querySelector("#resultCodexBtn").onclick = openCodex;
     document.querySelector("#resultReplayBtn").onclick = openReplayFromGame;
     document.querySelector("#codexCloseBtn").onclick = () => codexOverlay.classList.add("hidden");
+    if (els.resultReportBtn) {
+      els.resultReportBtn.onclick = () => {
+        if (!game || !game.ended) return;
+        const tempArchive = buildTempArchiveFromGame();
+        if (tempArchive) generateBattleReport(tempArchive);
+      };
+    }
+    if (els.reportCloseBtn) {
+      els.reportCloseBtn.onclick = () => {
+        if (els.reportOverlay) els.reportOverlay.classList.add("hidden");
+      };
+    }
+    if (els.reportOverlay) {
+      els.reportOverlay.onclick = (e) => {
+        if (e.target === els.reportOverlay) els.reportOverlay.classList.add("hidden");
+      };
+    }
+    if (els.reportCopyBtn) {
+      els.reportCopyBtn.onclick = copyReportToClipboard;
+    }
+    if (els.reportReformatBtn) {
+      els.reportReformatBtn.onclick = reformatReport;
+    }
+    function buildTempArchiveFromGame() {
+      if (!game) return null;
+      const sc = game.scenarioConfig;
+      const d = DIFF[game.diff];
+      const unlockedIds = checkScenarioAchievements(sc.id, game, null);
+      return {
+        id: Date.now(),
+        win: !game.failureReason,
+        scenario: game.scenario,
+        scenarioLabel: sc.name,
+        scenarioColor: sc.color,
+        day: game.day,
+        difficulty: game.diff,
+        difficultyLabel: d.label,
+        savedCaravans: game.saved,
+        reputation: game.rep,
+        targetDays: game.targetDays,
+        winTarget: { ...sc.win },
+        minResources: { ...game.minResources },
+        failureReason: game.failureReason,
+        routePreference: { ...game.routeDispatches },
+        keyLogs: getKeyLogs(),
+        dateStr: new Date().toLocaleString("zh-CN"),
+        replayHistory: JSON.parse(JSON.stringify(game.replayHistory || [])),
+        turningPoints: JSON.parse(JSON.stringify(game.turningPoints || [])),
+        achievements: unlockedIds,
+        challengeMode: !!game.challengeMode,
+        challengeCode: game.challengeCode || null,
+        challengeSeed: game.challengeSeed || null
+      };
+    }
+    let currentReportText = "";
+    function generateBattleReport(archive) {
+      const d = DIFF[archive.difficulty];
+      const scName = archive.scenarioLabel;
+      const diffName = archive.difficultyLabel;
+      const winText = archive.win ? "✅ 胜利" : "❌ 失败";
+      let targetInfo = "";
+      if (archive.winTarget) {
+        switch (archive.winTarget.type) {
+          case "days": targetInfo = '坚守到第 ' + archive.targetDays + ' 天'; break;
+          case "caravans": targetInfo = '接应 ≥ ' + archive.winTarget.count + ' 队商队'; break;
+          case "days_and_rep": targetInfo = '坚守 ' + archive.targetDays + ' 天 且 声望 ≥' + archive.winTarget.rep; break;
+          case "caravans_and_rep": targetInfo = '接应≥' + archive.winTarget.count + '队 且 声望≥' + archive.winTarget.rep; break;
+        }
+      }
+      let html = '';
+      let txt = '';
+      html += '<div class="report-header" style="border-left:4px solid ' + (archive.scenarioColor || '#315c72') + '">';
+      html += '<h2 style="margin:0 0 8px">📋 「' + scName + '」战报 · ' + winText + '</h2>';
+      html += '<div class="report-meta-grid">';
+      if (archive.challengeMode && archive.challengeCode) {
+        html += '<div class="meta-item"><span class="meta-label">🔗 挑战码</span><span class="meta-value challenge-code-display" id="reportChallengeCodeDisplay">' + archive.challengeCode + '</span></div>';
+      }
+      html += '<div class="meta-item"><span class="meta-label">📜 剧本</span><span class="meta-value">' + scName + '</span></div>';
+      html += '<div class="meta-item"><span class="meta-label">⚔️ 难度</span><span class="meta-value">' + diffName + '</span></div>';
+      html += '<div class="meta-item"><span class="meta-label">🎯 胜利条件</span><span class="meta-value">' + targetInfo + '</span></div>';
+      html += '<div class="meta-item"><span class="meta-label">📅 游玩时间</span><span class="meta-value">' + archive.dateStr + '</span></div>';
+      html += '</div></div>';
+      txt += '═══════════════════════════════════════\n';
+      txt += '📋 「' + scName + '」战报 · ' + winText + '\n';
+      txt += '═══════════════════════════════════════\n';
+      if (archive.challengeMode && archive.challengeCode) {
+        txt += '🔗 挑战码：' + archive.challengeCode + '\n';
+      }
+      txt += '📜 剧本：' + scName + '\n';
+      txt += '⚔️ 难度：' + diffName + '\n';
+      txt += '🎯 胜利条件：' + targetInfo + '\n';
+      txt += '📅 游玩时间：' + archive.dateStr + '\n';
+      txt += '\n';
+      html += '<div class="report-section"><h3>📊 最终结果</h3>';
+      html += '<div class="report-result-grid">';
+      html += '<div class="result-item"><span class="ri-label">天数进度</span><span class="ri-value">' + archive.day + ' / ' + (archive.targetDays || 15) + ' 天</span></div>';
+      html += '<div class="result-item"><span class="ri-label">接应商队</span><span class="ri-value">' + archive.savedCaravans + ' 队</span></div>';
+      html += '<div class="result-item"><span class="ri-label">最终声望</span><span class="ri-value">' + archive.reputation + '</span></div>';
+      html += '<div class="result-item"><span class="ri-label">最低柴火</span><span class="ri-value">' + archive.minResources.wood + '</span></div>';
+      html += '<div class="result-item"><span class="ri-label">最低药品</span><span class="ri-value">' + archive.minResources.med + '</span></div>';
+      html += '<div class="result-item"><span class="ri-label">最低干粮</span><span class="ri-value">' + archive.minResources.food + '</span></div>';
+      if (archive.failureReason && !archive.win) {
+        html += '<div class="result-item danger-item"><span class="ri-label">⚠️ 失败原因</span><span class="ri-value">' + archive.failureReason + '</span></div>';
+      }
+      html += '</div></div>';
+      txt += '───────────────────────────────────────────\n';
+      txt += '📊 最终结果\n';
+      txt += '───────────────────────────────────────────\n';
+      txt += '天数进度：' + archive.day + ' / ' + (archive.targetDays || 15) + ' 天\n';
+      txt += '接应商队：' + archive.savedCaravans + ' 队\n';
+      txt += '最终声望：' + archive.reputation + '\n';
+      txt += '最低柴火：' + archive.minResources.wood + '｜最低药品：' + archive.minResources.med + '｜最低干粮：' + archive.minResources.food + '\n';
+      if (archive.failureReason && !archive.win) {
+        txt += '⚠️ 失败原因：' + archive.failureReason + '\n';
+      }
+      txt += '\n';
+      html += '<div class="report-section"><h3>🏆 成就解锁</h3>';
+      const scenarioAchv = ACHIEVEMENTS[archive.scenario] || [];
+      let unlockedList = [];
+      let lockedList = [];
+      scenarioAchv.forEach(achv => {
+        const unlocked = archive.achievements && archive.achievements.includes(achv.id);
+        if (unlocked) unlockedList.push(achv); else lockedList.push(achv);
+      });
+      if (unlockedList.length > 0) {
+        html += '<div class="report-achv-grid unlocked">';
+        unlockedList.forEach(achv => {
+          html += '<div class="report-achv-item unlocked"><span class="ra-icon">' + achv.icon + '</span><span class="ra-name">' + achv.name + '</span><span class="ra-desc">' + achv.desc + '</span></div>';
+        });
+        html += '</div>';
+        txt += '───────────────────────────────────────────\n';
+        txt += '🏆 成就解锁（' + unlockedList.length + '/' + scenarioAchv.length + '）\n';
+        txt += '───────────────────────────────────────────\n';
+        unlockedList.forEach(achv => {
+          txt += '✅ [' + achv.icon + '] ' + achv.name + ' — ' + achv.desc + '\n';
+        });
+      }
+      if (lockedList.length > 0) {
+        html += '<div class="report-achv-grid locked"><div class="locked-title">未解锁（' + lockedList.length + '）</div>';
+        lockedList.forEach(achv => {
+          html += '<div class="report-achv-item locked"><span class="ra-icon">🔒</span><span class="ra-name">' + achv.name + '</span><span class="ra-desc">' + achv.desc + '</span></div>';
+        });
+        html += '</div>';
+        txt += '未解锁：' + lockedList.map(a => '[' + a.name + ']').join('、') + '\n';
+      }
+      if (scenarioAchv.length === 0) {
+        html += '<div style="color:#5a6e78;font-size:13px">此剧本暂无成就设定</div>';
+        txt += '此剧本暂无成就设定\n';
+      }
+      html += '</div>';
+      txt += '\n';
+      if (archive.turningPoints && archive.turningPoints.length > 0) {
+        html += '<div class="report-section"><h3>⚡ 关键转折点</h3>';
+        html += '<ul class="report-turning-list">';
+        txt += '───────────────────────────────────────────\n';
+        txt += '⚡ 关键转折点\n';
+        txt += '───────────────────────────────────────────\n';
+        archive.turningPoints.forEach(tp => {
+          html += '<li class="tp-item tp-' + tp.type + '">';
+          html += '<span class="tp-day">D' + tp.day + '</span>';
+          html += '<span class="tp-icon">' + (tp.type === 'turn' ? '🔀' : tp.type === 'risk' ? '⚠️' : tp.type === 'gain' ? '📈' : '✨') + '</span>';
+          html += '<span class="tp-text">' + tp.reason + '</span>';
+          html += '</li>';
+          txt += 'D' + tp.day + ' ' + tp.reason + '\n';
+        });
+        html += '</ul></div>';
+        txt += '\n';
+      }
+      if (archive.replayHistory && archive.replayHistory.length > 0) {
+        html += '<div class="report-section"><h3>📅 每日调度摘要</h3>';
+        html += '<ul class="report-daily-list">';
+        txt += '───────────────────────────────────────────\n';
+        txt += '📅 每日调度摘要\n';
+        txt += '───────────────────────────────────────────\n';
+        archive.replayHistory.forEach(day => {
+          const guides = day.dispatchStartGuides || day.startGuides || [];
+          const assignments = guides.map(g => {
+            if (!g.task || g.task === "") return g.name + "休息";
+            const rt = ALL_ROUTES_MAP[g.task];
+            return g.name + "→" + (rt ? rt.name : g.task);
+          }).join("｜");
+          const weather = day.weather || "晴";
+          const endRes = day.endResources || day.dispatchEndResources || day.endResources || {};
+          const startRes = day.startResources || day.dispatchStartResources || {};
+          const repDelta = (endRes.rep !== undefined && startRes.rep !== undefined) ? (endRes.rep - startRes.rep) : 0;
+          const foodDelta = (endRes.food !== undefined && startRes.food !== undefined) ? (endRes.food - startRes.food) : 0;
+          const medDelta = (endRes.med !== undefined && startRes.med !== undefined) ? (endRes.med - startRes.med) : 0;
+          const woodDelta = (endRes.wood !== undefined && startRes.wood !== undefined) ? (endRes.wood - startRes.wood) : 0;
+          const deltaStr = [
+            repDelta !== 0 ? '声望' + (repDelta > 0 ? '+' : '') + repDelta : '',
+            woodDelta !== 0 ? '柴火' + (woodDelta > 0 ? '+' : '') + woodDelta : '',
+            foodDelta !== 0 ? '干粮' + (foodDelta > 0 ? '+' : '') + foodDelta : '',
+            medDelta !== 0 ? '药品' + (medDelta > 0 ? '+' : '') + medDelta : ''
+          ].filter(Boolean).join('，') || '无资源变化';
+          let eventStr = '';
+          if (day.event) {
+            eventStr = '｜📜' + day.event.name;
+            if (day.eventChoice) eventStr += '（选' + day.eventChoice.label + '）';
+          }
+          const blockedCount = day.routes ? day.routes.filter(r => r.blocked).length : 0;
+          const caravanCount = day.routes ? day.routes.filter(r => r.caravan).length : 0;
+          html += '<li class="daily-item">';
+          html += '<div class="daily-head">';
+          html += '<span class="daily-day">D' + day.day + '</span>';
+          html += '<span class="daily-weather w-' + weather + '">' + weather + '</span>';
+          if (blockedCount > 0) html += '<span class="daily-badge danger">封路×' + blockedCount + '</span>';
+          if (caravanCount > 0) html += '<span class="daily-badge success">商队×' + caravanCount + '</span>';
+          html += '</div>';
+          html += '<div class="daily-dispatch">调度：' + assignments + '</div>';
+          html += '<div class="daily-delta">' + deltaStr + '</div>';
+          if (eventStr) html += '<div class="daily-event">' + eventStr + '</div>';
+          html += '</li>';
+          txt += 'D' + day.day + ' [' + weather + '] ' + assignments + '\n';
+          if (blockedCount > 0 || caravanCount > 0) {
+            txt += '    路况：' + (blockedCount > 0 ? '封路×' + blockedCount + ' ' : '') + (caravanCount > 0 ? '商队×' + caravanCount : '') + '\n';
+          }
+          txt += '    资源：' + deltaStr + '\n';
+          if (eventStr) txt += '    ' + eventStr + '\n';
+        });
+        html += '</ul></div>';
+        txt += '\n';
+      }
+      if (archive.challengeMode && archive.challengeCode) {
+        html += '<div class="report-section report-verification">';
+        html += '<h3>🔗 挑战码可复现验证说明</h3>';
+        html += '<div class="verify-box">';
+        html += '<p><b>复现方法：</b>重新开始游戏 → 在开局设置界面开启「挑战码模式」→ 输入上方挑战码 → 确保剧本和难度与战报一致 → 开始游戏。</p>';
+        html += '<p><b>复现内容：</b>同一挑战码 + 相同剧本 + 相同难度，将保证<b>天气序列、封路序列、商队出现序列、随机事件触发序列、事件选项后果序列</b>与本局完全一致。</p>';
+        html += '<p><b>结果差异：</b>即使使用相同挑战码，由于<b>玩家每日的向导调度选择</b>不同，最终的资源走向、商队接应成功率、事件选项决策都会导向不同结局。挑战码仅固定环境的随机因素，不固定玩家决策的后果。</p>';
+        html += '<p><b>验证要点：</b>逐天对比可验证：每天的天气类型、暴雪天被封路的路线编号、出现商队的路线编号、被触发的随机事件及ID、同一事件选项产生的持续效果类型与目标路线，应与本战报完全一致。</p>';
+        html += '</div></div>';
+        txt += '───────────────────────────────────────────\n';
+        txt += '🔗 挑战码可复现验证说明\n';
+        txt += '───────────────────────────────────────────\n';
+        txt += '复现方法：重新开始游戏 → 在开局设置界面开启「挑战码模式」→ 输入上方挑战码 → 确保剧本和难度与战报一致 → 开始游戏。\n';
+        txt += '复现内容：同一挑战码 + 相同剧本 + 相同难度，将保证 天气序列、封路序列、商队出现序列、随机事件触发序列、事件选项后果序列 与本局完全一致。\n';
+        txt += '结果差异：即使使用相同挑战码，由于玩家每日的向导调度选择不同，最终的资源走向、商队接应成功率、事件选项决策都会导向不同结局。挑战码仅固定环境的随机因素，不固定玩家决策的后果。\n';
+        txt += '验证要点：逐天对比可验证：每天的天气类型、暴雪天被封路的路线编号、出现商队的路线编号、被触发的随机事件及ID、同一事件选项产生的持续效果类型与目标路线，应与本战报完全一致。\n';
+      }
+      txt += '═══════════════════════════════════════\n';
+      txt += '— 战报生成自雪线驿站 · 挑战码模式 v' + CHALLENGE_VERSION + ' —\n';
+      if (els.reportContent) els.reportContent.innerHTML = html;
+      if (els.reportOverlay) els.reportOverlay.classList.remove("hidden");
+      currentReportText = txt;
+    }
+    function copyReportToClipboard() {
+      if (!currentReportText) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(currentReportText).then(() => {
+          if (els.reportCopyHint) {
+            els.reportCopyHint.textContent = "✅ 战报已复制到剪贴板";
+            els.reportCopyHint.className = "report-copy-hint success";
+            setTimeout(() => { els.reportCopyHint.className = "report-copy-hint"; }, 2500);
+          }
+        }).catch(() => {
+          fallbackCopyText(currentReportText);
+        });
+      } else {
+        fallbackCopyText(currentReportText);
+      }
+    }
+    function fallbackCopyText(text) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (els.reportCopyHint) {
+          els.reportCopyHint.textContent = "✅ 战报已复制到剪贴板";
+          els.reportCopyHint.className = "report-copy-hint success";
+          setTimeout(() => { els.reportCopyHint.className = "report-copy-hint"; }, 2500);
+        }
+      } catch (e) {
+        if (els.reportCopyHint) {
+          els.reportCopyHint.textContent = "❌ 复制失败，请手动选中文本复制";
+          els.reportCopyHint.className = "report-copy-hint error";
+        }
+      }
+    }
+    function reformatReport() {
+      if (els.reportContent) {
+        els.reportContent.style.whiteSpace = (els.reportContent.style.whiteSpace === 'pre-wrap') ? '' : 'pre-wrap';
+      }
+    }
     const ARCHIVE_STORAGE_KEY = "mountain_post_archives";
     const ARCHIVE_VERSION = 3;
     function getDefaultArchiveFields() {
@@ -4137,7 +4886,10 @@
         turningPoints: [],
         achievements: [],
         consequencesTimeline: [],
-        consequenceHistory: []
+        consequenceHistory: [],
+        challengeMode: false,
+        challengeCode: null,
+        challengeSeed: null
       };
     }
     function migrateArchive(archive) {
@@ -4168,6 +4920,9 @@
       if (!Array.isArray(migrated.achievements)) migrated.achievements = [];
       if (!Array.isArray(migrated.consequencesTimeline)) migrated.consequencesTimeline = [];
       if (!Array.isArray(migrated.consequenceHistory)) migrated.consequenceHistory = [];
+      if (typeof migrated.challengeMode !== 'boolean') migrated.challengeMode = false;
+      if (!migrated.challengeCode) migrated.challengeCode = null;
+      if (!migrated.challengeSeed) migrated.challengeSeed = null;
       if (!migrated.version) migrated.version = ARCHIVE_VERSION;
       if (!migrated.scenario) {
         migrated.scenario = "standard";
@@ -4322,7 +5077,10 @@
         turningPoints: JSON.parse(JSON.stringify(game.turningPoints || [])),
         achievements: unlockedIds,
         consequencesTimeline: consequencesTimeline,
-        consequenceHistory: JSON.parse(JSON.stringify(game.consequenceHistory || []))
+        consequenceHistory: JSON.parse(JSON.stringify(game.consequenceHistory || [])),
+        challengeMode: !!game.challengeMode,
+        challengeCode: game.challengeCode || null,
+        challengeSeed: game.challengeSeed || null
       };
       const archives = loadGameArchives();
       archives.unshift(archive);
@@ -4465,6 +5223,8 @@
             '<span class="archive-badge ' + winCls + '">' + winText + '</span>' +
             '<span class="archive-scenario-tag" style="background:' + scColor + '">' + archive.scenarioLabel + '</span>' +
             '<span class="diff-label ' + diffCls + '">' + archive.difficultyLabel + '</span>' +
+            (archive.challengeMode && archive.challengeCode ?
+              '<span class="challenge-tag" title="固定挑战码模式">' + '🔗 ' + archive.challengeCode + '</span>' : '') +
           '</div>' +
           '<div class="archive-date">' + archive.dateStr + '</div>' +
         '</div>' +
@@ -4488,6 +5248,9 @@
         '</div>' +
         archiveAchvHtml +
         (hasReplay ? '<button class="archive-replay-btn" data-archive-id="' + archive.id + '">★ 查看调度复盘</button>' : '') +
+        (archive.challengeMode && archive.challengeCode ?
+          '<button class="archive-challenge-replay-btn" data-archive-id="' + archive.id + '">🔗 用相同挑战码再战</button>' : '') +
+        '<button class="archive-report-btn" data-archive-id="' + archive.id + '">📋 生成战报</button>' +
       '</div>';
     }
     function renderArchiveFilterButtons() {
@@ -4532,6 +5295,44 @@
           const archive = loadGameArchives().find(a => a.id === archiveId);
           if (archive) {
             openReplayFromArchive(archive);
+          }
+        };
+      });
+      document.querySelectorAll(".archive-challenge-replay-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const archiveId = parseInt(btn.dataset.archiveId);
+          const archive = loadGameArchives().find(a => a.id === archiveId);
+          if (archive && archive.challengeMode && archive.challengeCode) {
+            closeArchive();
+            chosenScenario = archive.scenario;
+            chosenDiff = archive.difficulty;
+            challengeMode = true;
+            currentChallengeCode = archive.challengeCode;
+            setTimeout(() => {
+              renderScenarioOptions();
+              document.querySelectorAll(".diff-card").forEach(c => c.classList.toggle("selected", c.dataset.diff === chosenDiff));
+              if (els.challengeModeToggle) els.challengeModeToggle.checked = true;
+              if (els.challengeSection) els.challengeSection.style.opacity = "1";
+              if (els.challengeSection) els.challengeSection.style.pointerEvents = "auto";
+              if (els.challengeCodeInput) els.challengeCodeInput.value = archive.challengeCode;
+              if (els.challengeStatusHint) {
+                els.challengeStatusHint.textContent = "已从档案载入挑战码 ✓";
+                els.challengeStatusHint.className = "challenge-status-hint challenge-success";
+              }
+              els.overlay.classList.add("hidden");
+              els.diffOverlay.classList.remove("hidden");
+            }, 100);
+          }
+        };
+      });
+      document.querySelectorAll(".archive-report-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const archiveId = parseInt(btn.dataset.archiveId);
+          const archive = loadGameArchives().find(a => a.id === archiveId);
+          if (archive) {
+            generateBattleReport(archive);
           }
         };
       });
