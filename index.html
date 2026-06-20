@@ -1867,6 +1867,10 @@
     function isCareerBonusEnabled() {
       return !gameSettings.disableCareerBonus;
     }
+    function applyMedCostModifier(baseMedCost, medCostMod) {
+      if (!medCostMod || baseMedCost <= 0) return baseMedCost;
+      return Math.max(0, Math.round(baseMedCost * (1 + medCostMod)));
+    }
     function getGuideTraitEffects(guideName, context) {
       const effects = {
         successMod: 0,
@@ -4213,7 +4217,7 @@
         }
       }
       let guideTraits = [];
-      if (!gameSettings.disableCareerBonus && careerData) {
+      if (careerData) {
         game.guides.forEach(guide => {
           const stats = careerData.guides[guide.name];
           const traits = stats ? stats.traits : [];
@@ -4557,7 +4561,7 @@
         estimate.wood -= woodCost;
         estimate.food -= route.food;
         const baseMedCost = route.med;
-        const adjustedMedCost = traitEffects.medCostMod !== 0 ? Math.round(baseMedCost * (1 + traitEffects.medCostMod)) : baseMedCost;
+        const adjustedMedCost = applyMedCostModifier(baseMedCost, traitEffects.medCostMod);
         estimate.med -= adjustedMedCost;
         const adjustedRisk = Math.max(0, route.risk + traitEffects.riskMod);
         const rawFatigue = adjustedRisk + fatigueBonus + (game.weather === "暴雪" ? d.fatigueStorm : d.fatigueBase);
@@ -4717,7 +4721,7 @@
             game.food -= route.food;
             if (route.food !== 0) recordResourceChange("food", -route.food, guide.name + "执行【" + route.name + "】调度消耗");
             const baseMedCost = route.med;
-            const adjustedMedCost = traitEffects.medCostMod !== 0 ? Math.round(baseMedCost * (1 + traitEffects.medCostMod)) : baseMedCost;
+            const adjustedMedCost = applyMedCostModifier(baseMedCost, traitEffects.medCostMod);
             game.med -= adjustedMedCost;
             if (adjustedMedCost !== baseMedCost) {
               recordResourceChange("med", -adjustedMedCost, guide.name + "执行【" + route.name + "】调度消耗（生涯调整）");
@@ -4870,7 +4874,7 @@
       }
       achvHtml += '</div>';
       let traitHtml = '';
-      if (!gameSettings.disableCareerBonus && careerData) {
+      if (careerData) {
         traitHtml = '<div class="result-achievements"><h3>🌟 向导生涯特质</h3>';
         for (const guideName of ["阿措", "洛桑"]) {
           const guideStats = careerData.guides[guideName];
@@ -5009,7 +5013,7 @@
           choicesHtml +
         '</div>';
       }).join("");
-      if (careerData && !gameSettings.disableCareerBonus) {
+      if (careerData) {
         html += '<h3 style="margin:12px 0 8px;color:#4a7c5e">🌟 向导生涯统计</h3>';
         for (const guideName of ["阿措", "洛桑"]) {
           const stats = careerData.guides[guideName];
@@ -6276,7 +6280,7 @@
         const diff = after - before;
         const diffStr = diff > 0 ? '<span class="res-change down">+' + diff + '</span>' : (diff < 0 ? '<span class="res-change up">' + diff + '</span>' : '<span class="res-change-flat">±0</span>');
         let traitHtml = '';
-        if (careerData && !gameSettings.disableCareerBonus) {
+        if (careerData) {
           const stats = careerData.guides[g.name];
           const traits = stats ? stats.traits : [];
           if (traits && traits.length > 0) {
