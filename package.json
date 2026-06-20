@@ -1,0 +1,19 @@
+{
+  "name": "mountain-post",
+  "version": "1.0.0",
+  "private": true,
+  "description": "高山驿站补给调度 - 策略调度游戏",
+  "scripts": {
+    "dev": "npx serve . -p 3000 -s",
+    "build": "node build.js",
+    "test": "npm run build && node run-tests.js",
+    "test:quick": "node run-tests.js",
+    "lint": "npx eslint src/ --ext .js",
+    "lint:fix": "npx eslint src/ --ext .js --fix",
+    "serve:dist": "npx serve dist -p 3001 -s"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0",
+    "eslint": "^8.56.0"
+  }
+}

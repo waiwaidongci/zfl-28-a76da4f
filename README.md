@@ -1,6 +1,161 @@
 # 高山驿站补给调度
 
-直接打开`index.html`即可游玩。每天给两名向导分配路线，管理柴火、药品、干粮和疲劳，撑过目标天数完成剧本。
+直接打开 `index.html` 即可游玩（需 HTTP 服务器），或执行 `npm run build` 生成单文件 `dist/index.html` 后双击打开。每天给两名向导分配路线，管理柴火、药品、干粮和疲劳，撑过目标天数完成剧本。
+
+## 快速开始
+
+```bash
+# 安装依赖（仅首次）
+npm install
+
+# 开发模式 —— 启动本地服务器，访问 http://localhost:3000
+npm run dev
+
+# 构建 —— 生成 dist/index.html（单文件，可直接打开）
+npm run build
+
+# 测试 —— 先构建再运行 Node.js 单元测试
+npm test
+
+# 仅运行测试（跳过构建，需先手动 npm run build）
+npm run test:quick
+
+# 代码格式检查
+npm run lint
+
+# 自动修复格式问题
+npm run lint:fix
+
+# 预览构建产物
+npm run serve:dist
+```
+
+## 项目结构
+
+```
+├── index.html              # 开发入口（ES 模块，需 HTTP 服务器）
+├── css/style.css           # 样式
+├── src/
+│   ├── index.js            # JS 入口（import app.js → init）
+│   ├── app.js              # 主逻辑：游戏引擎、UI 渲染、事件处理
+│   ├── game-logic-index.js # 测试用的数据/逻辑聚合导出
+│   ├── data/               # 游戏数据（纯数据，无副作用）
+│   │   ├── routes.js       #   路线定义
+│   │   ├── difficulty.js   #   难度配置
+│   │   ├── events.js       #   事件池
+│   │   ├── scenarios.js    #   剧本定义
+│   │   ├── achievements.js #   成就定义
+│   │   └── traits.js       #   向导特质定义
+│   ├── logic/              # 核心逻辑（纯函数，无 DOM 依赖）
+│   │   ├── rng.js          #   确定性随机数生成
+│   │   ├── storage.js      #   localStorage 工具类
+│   │   ├── settings.js     #   设置读写与应用
+│   │   ├── challenge.js    #   挑战码编解码
+│   │   ├── validate.js     #   剧本配置校验
+│   │   ├── custom-scenarios.js # 自定义剧本存储
+│   │   ├── career.js       #   向导生涯与特质
+│   │   └── achievements.js #   成就解锁检查
+│   └── storage/            # 存档逻辑
+│       ├── archive.js      #   结算档案读写与迁移
+│       └── tutorial.js     #   新手引导状态读写
+├── tests/
+│   └── regression.html     # 浏览器回归验证页面
+├── build.js                # esbuild 构建脚本
+├── run-tests.js            # Node.js 单元测试运行器
+├── game-logic.js           # （旧版独立逻辑文件，已被 dist/game-logic.js 替代）
+├── tests.html              # 浏览器端测试页面
+├── .eslintrc.json          # ESLint 配置
+├── package.json            # 项目配置与脚本
+└── dist/                   # 构建输出（不提交到 Git）
+    ├── index.html          #   单文件可部署版本
+    └── game-logic.js       #   CJS 格式测试用逻辑包
+```
+
+## 启动与开发
+
+| 命令 | 说明 |
+|------|------|
+| `npm run dev` | 启动本地服务器（端口 3000），加载 ES 模块开发版 |
+| `npm run build` | 构建 `dist/index.html`（单文件）和 `dist/game-logic.js`（CJS 测试包） |
+| `npm run serve:dist` | 预览构建产物（端口 3001） |
+
+## 测试
+
+| 命令 | 说明 |
+|------|------|
+| `npm test` | 构建 + 运行 Node.js 单元测试（88 条用例） |
+| `npm run test:quick` | 仅运行测试（需先手动构建） |
+| 浏览器打开 `tests.html` | 在浏览器环境中运行测试 |
+| 浏览器打开 `tests/regression.html` | 浏览器回归验证（需本地服务器） |
+
+Node.js 测试覆盖：挑战码编解码、剧本配置校验、自定义剧本存储等核心逻辑。浏览器测试通过 iframe 加载完整游戏并验证运行时行为。
+
+## 代码格式检查
+
+| 命令 | 说明 |
+|------|------|
+| `npm run lint` | 检查 `src/` 下所有 JS 文件 |
+| `npm run lint:fix` | 自动修复可修复的问题（如 `var` → `const`） |
+
+## 构建
+
+```bash
+npm run build
+```
+
+构建产物：
+- `dist/index.html` — 单文件，内联 CSS + JS（IIFE 格式），可直接双击打开或部署到任意静态服务器
+- `dist/game-logic.js` — CommonJS 格式，供 `run-tests.js` 使用
+
+### GitHub Pages 部署
+
+1. 执行 `npm run build`
+2. 将 `dist/` 目录内容推送到 GitHub Pages 分支
+3. 或将仓库根目录设为 GitHub Pages 源，并在构建后将 `dist/index.html` 复制到根目录
+
+> **提示**：开发版 `index.html` 使用 ES 模块（`<script type="module">`），需要 HTTP 服务器才能运行；构建版 `dist/index.html` 是纯内联的单文件，支持 `file://` 协议直接打开。
+
+## 本地数据说明
+
+游戏所有数据均存储在浏览器 `localStorage` 中，共有以下六类数据键：
+
+| 键名 | 内容 | 容量说明 |
+|------|------|----------|
+| `mountain_post_settings` | 玩家的玩法设置偏好 | 占用极小（约 100 字节） |
+| `mountain_post_tutorial_completed` | 新手引导是否已完成或跳过 | 占用极小 |
+| `mountain_post_archives` | 结算档案记录 | 最多自动保留最近 100 条 |
+| `mountain_post_achievements` | 各剧本已解锁的成就 ID 列表 | 占用极小 |
+| `mountain_post_career` | 向导生涯数据与特质解锁进度 | 占用较小（约 1-2 KB） |
+| `mountain_post_custom_scenarios` | 自定义剧本数据 | 视剧本数量而定 |
+
+> **兼容性承诺**：所有 localStorage 键名在工程化改造前后保持不变，旧版本存档数据可被新版正常读取。档案数据包含版本号字段，加载时会自动迁移补全新增字段。
+
+### 本地数据清理方式
+
+**方式一：通过浏览器开发者工具（推荐）**
+1. 打开页面后按 `F12`（Mac 为 `Cmd + Option + I`）调出开发者工具
+2. 切换到 **Application**（应用）标签页
+3. 左侧导航栏展开 **Local Storage** → 选择当前页面域名
+4. 找到对应键名，右键 → **Delete** 删除即可
+   - 删除 `mountain_post_settings` 仅清除玩法设置
+   - 删除 `mountain_post_tutorial_completed` 重置新手引导状态
+   - 删除 `mountain_post_archives` 清空所有档案记录
+   - 删除 `mountain_post_achievements` 重置所有成就进度
+   - 删除 `mountain_post_career` 重置所有向导生涯数据与特质
+   - 删除 `mountain_post_custom_scenarios` 清空自定义剧本
+
+**方式二：通过控制台命令**
+在开发者工具的 **Console**（控制台）标签页中执行：
+```javascript
+localStorage.removeItem('mountain_post_settings')
+localStorage.removeItem('mountain_post_tutorial_completed')
+localStorage.removeItem('mountain_post_archives')
+localStorage.removeItem('mountain_post_achievements')
+localStorage.removeItem('mountain_post_career')
+localStorage.removeItem('mountain_post_custom_scenarios')
+localStorage.clear()  // 一键清空该域名下所有本地存储
+```
+执行命令后刷新页面即可生效。
 
 ## 第一次游玩推荐流程
 
@@ -49,51 +204,3 @@
 - **调度复盘**：在向导状态卡片中显示已解锁的特质
 
 > 提示：旧档案和成就数据不会因生涯系统而失效，生涯数据独立存储。可在玩法设置中随时关闭生涯加成，回归纯数值挑战。
-
-## 本地数据说明
-
-游戏所有数据均存储在浏览器 `localStorage` 中，共有以下五类数据键：
-
-| 键名 | 内容 | 容量说明 |
-|------|------|----------|
-| `mountain_post_settings` | 玩家的玩法设置偏好 | 占用极小（约 100 字节） |
-| `mountain_post_tutorial_completed` | 新手引导是否已完成或跳过 | 占用极小 |
-| `mountain_post_archives` | 结算档案记录 | 最多自动保留最近 100 条 |
-| `mountain_post_achievements` | 各剧本已解锁的成就 ID 列表 | 占用极小 |
-| `mountain_post_career` | 向导生涯数据与特质解锁进度 | 占用较小（约 1-2 KB） |
-
-### 本地数据清理方式
-
-**方式一：通过浏览器开发者工具（推荐）**
-1. 打开页面后按 `F12`（Mac 为 `Cmd + Option + I`）调出开发者工具
-2. 切换到 **Application**（应用）标签页
-3. 左侧导航栏展开 **Local Storage** → 选择当前页面域名
-4. 找到对应键名，右键 → **Delete** 删除即可
-   - 删除 `mountain_post_settings` 仅清除玩法设置
-   - 删除 `mountain_post_tutorial_completed` 重置新手引导状态
-   - 删除 `mountain_post_archives` 清空所有档案记录
-   - 删除 `mountain_post_achievements` 重置所有成就进度
-   - 删除 `mountain_post_career` 重置所有向导生涯数据与特质
-
-**方式二：通过控制台命令**
-在开发者工具的 **Console**（控制台）标签页中执行：
-```javascript
-// 只清除玩法设置
-localStorage.removeItem('mountain_post_settings')
-
-// 只重置新手引导状态（下次打开重新弹出）
-localStorage.removeItem('mountain_post_tutorial_completed')
-
-// 只清除档案
-localStorage.removeItem('mountain_post_archives')
-
-// 只清除成就
-localStorage.removeItem('mountain_post_achievements')
-
-// 只清除生涯数据（重置所有向导特质）
-localStorage.removeItem('mountain_post_career')
-
-// 一键清空该域名下所有本地存储（包括上述五类数据）
-localStorage.clear()
-```
-执行命令后刷新页面即可生效。

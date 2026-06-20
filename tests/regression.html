@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>浏览器回归测试 · 高山驿站</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; color: #2c3e50; padding: 32px; max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 22px; margin-bottom: 6px; }
+    .subtitle { color: #7f8c8d; font-size: 14px; margin-bottom: 20px; }
+    .note { background: #fef9e7; border: 1px solid #f9e79f; border-radius: 6px; padding: 10px 14px; font-size: 13px; color: #7d6608; margin-bottom: 20px; }
+    .controls { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+    button { background: #315c72; color: #fff; border: none; padding: 9px 22px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button:hover:not(:disabled) { background: #264d5e; }
+    .summary { font-size: 14px; color: #5a6e78; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 24px; }
+    th { background: #315c72; color: #fff; text-align: left; padding: 10px 14px; font-size: 13px; font-weight: 600; }
+    td { padding: 9px 14px; font-size: 13px; border-bottom: 1px solid #ecf0f1; }
+    tr:last-child td { border-bottom: none; }
+    .pass { color: #27ae60; font-weight: 600; }
+    .fail { color: #e74c3c; font-weight: 600; }
+    .skip { color: #95a5a6; }
+    .detail { color: #7f8c8d; font-size: 12px; }
+    .section-title { font-size: 16px; font-weight: 600; margin: 24px 0 10px 0; color: #315c72; }
+    iframe { display: none; }
+  </style>
+</head>
+<body>
+  <h1>浏览器回归测试</h1>
+  <p class="subtitle">高山驿站补给调度 · 冒烟测试</p>
+
+  <div class="note">
+    请通过本地 HTTP 服务器访问此页面（如 <code>npx serve</code> 或 <code>python3 -m http.server</code>），
+    直接使用 <code>file://</code> 协议打开将因 CORS 限制导致 ES 模块加载失败。
+  </div>
+
+  <div class="controls">
+    <button id="runBtn">运行测试</button>
+    <span class="summary" id="summary"></span>
+  </div>
+
+  <div id="results"></div>
+
+  <iframe id="gameFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+
+  <script>
+    (function () {
+      const runBtn = document.getElementById('runBtn');
+      const summaryEl = document.getElementById('summary');
+      const resultsEl = document.getElementById('results');
+      const gameFrame = document.getElementById('gameFrame');
+
+      const DEV_URL = 'src/index.html';
+      const DIST_URL = 'dist/index.html';
+
+      function assert(condition, name, detail) {
+        return condition
+          ? { name, status: 'pass', detail: detail || '' }
+          : { name, status: 'fail', detail: detail || '断言失败' };
+      }
+
+      function renderResults(title, results) {
+        let html = '<div class="section-title">' + title + '</div>';
+        html += '<table><thead><tr><th>测试项</th><th>状态</th><th>详情</th></tr></thead><tbody>';
+        let passCount = 0;
+        results.forEach(function (r) {
+          const icon = r.status === 'pass' ? '✅' : r.status === 'fail' ? '❌' : '⏭️';
+          const cls = r.status === 'pass' ? 'pass' : r.status === 'fail' ? 'fail' : 'skip';
+          if (r.status === 'pass') passCount++;
+          html += '<tr><td>' + r.name + '</td><td class="' + cls + '">' + icon + ' ' + cls.toUpperCase() + '</td><td class="detail">' + r.detail + '</td></tr>';
+        });
+        html += '</tbody></table>';
+        return { html, passCount, total: results.length };
+      }
+
+      function waitForFrameLoad(frame, url, timeout) {
+        return new Promise(function (resolve) {
+          var done = false;
+          function finish(success, detail) {
+            if (done) return;
+            done = true;
+            resolve({ success, detail });
+          }
+          frame.onload = function () { finish(true, 'iframe loaded'); };
+          frame.onerror = function () { finish(false, 'iframe onerror fired'); };
+          frame.src = url;
+          setTimeout(function () { finish(false, 'load timed out after ' + timeout + 'ms'); }, timeout);
+        });
+      }
+
+      function checkDOMElements(doc) {
+        var results = [];
+        var ids = ['dayText', 'weatherText', 'woodText', 'medText', 'foodText', 'repText',
+                    'routes', 'log', 'guides', 'endDayBtn', 'scenarioName'];
+        ids.forEach(function (id) {
+          var el = doc.getElementById(id);
+          results.push(assert(!!el, 'DOM: #' + id, el ? '存在' : '未找到'));
+        });
+        return results;
+      }
+
+      function checkLocalStorage() {
+        var results = [];
+        var keys = [
+          'mountain_post_settings',
+          'mountain_post_archives',
+          'mountain_post_achievements',
+          'mountain_post_career',
+          'mountain_post_tutorial_completed',
+          'mountain_post_custom_scenarios'
+        ];
+        keys.forEach(function (key) {
+          var exists = localStorage.getItem(key) !== null;
+          results.push(assert(exists, 'localStorage: ' + key, exists ? '存在' : '尚未创建（首次运行可能为空）'));
+        });
+        return results;
+      }
+
+      async function testModuleImports() {
+        var results = [];
+        try {
+          var routes = await import('../src/data/routes.js');
+          results.push(assert(!!routes.routesBase && routes.routesBase.length > 0, '数据模块: routes', 'routesBase 包含 ' + (routes.routesBase ? routes.routesBase.length : 0) + ' 条路线'));
+          results.push(assert(!!routes.ALL_ROUTES_MAP, '数据模块: ALL_ROUTES_MAP', routes.ALL_ROUTES_MAP ? '存在' : '缺失'));
+        } catch (e) {
+          results.push(assert(false, '数据模块: routes', '导入失败: ' + e.message));
+          results.push(assert(false, '数据模块: ALL_ROUTES_MAP', '依赖 routes 导入'));
+        }
+        try {
+          var diff = await import('../src/data/difficulty.js');
+          results.push(assert(!!diff.DIFF && diff.DIFF.normal, '数据模块: difficulty', diff.DIFF ? 'DIFF 包含 ' + Object.keys(diff.DIFF).length + ' 个难度' : '缺失'));
+        } catch (e) {
+          results.push(assert(false, '数据模块: difficulty', '导入失败: ' + e.message));
+        }
+        try {
+          var events = await import('../src/data/events.js');
+          results.push(assert(!!events.EVENTS_POOL && events.EVENTS_POOL.length > 0, '数据模块: events', 'EVENTS_POOL 包含 ' + (events.EVENTS_POOL ? events.EVENTS_POOL.length : 0) + ' 个事件'));
+        } catch (e) {
+          results.push(assert(false, '数据模块: events', '导入失败: ' + e.message));
+        }
+        try {
+          var scenarios = await import('../src/data/scenarios.js');
+          results.push(assert(!!scenarios.SCENARIOS && scenarios.SCENARIOS.standard, '数据模块: scenarios', scenarios.SCENARIOS ? 'SCENARIOS 包含 ' + Object.keys(scenarios.SCENARIOS).length + ' 个剧本' : '缺失'));
+        } catch (e) {
+          results.push(assert(false, '数据模块: scenarios', '导入失败: ' + e.message));
+        }
+        try {
+          var achievements = await import('../src/data/achievements.js');
+          results.push(assert(!!achievements.ACHIEVEMENTS, '数据模块: achievements', achievements.ACHIEVEMENTS ? '存在' : '缺失'));
+        } catch (e) {
+          results.push(assert(false, '数据模块: achievements', '导入失败: ' + e.message));
+        }
+        try {
+          var traits = await import('../src/data/traits.js');
+          results.push(assert(!!traits.TRAITS, '数据模块: traits', traits.TRAITS ? '存在' : '缺失'));
+        } catch (e) {
+          results.push(assert(false, '数据模块: traits', '导入失败: ' + e.message));
+        }
+        try {
+          var storage = await import('../src/logic/storage.js');
+          results.push(assert(!!storage.StorageUtil && typeof storage.StorageUtil.get === 'function', '逻辑模块: storage', storage.StorageUtil ? 'StorageUtil 存在' : '缺失'));
+        } catch (e) {
+          results.push(assert(false, '逻辑模块: storage', '导入失败: ' + e.message));
+        }
+        try {
+          var settings = await import('../src/logic/settings.js');
+          results.push(assert(settings.SETTINGS_STORAGE_KEY === 'mountain_post_settings', '逻辑模块: settings', 'SETTINGS_STORAGE_KEY = ' + settings.SETTINGS_STORAGE_KEY));
+        } catch (e) {
+          results.push(assert(false, '逻辑模块: settings', '导入失败: ' + e.message));
+        }
+        try {
+          var rng = await import('../src/logic/rng.js');
+          results.push(assert(typeof rng.mulberry32 === 'function', '逻辑模块: rng', 'mulberry32 函数存在'));
+        } catch (e) {
+          results.push(assert(false, '逻辑模块: rng', '导入失败: ' + e.message));
+        }
+        return results;
+      }
+
+      async function runTests() {
+        runBtn.disabled = true;
+        runBtn.textContent = '测试中...';
+        summaryEl.textContent = '';
+        resultsEl.innerHTML = '';
+
+        var allPass = 0;
+        var allTotal = 0;
+
+        // --- Part 1: Module imports ---
+        var moduleResults = await testModuleImports();
+        var moduleRendered = renderResults('1. 数据/逻辑模块导入', moduleResults);
+        allPass += moduleRendered.passCount;
+        allTotal += moduleRendered.total;
+        resultsEl.innerHTML += moduleRendered.html;
+
+        // --- Part 2: Dev mode iframe ---
+        var iframeResults = [];
+        var loadResult = await waitForFrameLoad(gameFrame, DEV_URL, 8000);
+        iframeResults.push(assert(loadResult.success, 'iframe 加载 (dev)', loadResult.detail));
+
+        if (loadResult.success) {
+          await new Promise(function (r) { setTimeout(r, 1000); });
+          try {
+            var doc = gameFrame.contentDocument || gameFrame.contentWindow.document;
+            iframeResults = iframeResults.concat(checkDOMElements(doc));
+          } catch (e) {
+            iframeResults.push(assert(false, 'DOM 访问', '无法访问 iframe contentDocument: ' + e.message));
+          }
+        } else {
+          iframeResults.push(assert(false, 'DOM 检查', '跳过：iframe 未加载'));
+        }
+
+        var iframeRendered = renderResults('2. 开发模式页面 (src/index.html)', iframeResults);
+        allPass += iframeRendered.passCount;
+        allTotal += iframeRendered.total;
+        resultsEl.innerHTML += iframeRendered.html;
+
+        // --- Part 3: localStorage ---
+        var lsResults = checkLocalStorage();
+        var lsRendered = renderResults('3. localStorage 键', lsResults);
+        allPass += lsRendered.passCount;
+        allTotal += lsRendered.total;
+        resultsEl.innerHTML += lsRendered.html;
+
+        // --- Part 4: Dist build ---
+        var distResults = [];
+        var distLoad = await waitForFrameLoad(gameFrame, DIST_URL, 8000);
+        if (distLoad.success) {
+          distResults.push(assert(true, '构建产物加载 (dist/index.html)', '加载成功'));
+          await new Promise(function (r) { setTimeout(r, 1000); });
+          try {
+            var distDoc = gameFrame.contentDocument || gameFrame.contentWindow.document;
+            var hasDayText = !!distDoc.getElementById('dayText');
+            distResults.push(assert(hasDayText, '构建产物: #dayText', hasDayText ? '存在' : '未找到'));
+          } catch (e) {
+            distResults.push(assert(false, '构建产物 DOM 访问', '无法访问: ' + e.message));
+          }
+        } else {
+          distResults.push(assert(false, '构建产物加载 (dist/index.html)', '未找到构建产物或加载失败。请先运行 node build.js'));
+        }
+        var distRendered = renderResults('4. 构建产物 (dist/index.html)', distResults);
+        allPass += distRendered.passCount;
+        allTotal += distRendered.total;
+        resultsEl.innerHTML += distRendered.html;
+
+        // --- Summary ---
+        gameFrame.src = 'about:blank';
+        summaryEl.textContent = allPass + ' / ' + allTotal + ' 项通过';
+        runBtn.disabled = false;
+        runBtn.textContent = '运行测试';
+      }
+
+      runBtn.onclick = runTests;
+    })();
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 // Node.js 测试运行器 - 运行与 tests.html 相同的所有测试
-const logic = require('./game-logic.js');
+const logic = require('./dist/game-logic.js');
 
 // Mock localStorage
 let store = {};
