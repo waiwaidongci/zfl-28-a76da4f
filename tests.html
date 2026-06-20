@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>高山驿站 - 单元测试</title>
+  <title>高山驿站 - 单元测试（真实游戏逻辑）</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, "PingFang SC", sans-serif; background: #edf2f2; color: #1f2a2f; padding: 20px; }
@@ -23,16 +23,30 @@
     .test-case .error { font-size: 12px; color: #a33d31; margin-top: 4px; white-space: pre-wrap; }
     button { border: 0; border-radius: 8px; padding: 10px 20px; background: #315c72; color: #fff; font-weight: 800; cursor: pointer; font-size: 14px; }
     button:hover { background: #264a5c; }
+    button:disabled { background: #8aa0a8; cursor: not-allowed; }
     .test-actions { margin-bottom: 16px; display: flex; gap: 10px; align-items: center; }
     .test-detail { margin-left: 24px; font-size: 12px; color: #5a6e78; margin-top: 4px; }
+    .game-iframe { position: absolute; left: -9999px; top: -9999px; width: 1200px; height: 800px; }
+    .status { color: #5a6e78; font-size: 14px; }
+    .source-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #3f7a54;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
   <div class="test-container">
-    <h1>🧪 高山驿站 · 单元测试</h1>
+    <h1>🧪 高山驿站 · 单元测试 <span class="source-badge">真实游戏逻辑</span></h1>
     <div class="test-actions">
-      <button onclick="runAllTests()">▶ 运行所有测试</button>
-      <span id="runInfo"></span>
+      <button id="runBtn" onclick="runAllTests()" disabled>▶ 运行所有测试</button>
+      <span id="runInfo" class="status">正在加载真实游戏页面...</span>
     </div>
     <div class="test-summary">
       <span class="total">总计: <span id="totalCount">0</span></span>
@@ -42,28 +56,134 @@
     <div id="testResults"></div>
   </div>
 
-  <script src="game-logic.js"></script>
+  <iframe id="gameFrame" class="game-iframe" src="index.html" onload="onGameLoaded()"></iframe>
+
   <script>
-    // ===== Mock localStorage =====
-    (function() {
-      let store = {};
-      const mockLocalStorage = {
-        getItem: function(key) { return store[key] || null; },
-        setItem: function(key, value) { store[key] = String(value); },
-        removeItem: function(key) { delete store[key]; },
-        clear: function() { store = {}; }
-      };
-      if (typeof localStorage === "undefined") {
-        window.localStorage = mockLocalStorage;
+    // ===== 全局变量 =====
+    let gameWindow = null;
+    let testsReady = false;
+
+    // 从游戏页面导出的纯函数和数据（测试真实游戏代码）
+    let routesBase, ALL_ROUTES_MAP, DIFF, EVENTS_POOL, EVENT_CATEGORY_LABELS, SCENARIOS;
+    let mulberry32, hashStringToSeed;
+    let CHALLENGE_VERSION, CHALLENGE_ALPHABET;
+    let encodeChallengeCode, decodeChallengeCode, generateRandomSeed, formatChallengeInfo, formatChallengeCodeInput;
+    let CUSTOM_SCENARIOS_KEY, CUSTOM_SCENARIO_PREFIX;
+    let loadCustomScenarios, saveCustomScenarios, mergeCustomScenarios, getAllScenarios, getScenarioById, formatSign;
+    let validateScenarioConfig;
+
+    // ===== localStorage 隔离机制 =====
+    // 保存和恢复与测试相关的 localStorage key，避免测试污染真实游戏数据
+    // 包含所有游戏相关的 storage key，确保完全隔离
+    const STORAGE_KEYS_TO_SAVE = [
+      "mountain_post_custom_scenarios",
+      "mountain_post_achievements",
+      "mountain_post_settings",
+      "mountain_post_career",
+      "mountain_post_archives",
+      "mountain_post_tutorial_completed"
+    ];
+    let savedStorage = {};
+
+    function backupStorage() {
+      savedStorage = {};
+      for (const key of STORAGE_KEYS_TO_SAVE) {
+        savedStorage[key] = localStorage.getItem(key);
       }
-    })();
+    }
+
+    function restoreStorage() {
+      for (const key of STORAGE_KEYS_TO_SAVE) {
+        if (savedStorage[key] === null || savedStorage[key] === undefined) {
+          localStorage.removeItem(key);
+        } else {
+          localStorage.setItem(key, savedStorage[key]);
+        }
+      }
+    }
+
+    function clearTestStorage() {
+      for (const key of STORAGE_KEYS_TO_SAVE) {
+        localStorage.removeItem(key);
+      }
+    }
+
+    function getAllStorageKeys() {
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        keys.push(localStorage.key(i));
+      }
+      return keys;
+    }
+
+    function evalInGame(expr) {
+      return gameWindow.eval(expr);
+    }
+
+    // ===== 游戏页面加载完成 =====
+    function onGameLoaded() {
+      try {
+        const frame = document.getElementById("gameFrame");
+        gameWindow = frame.contentWindow;
+
+        // 注意：游戏代码使用 const/let 声明，不在 window 对象上
+        // 需要通过 eval 在游戏页面的全局作用域中访问
+        routesBase = evalInGame("routesBase");
+        ALL_ROUTES_MAP = evalInGame("ALL_ROUTES_MAP");
+        DIFF = evalInGame("DIFF");
+        EVENTS_POOL = evalInGame("EVENTS_POOL");
+        EVENT_CATEGORY_LABELS = evalInGame("EVENT_CATEGORY_LABELS");
+        SCENARIOS = evalInGame("SCENARIOS");
+        mulberry32 = evalInGame("mulberry32");
+        hashStringToSeed = evalInGame("hashStringToSeed");
+        CHALLENGE_VERSION = evalInGame("CHALLENGE_VERSION");
+        CHALLENGE_ALPHABET = evalInGame("CHALLENGE_ALPHABET");
+        encodeChallengeCode = evalInGame("encodeChallengeCode");
+        decodeChallengeCode = evalInGame("decodeChallengeCode");
+        generateRandomSeed = evalInGame("generateRandomSeed");
+        formatChallengeInfo = evalInGame("formatChallengeInfo");
+        formatChallengeCodeInput = evalInGame("formatChallengeCodeInput");
+        CUSTOM_SCENARIOS_KEY = evalInGame("CUSTOM_SCENARIOS_KEY");
+        CUSTOM_SCENARIO_PREFIX = evalInGame("CUSTOM_SCENARIO_PREFIX");
+        loadCustomScenarios = evalInGame("loadCustomScenarios");
+        saveCustomScenarios = evalInGame("saveCustomScenarios");
+        mergeCustomScenarios = evalInGame("mergeCustomScenarios");
+        getAllScenarios = evalInGame("getAllScenarios");
+        getScenarioById = evalInGame("getScenarioById");
+        formatSign = evalInGame("formatSign");
+        validateScenarioConfig = evalInGame("validateScenarioConfig");
+
+        // 验证关键函数存在
+        const missing = [];
+        if (!encodeChallengeCode) missing.push("encodeChallengeCode");
+        if (!decodeChallengeCode) missing.push("decodeChallengeCode");
+        if (!validateScenarioConfig) missing.push("validateScenarioConfig");
+        if (!SCENARIOS) missing.push("SCENARIOS");
+        if (!DIFF) missing.push("DIFF");
+
+        if (missing.length > 0) {
+          document.getElementById("runInfo").textContent = "⚠️ 未找到游戏函数: " + missing.join(", ");
+          return;
+        }
+
+        testsReady = true;
+        document.getElementById("runBtn").disabled = false;
+        document.getElementById("runInfo").textContent = "✅ 真实游戏代码已加载，共 " + Object.keys(SCENARIOS).length + " 个内置剧本";
+
+        // 自动运行测试
+        setTimeout(runAllTests, 500);
+      } catch (e) {
+        document.getElementById("runInfo").textContent = "❌ 加载失败: " + e.message;
+        console.error(e);
+      }
+    }
 
     // ===== 轻量测试框架 =====
     let testSuites = [];
     let currentSuite = null;
 
     function describe(name, fn) {
-      currentSuite = { name: name, tests: [] };
+      currentSuite = { name: name, tests: [], befores: [] };
       testSuites.push(currentSuite);
       fn();
       currentSuite = null;
@@ -72,6 +192,11 @@
     function it(name, fn) {
       if (!currentSuite) return;
       currentSuite.tests.push({ name, fn });
+    }
+
+    function beforeEach(fn) {
+      if (!currentSuite) return;
+      currentSuite.befores.push(fn);
     }
 
     function expect(actual) {
@@ -103,6 +228,11 @@
             throw new Error(`期望 null，实际 ${JSON.stringify(actual)}`);
           }
         },
+        toBeUndefined: function() {
+          if (actual !== undefined) {
+            throw new Error(`期望 undefined，实际 ${JSON.stringify(actual)}`);
+          }
+        },
         toBeGreaterThan: function(expected) {
           if (actual <= expected) {
             throw new Error(`期望大于 ${expected}，实际 ${actual}`);
@@ -127,17 +257,17 @@
           if (!regex.test(actual)) {
             throw new Error(`期望匹配 ${regex}，实际 ${JSON.stringify(actual)}`);
           }
-        },
-        toBeUndefined: function() {
-          if (actual !== undefined) {
-            throw new Error(`期望 undefined，实际 ${JSON.stringify(actual)}`);
-          }
         }
       };
     }
 
     // ===== 运行测试 =====
     function runAllTests() {
+      if (!testsReady) {
+        alert("游戏代码尚未加载完成，请稍候...");
+        return;
+      }
+
       const resultsEl = document.getElementById("testResults");
       const totalEl = document.getElementById("totalCount");
       const passEl = document.getElementById("passCount");
@@ -148,46 +278,60 @@
       let total = 0, pass = 0, fail = 0;
       const startTime = Date.now();
 
-      localStorage.clear();
+      // 测试前备份 localStorage
+      backupStorage();
 
-      for (const suite of testSuites) {
-        const suiteEl = document.createElement("div");
-        suiteEl.className = "test-suite";
-        suiteEl.innerHTML = `<div class="test-suite-title">📋 ${suite.name}</div>`;
+      try {
+        for (const suite of testSuites) {
+          const suiteEl = document.createElement("div");
+          suiteEl.className = "test-suite";
+          suiteEl.innerHTML = `<div class="test-suite-title">📋 ${suite.name}</div>`;
 
-        for (const test of suite.tests) {
-          total++;
-          const testEl = document.createElement("div");
-          testEl.className = "test-case";
+          for (const test of suite.tests) {
+            total++;
+            const testEl = document.createElement("div");
+            testEl.className = "test-case";
 
-          try {
-            test.fn();
-            pass++;
-            testEl.classList.add("pass");
-            testEl.innerHTML = `<span class="icon">✓</span><span class="name">${test.name}</span>`;
-          } catch (e) {
-            fail++;
-            testEl.classList.add("fail");
-            testEl.innerHTML = `
-              <span class="icon">✗</span>
-              <span class="name">${test.name}</span>
-              <div class="error">${e.message}</div>
-            `;
+            try {
+              // 每个测试前：清理测试相关的 localStorage
+              clearTestStorage();
+              // 运行套件的 beforeEach
+              for (const before of suite.befores) {
+                before();
+              }
+              // 运行测试
+              test.fn();
+
+              pass++;
+              testEl.classList.add("pass");
+              testEl.innerHTML = `<span class="icon">✓</span><span class="name">${test.name}</span>`;
+            } catch (e) {
+              fail++;
+              testEl.classList.add("fail");
+              testEl.innerHTML = `
+                <span class="icon">✗</span>
+                <span class="name">${test.name}</span>
+                <div class="error">${e.message}</div>
+              `;
+            }
+
+            suiteEl.appendChild(testEl);
           }
 
-          suiteEl.appendChild(testEl);
+          resultsEl.appendChild(suiteEl);
         }
-
-        resultsEl.appendChild(suiteEl);
+      } finally {
+        // 测试结束后恢复 localStorage
+        restoreStorage();
       }
 
       totalEl.textContent = total;
       passEl.textContent = pass;
       failEl.textContent = fail;
-      runInfo.textContent = `耗时 ${Date.now() - startTime}ms`;
+      runInfo.textContent = `✅ 测试完成，耗时 ${Date.now() - startTime}ms（localStorage 已恢复）`;
     }
 
-    // ===== 测试用例 =====
+    // ===== 测试用例（与 run-tests.js 保持一致） =====
 
     // --- 挑战码格式化测试 ---
     describe("挑战码格式化 formatChallengeCodeInput", function() {
@@ -970,10 +1114,11 @@
       });
     });
 
-    // --- 自定义剧本存储 ---
+    // --- 自定义剧本存储（含隔离验证） ---
     describe("自定义剧本存储 loadCustomScenarios / saveCustomScenarios", function() {
       beforeEach(function() {
-        localStorage.clear();
+        // 每个测试前确保 localStorage 干净
+        clearTestStorage();
       });
 
       it("初始状态下自定义剧本为空", function() {
@@ -1001,27 +1146,59 @@
         expect(getScenarioById("standard")).toBeTruthy();
         expect(getScenarioById("nonexistent")).toBeUndefined();
       });
+
+      it("测试之间 localStorage 互相隔离（副作用不泄漏）", function() {
+        // 这个测试验证：上一个测试保存的自定义剧本不会泄漏到这里
+        // 因为 beforeEach 会清空
+        const customs = loadCustomScenarios();
+        expect(Object.keys(customs).length).toBe(0);
+      });
     });
 
-    // ===== 辅助：beforeEach =====
-    function beforeEach(fn) {
-      if (!currentSuite) return;
-      const origTests = currentSuite.tests;
-      currentSuite.tests = [];
-      for (const test of origTests) {
-        currentSuite.tests.push({
-          name: test.name,
-          fn: function() {
-            fn();
-            test.fn();
-          }
-        });
-      }
-    }
+    // --- localStorage 隔离验证（额外安全检查） ---
+    describe("localStorage 副作用隔离", function() {
+      beforeEach(function() {
+        clearTestStorage();
+      });
 
-    // 页面加载后自动运行
-    window.addEventListener("load", function() {
-      runAllTests();
+      it("测试套件之间 localStorage 自定义剧本数据互相隔离", function() {
+        const customs = loadCustomScenarios();
+        expect(Object.keys(customs).length).toBe(0);
+      });
+
+      it("测试中修改的 localStorage 不会影响其他测试", function() {
+        saveCustomScenarios({ test_leak: { id: "test_leak", name: "泄漏测试" } });
+        const customs = loadCustomScenarios();
+        expect(customs.test_leak).toBeTruthy();
+      });
+
+      it("上一个测试的保存不会泄漏到这个测试（验证 beforeEach 清理）", function() {
+        const customs = loadCustomScenarios();
+        expect(Object.keys(customs).length).toBe(0);
+        expect(customs.test_leak).toBeUndefined();
+      });
+    });
+
+    // --- 存储 key 完整性验证 ---
+    describe("存储 key 与游戏代码一致性", function() {
+      it("CUSTOM_SCENARIOS_KEY 值与隔离列表匹配", function() {
+        expect(CUSTOM_SCENARIOS_KEY).toBe("mountain_post_custom_scenarios");
+        expect(STORAGE_KEYS_TO_SAVE.includes(CUSTOM_SCENARIOS_KEY)).toBeTruthy();
+      });
+
+      it("游戏中所有 storage key 都在隔离列表中", function() {
+        const gameKeys = [
+          evalInGame("ACHIEVEMENT_STORAGE_KEY"),
+          evalInGame("SETTINGS_STORAGE_KEY"),
+          evalInGame("CAREER_STORAGE_KEY"),
+          evalInGame("CUSTOM_SCENARIOS_KEY"),
+          evalInGame("ARCHIVE_STORAGE_KEY"),
+          evalInGame("TUTORIAL_STORAGE_KEY")
+        ];
+        for (const key of gameKeys) {
+          expect(STORAGE_KEYS_TO_SAVE.includes(key)).toBeTruthy();
+        }
+      });
     });
   </script>
 </body>
