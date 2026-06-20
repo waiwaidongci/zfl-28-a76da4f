@@ -1181,6 +1181,34 @@
     </div>
   </div>
   <script>
+    const StorageUtil = {
+      get(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw === null) return fallback;
+          return JSON.parse(raw);
+        } catch (e) {
+          console.error("StorageUtil.get 失败:", key, e);
+          return fallback;
+        }
+      },
+      set(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+          console.error("StorageUtil.set 失败:", key, e);
+        }
+      },
+      getString(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw === null ? fallback : raw;
+        } catch (e) {
+          console.error("StorageUtil.getString 失败:", key, e);
+          return fallback;
+        }
+      }
+    };
     const routesBase = [
       { id: "north", name: "北坡盐道", risk: 2, reward: 3, wood: 2, food: 3, med: 1, desc: "翻越北坡的古老盐道，沿途有零星盐晶可以换取物资。路途稍长但相对平缓，是稳妥的补给路线。" },
       { id: "ridge", name: "雪脊短线", risk: 3, reward: 4, wood: 3, food: 2, med: 1, desc: "沿雪线山脊穿行的险峻捷径，能最快抵达山外。途中常有落石与冰缝，但接应商队效率最高。" },
@@ -1562,21 +1590,10 @@
     };
     const ACHIEVEMENT_STORAGE_KEY = "mountain_post_achievements";
     function loadAchievements() {
-      try {
-        const stored = localStorage.getItem(ACHIEVEMENT_STORAGE_KEY);
-        if (!stored) return {};
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error("加载成就失败:", e);
-        return {};
-      }
+      return StorageUtil.get(ACHIEVEMENT_STORAGE_KEY, {});
     }
     function saveAchievements(achievements) {
-      try {
-        localStorage.setItem(ACHIEVEMENT_STORAGE_KEY, JSON.stringify(achievements));
-      } catch (e) {
-        console.error("保存成就失败:", e);
-      }
+      StorageUtil.set(ACHIEVEMENT_STORAGE_KEY, achievements);
     }
     function checkScenarioAchievements(scenarioId, game, archive) {
       const achievements = ACHIEVEMENTS[scenarioId];
@@ -1632,22 +1649,11 @@
     };
     let gameSettings = { ...DEFAULT_SETTINGS };
     function loadSettings() {
-      try {
-        const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
-        if (!stored) return { ...DEFAULT_SETTINGS };
-        const parsed = JSON.parse(stored);
-        return { ...DEFAULT_SETTINGS, ...parsed };
-      } catch (e) {
-        console.error("加载设置失败:", e);
-        return { ...DEFAULT_SETTINGS };
-      }
+      const parsed = StorageUtil.get(SETTINGS_STORAGE_KEY, {});
+      return { ...DEFAULT_SETTINGS, ...parsed };
     }
     function saveSettings() {
-      try {
-        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(gameSettings));
-      } catch (e) {
-        console.error("保存设置失败:", e);
-      }
+      StorageUtil.set(SETTINGS_STORAGE_KEY, gameSettings);
     }
     function applySettings() {
       document.body.classList.toggle("log-compact", !!gameSettings.compactLog);
@@ -1798,15 +1804,9 @@
     };
     let careerData = null;
     function loadCareerData() {
-      try {
-        const stored = localStorage.getItem(CAREER_STORAGE_KEY);
-        if (!stored) return JSON.parse(JSON.stringify(DEFAULT_CAREER));
-        const parsed = JSON.parse(stored);
-        return migrateCareerData(parsed);
-      } catch (e) {
-        console.error("加载生涯数据失败:", e);
-        return JSON.parse(JSON.stringify(DEFAULT_CAREER));
-      }
+      const stored = StorageUtil.get(CAREER_STORAGE_KEY, null);
+      if (!stored) return JSON.parse(JSON.stringify(DEFAULT_CAREER));
+      return migrateCareerData(stored);
     }
     function migrateCareerData(data) {
       const result = JSON.parse(JSON.stringify(DEFAULT_CAREER));
@@ -1825,11 +1825,7 @@
       return result;
     }
     function saveCareerData() {
-      try {
-        localStorage.setItem(CAREER_STORAGE_KEY, JSON.stringify(careerData));
-      } catch (e) {
-        console.error("保存生涯数据失败:", e);
-      }
+      StorageUtil.set(CAREER_STORAGE_KEY, careerData);
     }
     function resetCareerData() {
       careerData = JSON.parse(JSON.stringify(DEFAULT_CAREER));
@@ -2362,20 +2358,10 @@
     let editingCustomId = null;
     let currentEditorScenario = null;
     function loadCustomScenarios() {
-      try {
-        const stored = localStorage.getItem(CUSTOM_SCENARIOS_KEY);
-        return stored ? JSON.parse(stored) : {};
-      } catch (e) {
-        console.error("加载自定义剧本失败:", e);
-        return {};
-      }
+      return StorageUtil.get(CUSTOM_SCENARIOS_KEY, {});
     }
     function saveCustomScenarios(customScenarios) {
-      try {
-        localStorage.setItem(CUSTOM_SCENARIOS_KEY, JSON.stringify(customScenarios));
-      } catch (e) {
-        console.error("保存自定义剧本失败:", e);
-      }
+      StorageUtil.set(CUSTOM_SCENARIOS_KEY, customScenarios);
     }
     function mergeCustomScenarios() {
       const custom = loadCustomScenarios();
@@ -5497,23 +5483,12 @@
       return migrated;
     }
     function loadGameArchives() {
-      try {
-        const stored = localStorage.getItem(ARCHIVE_STORAGE_KEY);
-        if (!stored) return [];
-        const data = JSON.parse(stored);
-        if (!Array.isArray(data)) return [];
-        return data.map(migrateArchive);
-      } catch (e) {
-        console.error("加载档案失败:", e);
-        return [];
-      }
+      const data = StorageUtil.get(ARCHIVE_STORAGE_KEY, []);
+      if (!Array.isArray(data)) return [];
+      return data.map(migrateArchive);
     }
     function saveGameArchives(archives) {
-      try {
-        localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(archives));
-      } catch (e) {
-        console.error("保存档案失败:", e);
-      }
+      StorageUtil.set(ARCHIVE_STORAGE_KEY, archives);
     }
     function getKeyLogs() {
       const logs = [];
@@ -6557,19 +6532,10 @@
     ];
     let currentTutorialStep = 0;
     function loadTutorialCompleted() {
-      try {
-        return localStorage.getItem(TUTORIAL_STORAGE_KEY) === "true";
-      } catch (e) {
-        console.error("加载引导状态失败:", e);
-        return false;
-      }
+      return StorageUtil.getString(TUTORIAL_STORAGE_KEY, null) === "true";
     }
     function saveTutorialCompleted() {
-      try {
-        localStorage.setItem(TUTORIAL_STORAGE_KEY, "true");
-      } catch (e) {
-        console.error("保存引导状态失败:", e);
-      }
+      StorageUtil.set(TUTORIAL_STORAGE_KEY, "true");
     }
     function renderTutorialStep() {
       const step = TUTORIAL_STEPS[currentTutorialStep];
