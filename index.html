@@ -418,6 +418,10 @@
     .editor-consequence-item { background: #fff; border: 1px solid #dde5e6; border-radius: 6px; padding: 10px; }
     .editor-consequence-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .editor-consequence-item select { padding: 5px 8px; font-size: 12px; }
+    .editor-consequence-meta { font-size: 12px; color: #5a6e78; margin-bottom: 8px; line-height: 1.5; }
+    .editor-consequence-fields { display: grid; grid-template-columns: 1fr 120px 140px; gap: 8px; align-items: end; }
+    .editor-consequence-effect-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+    .editor-consequence-effect-grid .editor-field { margin-bottom: 0; }
     .editor-add-btn { width: 100%; padding: 10px; background: #4a7c5e; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; transition: background .2s; }
     .editor-add-btn:hover { background: #3a6a4e; }
     .editor-remove-btn { padding: 4px 8px; background: #a33d31; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; }
@@ -667,6 +671,7 @@
         <button class="editor-tab" data-tab="routes">路线池</button>
         <button class="editor-tab" data-tab="weather">天气概率</button>
         <button class="editor-tab" data-tab="events">事件权重</button>
+        <button class="editor-tab" data-tab="consequences">连续后果</button>
         <button class="editor-tab" data-tab="rules">胜负规则</button>
         <button class="editor-tab" data-tab="text">剧本文案</button>
         <button class="editor-tab" data-tab="manage">管理剧本</button>
@@ -884,6 +889,13 @@
           <h3 class="editor-group-title">具体事件权重覆盖</h3>
           <div class="hint" style="margin-bottom:12px">可以单独调高或调低特定事件的出现概率。留空或 1.0 表示使用标准权重。</div>
           <div id="editorEventOverrides" style="max-height: 500px; overflow-y: auto; padding-right: 4px;"></div>
+        </div>
+      </div>
+      <div class="editor-section" id="editor-consequences">
+        <div class="editor-group">
+          <h3 class="editor-group-title">事件连续后果</h3>
+          <div class="hint" style="margin-bottom:12px">为每个事件选项启用、关闭或覆盖持续效果。保存后会影响每日简报、结算档案和调度复盘中的持续效果记录。</div>
+          <div id="editorConsequenceOverrides" class="editor-consequence-list"></div>
         </div>
       </div>
       <div class="editor-section" id="editor-rules">
@@ -1711,6 +1723,7 @@
       editorEventRandom: document.querySelector("#editorEventRandom"),
       editorEventRandomValue: document.querySelector("#editorEventRandomValue"),
       editorEventOverrides: document.querySelector("#editorEventOverrides"),
+      editorConsequenceOverrides: document.querySelector("#editorConsequenceOverrides"),
       editorWinType: document.querySelector("#editorWinType"),
       editorWinCount: document.querySelector("#editorWinCount"),
       editorWinCountField: document.querySelector("#editorWinCountField"),
@@ -1998,6 +2011,178 @@
         }
       });
     }
+    function getEventChoiceKey(eventId, choiceIndex) {
+      return eventId + "__" + choiceIndex;
+    }
+    function getConsequenceByKey(sc, eventId, choiceIndex) {
+      const key = getEventChoiceKey(eventId, choiceIndex);
+      const overrides = (sc && sc.consequenceOverrides) || {};
+      if (Object.prototype.hasOwnProperty.call(overrides, key)) return overrides[key];
+      const event = EVENTS_POOL.find(e => e.id === eventId);
+      const choice = event && event.options[choiceIndex];
+      return choice && choice.effects && choice.effects.consequence ? choice.effects.consequence : null;
+    }
+    function getDefaultConsequenceForType(type, event, choice) {
+      const base = choice && choice.effects ? choice.effects.consequence : null;
+      if (base && base.type === type) return JSON.parse(JSON.stringify(base));
+      const eventName = event ? event.name : "事件";
+      switch (type) {
+        case "weather":
+          return { type, description: eventName + "改变了后续天气", totalDays: 2, effect: { stormProb: 0.1 } };
+        case "routeBlock":
+          return { type, description: eventName + "影响了路线通行", totalDays: 2, effect: { routeId: "random", blockChanceMod: 0.1 } };
+        case "routeStatus":
+          return { type, description: eventName + "改善了路线状态", totalDays: 2, effect: { routeId: "random", rewardBonus: 1, alwaysOpen: false } };
+        case "guideFatigue":
+          return { type, description: eventName + "影响了向导状态", totalDays: 2, effect: { fatigueRecoveryBonus: 1 } };
+        case "caravanChance":
+          return { type, description: eventName + "改变了商队出现概率", totalDays: 2, effect: { caravanChanceMod: 0.1 } };
+        case "resource":
+          return { type, description: eventName + "带来持续补给", totalDays: 2, effect: { dailyWood: 1, dailyFood: 0, dailyMed: 0 } };
+        default:
+          return null;
+      }
+    }
+    function renderConsequenceEffectFields(key, consequence) {
+      const effect = (consequence && consequence.effect) || {};
+      const routeOptions = ['<option value="random">随机可用路线</option>'].concat(routesBase.map(r => '<option value="' + r.id + '">' + r.name + '</option>')).join("");
+      switch (consequence.type) {
+        case "weather":
+          return `
+            <div class="editor-field"><label>暴雪概率修正</label><input type="number" step="0.01" min="-1" max="1" data-cons-key="${key}" data-cons-field="stormProb" value="${effect.stormProb || 0}"><div class="hint">0.1 表示 +10%，-0.08 表示 -8%</div></div>
+            <div class="editor-field"><label>晴天概率修正</label><input type="number" step="0.01" min="-1" max="1" data-cons-key="${key}" data-cons-field="clearProb" value="${effect.clearProb || 0}"></div>
+          `;
+        case "routeBlock":
+          return `
+            <div class="editor-field"><label>影响路线</label><select data-cons-key="${key}" data-cons-field="routeId">${routeOptions}</select></div>
+            <div class="editor-field"><label>封路概率修正</label><input type="number" step="0.01" min="-1" max="1" data-cons-key="${key}" data-cons-field="blockChanceMod" value="${effect.blockChanceMod || 0}"></div>
+          `;
+        case "routeStatus":
+          return `
+            <div class="editor-field"><label>影响路线</label><select data-cons-key="${key}" data-cons-field="routeId">${routeOptions}</select></div>
+            <div class="editor-field"><label>奖励修正</label><input type="number" min="-5" max="8" data-cons-key="${key}" data-cons-field="rewardBonus" value="${effect.rewardBonus || 0}"></div>
+            <div class="editor-field"><label>风险修正</label><input type="number" min="-5" max="5" data-cons-key="${key}" data-cons-field="riskMod" value="${effect.riskMod || 0}"></div>
+            <label class="editor-checkbox"><input type="checkbox" data-cons-key="${key}" data-cons-field="alwaysOpen" ${effect.alwaysOpen ? "checked" : ""}><span>持续期间强制畅通</span></label>
+          `;
+        case "guideFatigue":
+          return `
+            <div class="editor-field"><label>每日恢复修正</label><input type="number" min="-5" max="5" data-cons-key="${key}" data-cons-field="fatigueRecoveryBonus" value="${effect.fatigueRecoveryBonus || 0}"></div>
+            <div class="editor-field"><label>疲劳增长倍率</label><input type="number" step="0.05" min="-1" max="3" data-cons-key="${key}" data-cons-field="fatigueGainMod" value="${effect.fatigueGainMod || 0}"><div class="hint">0.2 表示 +20%</div></div>
+            <div class="editor-field"><label>疲劳上限修正</label><input type="number" min="-6" max="8" data-cons-key="${key}" data-cons-field="maxFatigueMod" value="${effect.maxFatigueMod || 0}"></div>
+          `;
+        case "caravanChance":
+          return `
+            <div class="editor-field"><label>商队概率修正</label><input type="number" step="0.01" min="-1" max="1" data-cons-key="${key}" data-cons-field="caravanChanceMod" value="${effect.caravanChanceMod || 0}"><div class="hint">0.15 表示 +15%</div></div>
+          `;
+        case "resource":
+          return `
+            <div class="editor-field"><label>每日柴火</label><input type="number" min="-5" max="8" data-cons-key="${key}" data-cons-field="dailyWood" value="${effect.dailyWood || 0}"></div>
+            <div class="editor-field"><label>每日干粮</label><input type="number" min="-5" max="8" data-cons-key="${key}" data-cons-field="dailyFood" value="${effect.dailyFood || 0}"></div>
+            <div class="editor-field"><label>每日药品</label><input type="number" min="-5" max="8" data-cons-key="${key}" data-cons-field="dailyMed" value="${effect.dailyMed || 0}"></div>
+          `;
+      }
+      return "";
+    }
+    function renderConsequenceOverrides() {
+      if (!els.editorConsequenceOverrides || !currentEditorScenario) return;
+      const overrides = currentEditorScenario.consequenceOverrides || {};
+      let html = "";
+      EVENTS_POOL.forEach(event => {
+        event.options.forEach((choice, idx) => {
+          const key = getEventChoiceKey(event.id, idx);
+          const base = choice.effects && choice.effects.consequence ? choice.effects.consequence : null;
+          const consequence = getConsequenceByKey(currentEditorScenario, event.id, idx);
+          const type = consequence ? consequence.type : "none";
+          const isCustom = Object.prototype.hasOwnProperty.call(overrides, key);
+          html += `
+            <div class="editor-consequence-item" data-cons-key="${key}" data-event-id="${event.id}" data-choice-index="${idx}">
+              <div class="editor-consequence-item-header">
+                <strong>${event.name} · ${choice.title}</strong>
+                <span class="editor-tag" style="background:${isCustom ? '#b08a28' : (base ? '#5a7fa8' : '#8a9ea5')}">${isCustom ? '已覆盖' : (base ? '模板效果' : '无持续效果')}</span>
+              </div>
+              <div class="editor-consequence-meta">${choice.hint || ""}</div>
+              <div class="editor-consequence-fields">
+                <div class="editor-field">
+                  <label>后果类型</label>
+                  <select data-cons-key="${key}" data-cons-field="type">
+                    <option value="none" ${type === "none" ? "selected" : ""}>不触发连续后果</option>
+                    <option value="weather" ${type === "weather" ? "selected" : ""}>天气概率</option>
+                    <option value="routeBlock" ${type === "routeBlock" ? "selected" : ""}>路线封锁概率</option>
+                    <option value="routeStatus" ${type === "routeStatus" ? "selected" : ""}>路线状态</option>
+                    <option value="guideFatigue" ${type === "guideFatigue" ? "selected" : ""}>向导疲劳</option>
+                    <option value="caravanChance" ${type === "caravanChance" ? "selected" : ""}>商队出现概率</option>
+                    <option value="resource" ${type === "resource" ? "selected" : ""}>每日资源</option>
+                  </select>
+                </div>
+                <div class="editor-field">
+                  <label>持续天数</label>
+                  <input type="number" min="1" max="10" data-cons-key="${key}" data-cons-field="totalDays" value="${consequence ? consequence.totalDays || 1 : 1}" ${type === "none" ? "disabled" : ""}>
+                </div>
+                <div class="editor-field">
+                  <label>状态</label>
+                  <button class="secondary" data-cons-key="${key}" data-cons-action="reset" ${base ? "" : "disabled"}>恢复模板</button>
+                </div>
+              </div>
+              <div class="editor-field" style="margin-top:8px">
+                <label>后果文案</label>
+                <input type="text" data-cons-key="${key}" data-cons-field="description" value="${consequence ? consequence.description || "" : ""}" ${type === "none" ? "disabled" : ""}>
+              </div>
+              <div class="editor-consequence-effect-grid">${consequence ? renderConsequenceEffectFields(key, consequence) : ""}</div>
+            </div>
+          `;
+        });
+      });
+      els.editorConsequenceOverrides.innerHTML = html;
+      els.editorConsequenceOverrides.querySelectorAll('select[data-cons-field="routeId"]').forEach(select => {
+        const key = select.dataset.consKey;
+        const consequence = getConsequenceByEditorKey(key);
+        if (consequence && consequence.effect && consequence.effect.routeId) select.value = consequence.effect.routeId;
+      });
+    }
+    function getConsequenceByEditorKey(key) {
+      const item = els.editorConsequenceOverrides.querySelector(`[data-cons-key="${key}"]`);
+      if (!item) return null;
+      const eventId = item.dataset.eventId;
+      const choiceIndex = parseInt(item.dataset.choiceIndex);
+      return getConsequenceByKey(currentEditorScenario, eventId, choiceIndex);
+    }
+    function collectConsequenceOverridesFromEditor(sc) {
+      const overrides = {};
+      if (!els.editorConsequenceOverrides) return sc.consequenceOverrides || {};
+      els.editorConsequenceOverrides.querySelectorAll(".editor-consequence-item").forEach(item => {
+        const key = item.dataset.consKey;
+        const eventId = item.dataset.eventId;
+        const choiceIndex = parseInt(item.dataset.choiceIndex);
+        const event = EVENTS_POOL.find(e => e.id === eventId);
+        const choice = event && event.options[choiceIndex];
+        const base = choice && choice.effects ? choice.effects.consequence : null;
+        const typeEl = item.querySelector('[data-cons-field="type"]');
+        const type = typeEl ? typeEl.value : "none";
+        if (type === "none") {
+          if (base) overrides[key] = null;
+          return;
+        }
+        const consequence = getDefaultConsequenceForType(type, event, choice);
+        consequence.totalDays = Math.max(1, parseInt(item.querySelector('[data-cons-field="totalDays"]')?.value) || consequence.totalDays || 1);
+        consequence.description = item.querySelector('[data-cons-field="description"]')?.value.trim() || consequence.description;
+        const effect = {};
+        item.querySelectorAll("[data-cons-field]").forEach(input => {
+          const field = input.dataset.consField;
+          if (field === "type" || field === "totalDays" || field === "description") return;
+          if (input.type === "checkbox") {
+            effect[field] = input.checked;
+          } else if (field === "routeId") {
+            effect[field] = input.value || "random";
+          } else {
+            const value = parseFloat(input.value);
+            if (!Number.isNaN(value)) effect[field] = value;
+          }
+        });
+        consequence.effect = effect;
+        if (!base || JSON.stringify(consequence) !== JSON.stringify(base)) overrides[key] = consequence;
+      });
+      return overrides;
+    }
     function renderCustomScenarioList() {
       const custom = loadCustomScenarios();
       const customList = Object.values(custom);
@@ -2132,6 +2317,7 @@
       renderRoutePool();
       renderStormImmuneRoutes();
       renderEventOverrides();
+      renderConsequenceOverrides();
     }
     function collectScenarioFromEditor() {
       if (!currentEditorScenario) return null;
@@ -2177,6 +2363,7 @@
       sc.eventWeightMul.guide = parseInt(els.editorEventGuide.value) / 100;
       sc.eventWeightMul.reputation = parseInt(els.editorEventReputation.value) / 100;
       sc.eventWeightMul.random = parseInt(els.editorEventRandom.value) / 100;
+      sc.consequenceOverrides = collectConsequenceOverridesFromEditor(sc);
       sc.win.type = els.editorWinType.value;
       if (sc.win.type === "caravans" || sc.win.type === "caravans_and_rep") {
         sc.win.count = parseInt(els.editorWinCount.value) || 10;
@@ -2424,6 +2611,38 @@
       };
       bindRouteCheckboxes("routePool");
       bindRouteCheckboxes("stormImmune");
+      els.editorConsequenceOverrides.addEventListener("change", (e) => {
+        if (!e.target || !e.target.dataset.consField || !currentEditorScenario) return;
+        currentEditorScenario = collectScenarioFromEditor();
+        if (e.target.dataset.consField === "type") {
+          const item = e.target.closest(".editor-consequence-item");
+          const event = EVENTS_POOL.find(ev => ev.id === item.dataset.eventId);
+          const choice = event && event.options[parseInt(item.dataset.choiceIndex)];
+          const key = item.dataset.consKey;
+          if (e.target.value === "none") {
+            if (!currentEditorScenario.consequenceOverrides) currentEditorScenario.consequenceOverrides = {};
+            currentEditorScenario.consequenceOverrides[key] = null;
+          } else {
+            if (!currentEditorScenario.consequenceOverrides) currentEditorScenario.consequenceOverrides = {};
+            currentEditorScenario.consequenceOverrides[key] = getDefaultConsequenceForType(e.target.value, event, choice);
+          }
+          renderConsequenceOverrides();
+        }
+        renderValidation(currentEditorScenario);
+      });
+      els.editorConsequenceOverrides.addEventListener("input", (e) => {
+        if (!e.target || !e.target.dataset.consField || !currentEditorScenario) return;
+        currentEditorScenario = collectScenarioFromEditor();
+        renderValidation(currentEditorScenario);
+      });
+      els.editorConsequenceOverrides.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-cons-action='reset']");
+        if (!btn || !currentEditorScenario) return;
+        if (!currentEditorScenario.consequenceOverrides) currentEditorScenario.consequenceOverrides = {};
+        delete currentEditorScenario.consequenceOverrides[btn.dataset.consKey];
+        renderConsequenceOverrides();
+        renderValidation(currentEditorScenario);
+      });
     }
     function getScenarioRoutes(scenarioId) {
       const all = getAllScenarios();
@@ -2558,13 +2777,30 @@
       }
       return eligible[0];
     }
+    function getEffectiveEventConsequence(event, choiceIndex) {
+      const sc = game && game.scenarioConfig ? game.scenarioConfig : {};
+      const overrides = sc.consequenceOverrides || {};
+      const key = getEventChoiceKey(event.id, choiceIndex);
+      if (Object.prototype.hasOwnProperty.call(overrides, key)) {
+        return overrides[key] ? JSON.parse(JSON.stringify(overrides[key])) : null;
+      }
+      const choice = event.options[choiceIndex];
+      return choice.effects && choice.effects.consequence ? JSON.parse(JSON.stringify(choice.effects.consequence)) : null;
+    }
+    function getEffectiveEventEffects(event, choiceIndex) {
+      const effects = { ...event.options[choiceIndex].effects };
+      const consequence = getEffectiveEventConsequence(event, choiceIndex);
+      if (consequence) effects.consequence = consequence;
+      else delete effects.consequence;
+      return effects;
+    }
     function renderEvent(event) {
       els.eventCategory.textContent = EVENT_CATEGORY_LABELS[event.category];
       els.eventCategory.className = "event-category " + event.category;
       els.eventTitle.textContent = event.name;
       els.eventDesc.textContent = event.desc;
       els.eventOptions.innerHTML = event.options.map((opt, i) => {
-        const effectTags = getEffectTags(opt.effects);
+        const effectTags = getEffectTags(getEffectiveEventEffects(event, i));
         return '<div class="event-option" data-choice="' + i + '">' +
           '<div class="event-option-title">' + opt.title + '</div>' +
           '<div class="event-option-hint">' + opt.hint + '</div>' +
@@ -2594,7 +2830,7 @@
     function resolveEvent(choiceIndex) {
       const event = pendingEvent;
       const choice = event.options[choiceIndex];
-      const effects = choice.effects;
+      const effects = getEffectiveEventEffects(event, choiceIndex);
       if (effects.wood) { game.wood += effects.wood; recordResourceChange("wood", effects.wood, "【事件】" + event.name + "：" + choice.title); }
       if (effects.food) { game.food += effects.food; recordResourceChange("food", effects.food, "【事件】" + event.name + "：" + choice.title); }
       if (effects.med) { game.med += effects.med; recordResourceChange("med", effects.med, "【事件】" + event.name + "：" + choice.title); }
@@ -2638,9 +2874,12 @@
       if (game.wood < game.minResources.wood) game.minResources.wood = game.wood;
       if (game.med < game.minResources.med) game.minResources.med = game.med;
       if (game.food < game.minResources.food) game.minResources.food = game.food;
-      if (game.food < 0) { game.failureReason = "粮食耗尽"; return finish(false); }
-      if (game.wood < 0) { game.failureReason = "柴火耗尽"; return finish(false); }
-      if (game.med < 0) { game.failureReason = "药品耗尽"; return finish(false); }
+      const lc = game.scenarioConfig.lose || {};
+      if (lc.resources) {
+        if (game.food < 0) { game.failureReason = "粮食耗尽"; return finish(false); }
+        if (game.wood < 0) { game.failureReason = "柴火耗尽"; return finish(false); }
+        if (game.med < 0) { game.failureReason = "药品耗尽"; return finish(false); }
+      }
       render();
     }
     function registerConsequence(consequenceData) {
